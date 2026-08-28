@@ -131,36 +131,29 @@
 
   <!-- ============ MODULOS ============ -->
   <div class="card seccion" id="sec-MODULO">
-    <h2>Módulo de Corte (4 operarios)</h2>
-    <div class="dos-cols">
-      <div class="campo">
-        <label for="md-oc">O/C</label>
-        <input type="text" id="md-oc" placeholder="ej. 51375">
-      </div>
-      <div class="campo">
-        <label for="md-estilo">Estilo</label>
-        <input type="text" id="md-estilo" placeholder="ej. 22710">
-      </div>
-    </div>
-    <div class="dos-cols" style="margin-top:10px;">
-      <div class="campo">
-        <label for="md-cant">Cantidad de prendas</label>
-        <input type="number" id="md-cant" min="0" step="1">
-      </div>
-      <div class="campo">
-        <label for="md-tstd">T.Std corte pieza (min/pza)</label>
-        <input type="number" id="md-tstd" min="0" step="0.01">
-      </div>
-    </div>
-    <div class="campo" style="max-width:260px;margin-top:10px;">
-      <label for="md-improd">Min. Improductivos (del bloque)</label>
-      <input type="number" id="md-improd" min="0" step="1" value="0">
+    <h2>Módulo de Corte</h2>
+    <div class="campo" style="max-width:220px;margin-bottom:14px;">
+      <label for="md-numero">N° de módulo</label>
+      <select id="md-numero">
+        <option value="MÓD-1">MÓD-1</option>
+        <option value="MÓD-2">MÓD-2</option>
+        <option value="MÓD-3">MÓD-3</option>
+      </select>
     </div>
 
-    <label style="font-size:12px;color:var(--muted);font-weight:600;display:block;margin-top:14px;">Los 4 operarios del módulo</label>
+    <label style="font-size:12px;color:var(--muted);font-weight:600;display:block;">Operarios del módulo (se ingresan 1 sola vez por día, aunque trabajen varios O/C)</label>
     <div id="md-operarios"></div>
+    <button class="quitar-op2" id="md-agregar-operario" type="button">+ Agregar operario</button>
 
-    <button class="btn-guardar" data-guardar="MODULO">Guardar registro</button>
+    <label style="font-size:12px;color:var(--muted);font-weight:600;display:block;margin-top:16px;">O/C trabajados</label>
+    <div id="md-ocs"></div>
+    <button class="quitar-op2" id="md-agregar-oc" type="button">+ Agregar O/C</button>
+
+    <label style="font-size:12px;color:var(--muted);font-weight:600;display:block;margin-top:16px;">Operaciones sueltas (opcional -- lo que el módulo haga fuera del corte de pieza)</label>
+    <div id="md-operaciones"></div>
+    <button class="quitar-op2" id="md-agregar-operacion" type="button">+ Agregar operación</button>
+
+    <button class="btn-guardar" data-guardar="MODULO" style="margin-top:18px;">Guardar registro</button>
     <div class="msg" id="msg-MODULO"></div>
   </div>
 
@@ -280,20 +273,67 @@
   });
 
   // ------- Módulos: 4 filas de operario -------
-  function crearFilasModulo() {
+  // ------- Módulos: filas dinámicas de operarios -------
+  function crearFilaOperarioModulo() {
     const cont = $('md-operarios');
-    cont.innerHTML = '';
-    for (let i = 1; i <= 4; i++) {
-      const div = document.createElement('div');
-      div.className = 'modulo-operario';
-      div.innerHTML = `<div class="op-num">Operario ${i}</div>
-        <div class="dos-cols">
-          <select class="md-op-codigo"><option value="">-- elegir --</option>${opcionesPersonal('MODULO')}</select>
-          <input type="number" class="md-op-mintrab" placeholder="Min. Trabajado" min="0" step="1">
-        </div>`;
-      cont.appendChild(div);
-    }
+    const n = cont.children.length + 1;
+    const div = document.createElement('div');
+    div.className = 'modulo-operario';
+    div.innerHTML = `<div class="op-num">Operario ${n}</div>
+      <div class="dos-cols">
+        <select class="md-op-codigo"><option value="">-- elegir --</option>${opcionesPersonal('MODULO')}</select>
+        <input type="number" class="md-op-mintrab" placeholder="Min. Trabajado" min="0" step="1">
+      </div>
+      <div class="campo" style="max-width:220px;margin-top:8px;">
+        <input type="number" class="md-op-improd" placeholder="Min. Improductivo" min="0" step="1" value="0">
+      </div>
+      <button class="quitar-op2" type="button" onclick="this.closest('.modulo-operario').remove(); renumerarOperariosModulo();">Quitar</button>`;
+    cont.appendChild(div);
   }
+  function renumerarOperariosModulo() {
+    $('md-operarios').querySelectorAll('.op-num').forEach((el, idx) => { el.textContent = 'Operario ' + (idx + 1); });
+  }
+  function crearFilasModuloInicial() {
+    $('md-operarios').innerHTML = '';
+    crearFilaOperarioModulo(); // arranca con 1, se agregan más con el botón
+
+    $('md-ocs').innerHTML = '';
+    crearFilaOCModulo();
+
+    $('md-operaciones').innerHTML = '';
+  }
+
+  // ------- Módulos: filas dinámicas de O/C -------
+  function crearFilaOCModulo() {
+    const cont = $('md-ocs');
+    const div = document.createElement('div');
+    div.className = 'modulo-operario';
+    div.innerHTML = `<div class="dos-cols">
+        <input type="text" class="md-oc-numero" placeholder="O/C, ej. 51375">
+        <input type="text" class="md-oc-estilo" placeholder="Estilo, ej. 22710">
+      </div>
+      <div class="dos-cols" style="margin-top:8px;">
+        <input type="number" class="md-oc-cant" placeholder="Cantidad de prendas" min="0" step="1">
+        <input type="number" class="md-oc-tstd" placeholder="T.Std corte pieza (min/pza)" min="0" step="0.01">
+      </div>
+      <button class="quitar-op2" type="button" onclick="this.closest('.modulo-operario').remove();">Quitar</button>`;
+    cont.appendChild(div);
+  }
+
+  // ------- Módulos: filas dinámicas de operaciones sueltas -------
+  function crearFilaOperacionModulo() {
+    const cont = $('md-operaciones');
+    const div = document.createElement('div');
+    div.className = 'op-fila';
+    div.innerHTML = `<select class="md-op-op-select">${opcionesOperaciones()}</select>
+                      <input type="number" class="md-op-op-cant" placeholder="Cantidad" min="0" step="1">
+                      <button class="quitar-op2" type="button" onclick="this.closest('.op-fila').remove();">Quitar</button>`;
+    cont.appendChild(div);
+  }
+
+  $('md-agregar-operario').addEventListener('click', () => { crearFilaOperarioModulo(); renumerarOperariosModulo(); });
+  $('md-agregar-oc').addEventListener('click', crearFilaOCModulo);
+  $('md-agregar-operacion').addEventListener('click', crearFilaOperacionModulo);
 
   // ------- Mostrar mensaje -------
   function mostrarMsg(tipo, ok, texto) {
@@ -353,28 +393,45 @@
 
   // ------- Guardar: MODULO -------
   async function guardarModulo() {
-    const fecha = $('fecha').value, oc = $('md-oc').value, estilo = $('md-estilo').value;
-    const cantPrendas = $('md-cant').value, tstd = $('md-tstd').value, minImproductivos = $('md-improd').value || 0;
+    const fecha = $('fecha').value, modulo = $('md-numero').value;
+
     const operarios = [];
     document.querySelectorAll('#md-operarios .modulo-operario').forEach(div => {
       const codigo = div.querySelector('.md-op-codigo').value;
       const minTrabajado = div.querySelector('.md-op-mintrab').value;
-      if (codigo && minTrabajado) operarios.push({ codigo, minTrabajado: Number(minTrabajado) });
+      const minImproductivo = div.querySelector('.md-op-improd').value || 0;
+      if (codigo && minTrabajado) operarios.push({ codigo, minTrabajado: Number(minTrabajado), minImproductivo: Number(minImproductivo) });
     });
-    if (!fecha || !oc || !estilo || !cantPrendas || !tstd || operarios.length === 0) {
-      mostrarMsg('MODULO', false, 'Completa O/C, estilo, cantidad, T.std, y al menos un operario con sus minutos.');
+
+    const ocs = [];
+    document.querySelectorAll('#md-ocs .modulo-operario').forEach(div => {
+      const oc = div.querySelector('.md-oc-numero').value;
+      const estilo = div.querySelector('.md-oc-estilo').value;
+      const cantPrendas = div.querySelector('.md-oc-cant').value;
+      const tstd = div.querySelector('.md-oc-tstd').value;
+      if (oc && estilo && cantPrendas && tstd) ocs.push({ oc, estilo, cantPrendas: Number(cantPrendas), tstd: Number(tstd) });
+    });
+
+    const operaciones = [];
+    document.querySelectorAll('#md-operaciones .op-fila').forEach(div => {
+      const codigo = div.querySelector('.md-op-op-select').value;
+      const cantidad = div.querySelector('.md-op-op-cant').value;
+      if (codigo && cantidad) operaciones.push({ codigo, cantidad: Number(cantidad) });
+    });
+
+    if (!fecha || !modulo || operarios.length === 0 || ocs.length === 0) {
+      mostrarMsg('MODULO', false, 'Completa la fecha, el módulo, al menos 1 operario (con sus minutos) y al menos 1 O/C.');
       return;
     }
     const btn = document.querySelector('[data-guardar="MODULO"]'); btn.disabled = true;
     try {
       const res = await llamarApi({
-        action: 'guardarModulo', fecha, oc, estilo, cantPrendas, tstd, minImproductivos,
-        operarios: JSON.stringify(operarios)
+        action: 'guardarModulo', fecha, modulo,
+        operarios: JSON.stringify(operarios), ocs: JSON.stringify(ocs), operaciones: JSON.stringify(operaciones)
       });
       if (res.ok) {
-        mostrarMsg('MODULO', true, 'Guardado correctamente (' + res.data.filas.length + ' operarios).');
-        $('md-oc').value = ''; $('md-estilo').value = ''; $('md-cant').value = ''; $('md-tstd').value = ''; $('md-improd').value = '0';
-        crearFilasModulo();
+        mostrarMsg('MODULO', true, `Guardado correctamente (${res.data.operarios} operarios, ${res.data.ocs} O/C, ${res.data.operaciones} operaciones).`);
+        crearFilasModuloInicial();
         cargarResumenSemana();
       } else { mostrarMsg('MODULO', false, 'Error: ' + res.error); }
     } catch (e) { mostrarMsg('MODULO', false, 'Error de conexión: ' + e.message); }
@@ -427,7 +484,7 @@
 
     crearFilasOperacion('m-ops', 5);
     crearFilasOperacion('cp-ops', 3);
-    crearFilasModulo();
+    crearFilasModuloInicial();
 
     try {
       const res = await llamarApi({ action: 'listas' });
@@ -436,7 +493,7 @@
         llenarSelectsPersonal();
         crearFilasOperacion('m-ops', 5);
         crearFilasOperacion('cp-ops', 3);
-        crearFilasModulo();
+        crearFilasModuloInicial();
       }
     } catch (e) {
       console.error('No se pudo cargar el catálogo:', e);
