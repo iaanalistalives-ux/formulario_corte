@@ -28,7 +28,7 @@
   .tabs button.on{background:var(--salvia);border-color:var(--salvia);color:#fff;}
   .seccion{display:none;}
   .seccion.on{display:block;}
-  .op-fila{display:grid;grid-template-columns:2fr 1fr;gap:10px;margin-bottom:8px;}
+  .op-fila{display:grid;grid-template-columns:2fr 1fr auto;gap:8px;align-items:center;margin-bottom:8px;}
   .op-fila select,.op-fila input{width:100%;}
   .dos-cols{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
   .btn-guardar{width:100%;padding:13px;background:var(--salvia);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;margin-top:14px;}
@@ -87,6 +87,7 @@
     </div>
     <label style="font-size:12px;color:var(--muted);font-weight:600;">Operaciones realizadas</label>
     <div id="m-ops"></div>
+    <button class="quitar-op2" id="m-agregar-op" type="button">+ Agregar operación</button>
     <div class="campo" style="max-width:220px;margin-top:10px;">
       <label for="m-mintrab">Min. Trabajado (real)</label>
       <input type="number" id="m-mintrab" min="0" step="1">
@@ -125,7 +126,8 @@
     </div>
     <label style="font-size:12px;color:var(--muted);font-weight:600;display:block;margin-top:12px;">Operaciones realizadas</label>
     <div id="cp-ops"></div>
-    <button class="btn-guardar" data-guardar="CORTE_PAÑO">Guardar registro</button>
+    <button class="quitar-op2" id="cp-agregar-op" type="button">+ Agregar operación</button>
+    <button class="btn-guardar" data-guardar="CORTE_PAÑO" style="margin-top:14px;">Guardar registro</button>
     <div class="msg" id="msg-CORTE_PAÑO"></div>
   </div>
 
@@ -237,16 +239,19 @@
       .map(o => `<option value="${o.codigo}">${o.codigo} — ${o.descripcion} (${o.tstd} ${o.unidad})</option>`).join('');
   }
 
-  function crearFilasOperacion(contenedorId, cantidad) {
+  // Sin límite de operaciones: arranca con 1 fila, "+ Agregar operación" suma más.
+  function agregarFilaOperacion(contenedorId) {
     const cont = $(contenedorId);
-    cont.innerHTML = '';
-    for (let i = 0; i < cantidad; i++) {
-      const div = document.createElement('div');
-      div.className = 'op-fila';
-      div.innerHTML = `<select class="op-select">${opcionesOperaciones()}</select>
-                        <input type="number" class="op-cant" placeholder="Cantidad" min="0" step="1">`;
-      cont.appendChild(div);
-    }
+    const div = document.createElement('div');
+    div.className = 'op-fila';
+    div.innerHTML = `<select class="op-select">${opcionesOperaciones()}</select>
+                      <input type="number" class="op-cant" placeholder="Cantidad" min="0" step="1">
+                      <button class="quitar-op2" type="button" onclick="this.closest('.op-fila').remove();">Quitar</button>`;
+    cont.appendChild(div);
+  }
+  function crearFilasOperacion(contenedorId) {
+    $(contenedorId).innerHTML = '';
+    agregarFilaOperacion(contenedorId); // arranca con 1
   }
 
   function leerFilasOperacion(contenedorId) {
@@ -260,6 +265,9 @@
   }
 
   // ------- Corte Paño: mostrar/ocultar segundo operario -------
+  $('m-agregar-op').addEventListener('click', () => agregarFilaOperacion('m-ops'));
+  $('cp-agregar-op').addEventListener('click', () => agregarFilaOperacion('cp-ops'));
+
   $('cp-agregar-op2').addEventListener('click', () => {
     $('cp-op2-campos').style.display = 'grid';
     $('cp-agregar-op2').style.display = 'none';
@@ -357,7 +365,7 @@
       const res = await llamarApi({ action: 'guardarManual', fecha, codigo, minTrabajado, ops: JSON.stringify(ops) });
       if (res.ok) {
         mostrarMsg('MANUAL', true, 'Guardado correctamente.');
-        $('m-codigo').value = ''; $('m-mintrab').value = ''; crearFilasOperacion('m-ops', 5);
+        $('m-codigo').value = ''; $('m-mintrab').value = ''; crearFilasOperacion('m-ops');
         cargarResumenSemana();
       } else { mostrarMsg('MANUAL', false, 'Error: ' + res.error); }
     } catch (e) { mostrarMsg('MANUAL', false, 'Error de conexión: ' + e.message); }
@@ -384,7 +392,7 @@
         $('cp-codigo1').value = ''; $('cp-mintrab1').value = '';
         $('cp-codigo2').value = ''; $('cp-mintrab2').value = '';
         $('cp-quitar-op2').click();
-        crearFilasOperacion('cp-ops', 3);
+        crearFilasOperacion('cp-ops');
         cargarResumenSemana();
       } else { mostrarMsg('CORTE_PAÑO', false, 'Error: ' + res.error); }
     } catch (e) { mostrarMsg('CORTE_PAÑO', false, 'Error de conexión: ' + e.message); }
@@ -482,8 +490,8 @@
     $('fecha').value = hoy.toISOString().slice(0, 10);
     actualizarChipSemana();
 
-    crearFilasOperacion('m-ops', 5);
-    crearFilasOperacion('cp-ops', 3);
+    crearFilasOperacion('m-ops');
+    crearFilasOperacion('cp-ops');
     crearFilasModuloInicial();
 
     try {
@@ -491,8 +499,8 @@
       if (res.ok) {
         CATALOGO = res.data;
         llenarSelectsPersonal();
-        crearFilasOperacion('m-ops', 5);
-        crearFilasOperacion('cp-ops', 3);
+        crearFilasOperacion('m-ops');
+        crearFilasOperacion('cp-ops');
         crearFilasModuloInicial();
       }
     } catch (e) {
