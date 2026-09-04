@@ -7,45 +7,66 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 <style>
 :root{
-  --petrol:#0E3B36; --emer:#10B981; --sage:#0F7A5A; --sage-dark:#0B815E;
+  --petrol:#0E3B36; --petrol-2:#12463F; --emer:#10B981; --sage:#0F7A5A; --sage-dark:#0B815E;
   --slate:#4E6B78; --taupe:#B45309; --rose:#DC2626; --tan:#F59E0B;
   --warm:#DCE5E2; --warm-light:#F1F6F4; --stone:#5F726C;
+  --card:#fff; --sh:0 1px 3px rgba(14,59,54,.06),0 1px 2px rgba(14,59,54,.04);
+  --sh-h:0 4px 12px rgba(14,59,54,.10); --r:12px;
 }
 *{box-sizing:border-box;}
-body{margin:0;background:var(--warm-light);color:#333;font-family:Calibri,Arial,sans-serif;font-size:14px;line-height:1.4;}
-.header{background:var(--petrol);border-bottom:3px solid var(--emer);min-height:72px;display:flex;align-items:center;padding:0 24px;gap:18px;flex-wrap:wrap;}
-.divider{width:1px;height:34px;background:rgba(255,255,255,.35);}
-.htitle{color:#fff;font-size:17px;font-weight:700;letter-spacing:.3px;}
-.hsub{color:#F1F6F4;font-size:12px;}
-main{max-width:1180px;margin:0 auto;padding:20px 16px 60px;}
+body{margin:0;background:var(--warm-light);color:#333;font-family:Calibri,Arial,sans-serif;font-size:14px;line-height:1.45;font-variant-numeric:tabular-nums;}
+.header{background:var(--petrol);border-bottom:3px solid var(--emer);min-height:70px;display:flex;align-items:center;padding:0 22px;gap:16px;flex-wrap:wrap;}
+.divider{width:1px;height:34px;background:rgba(255,255,255,.3);}
+.htitle{color:#fff;font-size:17px;font-weight:700;letter-spacing:.2px;}
+.hsub{color:#B9CFC9;font-size:11.5px;}
+main{width:100%;margin:0 auto;padding:18px clamp(16px,2.2vw,52px) 44px;}
 
-.bar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid var(--warm-light);}
-.wsel select{font-family:inherit;font-size:14px;font-weight:700;color:var(--sage);border:1.5px solid var(--sage);border-radius:6px;padding:6px 12px;background:#fff;cursor:pointer;}
-.modesel{display:inline-flex;border:1.5px solid var(--sage);border-radius:6px;overflow:hidden;}
-.modesel .mbtn{background:#fff;color:var(--sage);border:none;padding:6px 14px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;}
-.modesel .mbtn.active{background:var(--sage);color:#fff;}
-.bar a.btnlink{background:#fff;border:1px solid var(--warm);color:var(--sage);font-size:12.5px;padding:7px 14px;border-radius:6px;text-decoration:none;font-weight:700;}
+.bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--card);border-radius:var(--r);box-shadow:var(--sh);padding:10px 14px;margin-bottom:14px;position:sticky;top:0;z-index:15;}
+.wsel select{font-family:inherit;font-size:13.5px;font-weight:700;color:var(--sage);border:1px solid var(--warm);border-radius:8px;padding:7px 12px;background:#fff;cursor:pointer;}
+.modesel{display:inline-flex;background:var(--warm-light);border-radius:8px;padding:3px;gap:2px;}
+.modesel .mbtn{background:none;border:none;color:var(--stone);padding:6px 14px;font-family:inherit;font-size:13px;font-weight:700;border-radius:6px;cursor:pointer;}
+.modesel .mbtn.active{background:var(--sage);color:#fff;box-shadow:var(--sh);}
+.bar a.btnlink{background:#fff;border:1px solid var(--warm);color:var(--sage);font-size:12.5px;padding:8px 14px;border-radius:8px;text-decoration:none;font-weight:700;}
+.bar a.btnlink:hover{border-color:var(--sage);}
+.spacer{margin-left:auto;}
 
 .err{display:none;background:#FBE9E9;border:1px solid var(--rose);border-radius:8px;padding:12px 16px;color:#DC2626;font-size:13px;margin-bottom:16px;}
 .vacio{color:var(--stone);font-size:13px;padding:30px 0;text-align:center;}
 
-.kpis{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:18px;}
-.kpi{background:#fff;border:1px solid var(--warm);border-radius:8px;padding:16px 18px;flex:1;min-width:150px;}
-.kpi .v{font-size:26px;font-weight:700;color:var(--sage);line-height:1.1;}
-.kpi .l{font-size:12.5px;color:#333;margin-top:4px;font-weight:600;}
-.kpi .s{font-size:11px;color:var(--stone);margin-top:2px;}
-.kpi.primary{border:2px solid var(--sage);}.kpi.primary .v{font-size:32px;}
-.kpi.neg .v{color:var(--rose);}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin-bottom:14px;}
+.kpi{background:var(--card);border-radius:var(--r);box-shadow:var(--sh);padding:0;position:relative;overflow:hidden;transition:box-shadow .15s,transform .15s;}
+.kpi:hover{box-shadow:var(--sh-h);transform:translateY(-1px);}
+.kpi .banda{display:block;height:5px;background:var(--sage);}
+.kpi.neg .banda{background:var(--rose);}
+.kpi.money .banda{background:var(--taupe);}
+.kpi .cuerpo{padding:14px 16px 16px;}
+.kpi .l{font-size:11px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;color:var(--stone);}
+.kpi .v{font-size:28px;font-weight:700;line-height:1.15;color:var(--sage);letter-spacing:-.5px;margin-top:6px;}
+.kpi.neg .v{color:var(--rose);} .kpi.money .v{color:var(--taupe);}
+.kpi .s{font-size:11px;color:var(--stone);margin-top:5px;}
+/* Protagonista: fondo Petróleo */
+.kpi.hero{background:var(--petrol);}
+.kpi.hero .banda{background:var(--emer);}
+.kpi.hero .l{color:#8FB3AC;}
+.kpi.hero .v{color:#fff;font-size:34px;}
+.kpi.hero .s{color:#8FB3AC;}
 
 .sectitle{font-size:17px;font-weight:700;color:var(--sage-dark);margin:26px 0 12px;padding-bottom:6px;border-bottom:2px solid var(--warm-light);}
-.note{background:#fff;border:1px solid var(--warm);border-left:4px solid var(--tan);border-radius:6px;padding:10px 14px;font-size:11.5px;color:var(--stone);margin-bottom:18px;line-height:1.5;}
+.note{background:var(--card);border-radius:var(--r);box-shadow:var(--sh);padding:12px 16px;margin-top:18px;font-size:13px;}
+.note summary{cursor:pointer;font-weight:700;color:var(--sage-dark);}
+.note p{color:var(--stone);margin:8px 0 0;line-height:1.55;}
+.note p b{color:var(--sage-dark);}
 
-.panel{background:#fff;border:1px solid var(--warm);border-radius:8px;padding:16px 18px;margin-bottom:18px;}
+.panel{background:var(--card);border-radius:var(--r);box-shadow:var(--sh);padding:20px 18px 16px;margin-bottom:18px;position:relative;overflow:hidden;}
+.panel .tira{position:absolute;left:0;right:0;top:0;height:4px;background:var(--warm);}
+.panel .tira.resultado{background:var(--sage);}
+.panel .tira.dinero{background:var(--taupe);}
 .panel .pt{font-size:15px;font-weight:700;color:#333;}
 .panel .ph{font-size:11.5px;color:var(--stone);margin-top:2px;margin-bottom:10px;}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
 @media(max-width:760px){.grid2{grid-template-columns:1fr;}}
-.cwrap{position:relative;width:100%;}
+.cwrap{position:relative;width:100%;min-height:220px;}
+.cwrap canvas{position:absolute;inset:0;}
 
 table{width:100%;border-collapse:collapse;font-size:12.5px;}
 table th{background:var(--warm-light);color:var(--petrol);text-align:left;padding:8px 9px;font-weight:700;border-bottom:2px solid var(--warm);position:sticky;top:0;}
@@ -56,7 +77,39 @@ table tr:hover td{background:#FAFCFB;}
 .dif-pos{color:var(--sage);font-weight:700;}
 .dif-neg{color:var(--rose);font-weight:700;}
 .chip-tipo{display:inline-block;font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:10px;background:var(--warm-light);color:var(--stone);}
-.tabla-scroll{max-height:520px;overflow-y:auto;}
+.tabla-scroll{max-height:520px;overflow-y:auto;overflow-x:auto;}
+
+@media(min-width:1700px){
+  .kpis{grid-template-columns:repeat(auto-fit,minmax(240px,1fr));}
+}
+
+@media(max-width:600px){
+  .header{padding:0 16px;min-height:60px;}
+  .header img{height:32px;}
+  main{padding:14px 14px 32px;}
+  .bar{padding:10px;gap:8px;position:static;}
+  .bar>*{flex:none;}
+  .wsel select,.btnlink,.mbtn{min-height:40px;}
+  .kpis{grid-template-columns:1fr;gap:10px;}
+  .kpi .v{font-size:24px;} .kpi.hero .v{font-size:28px;}
+  .kpi:hover{transform:none;box-shadow:var(--sh);}
+  .sectitle{font-size:15px;margin:20px 0 10px;}
+  .panel{padding:16px 12px 12px;}
+  table{min-width:640px;}
+}
+
+@media print{
+  @page{size:A4 landscape;margin:9mm;}
+  *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}
+  .bar,.err{display:none!important;}
+  body{background:#fff!important;}
+  main{padding:0;}
+  .panel,.kpi{box-shadow:none;border:1px solid var(--warm);break-inside:avoid;}
+  .kpi.hero{background:#fff!important;}
+  .kpi.hero .v{color:var(--sage)!important;}
+  .kpi.hero .l,.kpi.hero .s{color:var(--stone)!important;}
+  .cwrap{height:220px!important;}
+}
 </style>
 </head>
 <body>
@@ -169,16 +222,15 @@ table tr:hover td{background:#FAFCFB;}
   function construirLayout() {
     $('contenido').innerHTML = `
       <div class="kpis" id="kpis"></div>
-      <div class="note">Los porcentajes de eficiencia son promedio <b>ponderado</b> (suma de minutos producidos ÷ suma de minutos trabajados), nunca promedio simple de porcentajes diarios. "Real" es lo digitado y calculado en este sistema; "Sistema" es lo que reporta el sistema oficial de la empresa — la diferencia es la señal de subregistro o sobreregistro.</div>
 
       <div class="sectitle">Comparativo Real vs. Sistema</div>
       <div class="grid2">
-        <div class="panel">
+        <div class="panel"><span class="tira resultado"></span>
           <div class="pt">Eficiencia % por colaborador</div>
           <div class="ph">Real (digitado) vs. Sistema (oficial)</div>
           <div class="cwrap" id="cwrap-ef"><canvas id="chart-ef"></canvas></div>
         </div>
-        <div class="panel">
+        <div class="panel"><span class="tira dinero"></span>
           <div class="pt">Incentivo S/ por colaborador</div>
           <div class="ph">Real vs. Sistema — la diferencia es lo que el sistema no está pagando (o está pagando de más)</div>
           <div class="cwrap" id="cwrap-inc"><canvas id="chart-inc"></canvas></div>
@@ -199,6 +251,14 @@ table tr:hover td{background:#FAFCFB;}
         </table>
         </div>
       </div>
+
+      <details class="note" open>
+        <summary>¿Cómo leo este tablero?</summary>
+        <p><b>EF Real %</b> = suma de minutos producidos ÷ suma de minutos trabajados, de la semana elegida — promedio <b>ponderado</b>, nunca promedio simple de porcentajes diarios.</p>
+        <p><b>Real</b> es lo digitado y calculado en este sistema (formulario de Estefani); <b>Sistema</b> es lo que reporta el sistema oficial de la empresa. La diferencia es la señal de subregistro o sobreregistro.</p>
+        <p><b>Incentivo S/</b> sale de la tabla de incentivos por % de eficiencia y básico de cada colaborador (categoría A/B/C/Y). Por debajo de 55% de eficiencia no hay incentivo; desde 90% el % se satura en 71%.</p>
+        <p>El filtro "Manual / Corte Paño / Módulos" recalcula los KPI, los gráficos y la tabla solo con ese tipo de registro.</p>
+      </details>
     `;
   }
 
@@ -229,11 +289,42 @@ table tr:hover td{background:#FAFCFB;}
     const diferencia = incReal - incSist;
 
     $('kpis').innerHTML = `
-      <div class="kpi primary"><div class="v">${efRealPond.toFixed(1)}%</div><div class="l">EF Real (ponderada)</div><div class="s">${filas.length} colaboradores</div></div>
-      <div class="kpi"><div class="v">${efSistPond.toFixed(1)}%</div><div class="l">EF Sistema (ponderada)</div></div>
-      <div class="kpi"><div class="v">S/ ${incReal.toFixed(2)}</div><div class="l">Incentivo Real total</div></div>
-      <div class="kpi"><div class="v">S/ ${incSist.toFixed(2)}</div><div class="l">Incentivo Sistema total</div></div>
-      <div class="kpi ${diferencia < 0 ? 'neg' : ''}"><div class="v">${diferencia >= 0 ? '+' : ''}S/ ${diferencia.toFixed(2)}</div><div class="l">Diferencia (Real − Sistema)</div></div>
+      <div class="kpi hero">
+        <span class="banda"></span>
+        <div class="cuerpo">
+          <div class="l">EF Real (ponderada)</div>
+          <div class="v">${efRealPond.toFixed(1)}%</div>
+          <div class="s">${filas.length} colaboradores</div>
+        </div>
+      </div>
+      <div class="kpi">
+        <span class="banda"></span>
+        <div class="cuerpo">
+          <div class="l">EF Sistema (ponderada)</div>
+          <div class="v">${efSistPond.toFixed(1)}%</div>
+        </div>
+      </div>
+      <div class="kpi money">
+        <span class="banda"></span>
+        <div class="cuerpo">
+          <div class="l">Incentivo Real total</div>
+          <div class="v">S/ ${incReal.toFixed(2)}</div>
+        </div>
+      </div>
+      <div class="kpi money">
+        <span class="banda"></span>
+        <div class="cuerpo">
+          <div class="l">Incentivo Sistema total</div>
+          <div class="v">S/ ${incSist.toFixed(2)}</div>
+        </div>
+      </div>
+      <div class="kpi ${diferencia < 0 ? 'neg' : ''}">
+        <span class="banda"></span>
+        <div class="cuerpo">
+          <div class="l">Diferencia (Real − Sistema)</div>
+          <div class="v">${diferencia >= 0 ? '+' : ''}S/ ${diferencia.toFixed(2)}</div>
+        </div>
+      </div>
     `;
   }
 
