@@ -274,164 +274,417 @@
 })();
 </script>
 <!-- ===== fin lives-sesion v1 ===== -->
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dashboard Corte | LIVES</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Corte · Eficiencia e Incentivos | LIVES</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 <style>
 :root{
   --petrol:#0E3B36; --petrol-2:#12463F; --emer:#10B981; --sage:#0F7A5A; --sage-dark:#0B815E;
   --slate:#4E6B78; --taupe:#B45309; --rose:#DC2626; --tan:#F59E0B;
-  --warm:#DCE5E2; --warm-light:#F1F6F4; --stone:#5F726C;
-  --card:#fff; --sh:0 1px 3px rgba(14,59,54,.06),0 1px 2px rgba(14,59,54,.04);
-  --sh-h:0 4px 12px rgba(14,59,54,.10); --r:12px;
+  --warm:#DCE5E2; --warm-light:#F1F6F4; --stone:#5F726C; --card:#fff;
+  --sh:0 1px 3px rgba(14,59,54,.06),0 1px 2px rgba(14,59,54,.04);
+  --sh-h:0 4px 12px rgba(14,59,54,.10); --r:12px; --sidebar:212px;
 }
+body{margin:0;background:var(--warm-light);color:#333;font-family:Calibri,Arial,sans-serif;
+font-size:14px;line-height:1.45;font-variant-numeric:tabular-nums;}
 *{box-sizing:border-box;}
-body{margin:0;background:var(--warm-light);color:#333;font-family:Calibri,Arial,sans-serif;font-size:14px;line-height:1.45;font-variant-numeric:tabular-nums;}
-.header{background:var(--petrol);border-bottom:3px solid var(--emer);min-height:70px;display:flex;align-items:center;padding:0 22px;gap:16px;flex-wrap:wrap;}
+
+.header{background:var(--petrol);border-bottom:3px solid var(--emer);min-height:70px;
+display:flex;align-items:center;gap:16px;padding:0 22px;flex-wrap:wrap;}
+.header img{height:38px;display:block;}
 .divider{width:1px;height:34px;background:rgba(255,255,255,.3);}
 .htitle{color:#fff;font-size:17px;font-weight:700;letter-spacing:.2px;}
 .hsub{color:#B9CFC9;font-size:11.5px;}
-main{width:100%;margin:0 auto;padding:18px clamp(16px,2.2vw,52px) 44px;}
+.hstate{margin-left:auto;color:#B9CFC9;font-size:11.5px;text-align:right;}
 
-.bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--card);border-radius:var(--r);box-shadow:var(--sh);padding:10px 14px;margin-bottom:14px;position:sticky;top:0;z-index:15;}
-.wsel select{font-family:inherit;font-size:13.5px;font-weight:700;color:var(--sage);border:1px solid var(--warm);border-radius:8px;padding:7px 12px;background:#fff;cursor:pointer;}
-.modesel{display:inline-flex;background:var(--warm-light);border-radius:8px;padding:3px;gap:2px;}
-.modesel .mbtn{background:none;border:none;color:var(--stone);padding:6px 14px;font-family:inherit;font-size:13px;font-weight:700;border-radius:6px;cursor:pointer;}
-.modesel .mbtn.active{background:var(--sage);color:#fff;box-shadow:var(--sh);}
-.bar a.btnlink{background:#fff;border:1px solid var(--warm);color:var(--sage);font-size:12.5px;padding:8px 14px;border-radius:8px;text-decoration:none;font-weight:700;}
-.bar a.btnlink:hover{border-color:var(--sage);}
+.wrap{width:100%;max-width:none;margin:0 auto;padding:18px clamp(16px,2.2vw,52px) 44px;}
+.verdict .s,details.help p,.insight,.note{line-height:1.5;}
+.verdict .s,details.help p{max-width:130ch;}
+
+.bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--card);
+border-radius:var(--r);box-shadow:var(--sh);padding:10px 14px;margin-bottom:14px;
+position:sticky;top:0;z-index:15;}
+.seg{display:inline-flex;background:var(--warm-light);border-radius:8px;padding:3px;gap:2px;}
+.seg button,.seg .mbtn{background:none;border:none;font-family:inherit;font-size:13px;font-weight:700;
+color:var(--stone);padding:6px 14px;border-radius:6px;cursor:pointer;}
+.seg button.active,.seg .mbtn.active{background:var(--sage);color:#fff;box-shadow:var(--sh);}
+select{font-family:inherit;font-size:13.5px;font-weight:700;color:var(--sage);
+border:1px solid var(--warm);border-radius:8px;padding:7px 12px;background:#fff;cursor:pointer;}
+.btn{font-family:inherit;font-size:13px;font-weight:700;border-radius:8px;padding:8px 14px;
+cursor:pointer;border:1px solid var(--warm);background:#fff;color:var(--sage);text-decoration:none;display:inline-block;}
+.btn:hover{border-color:var(--sage);}
 .spacer{margin-left:auto;}
 
-.err{display:none;background:#FBE9E9;border:1px solid var(--rose);border-radius:8px;padding:12px 16px;color:#DC2626;font-size:13px;margin-bottom:16px;}
-.vacio{color:var(--stone);font-size:13px;padding:30px 0;text-align:center;}
+.verdict{display:flex;align-items:center;gap:16px;background:var(--card);border-radius:var(--r);
+box-shadow:var(--sh);padding:16px 20px;margin-bottom:14px;border-left:6px solid var(--slate);
+border-top-left-radius:0;border-bottom-left-radius:0;}
+.verdict .dot{width:44px;height:44px;border-radius:50%;background:#EDF1F2;color:var(--slate);
+display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;flex:none;}
+.verdict .t{font-size:19px;font-weight:700;color:var(--slate);line-height:1.2;}
+.verdict .s{font-size:13px;color:#333;margin-top:3px;}
+.verdict.ok{border-left-color:var(--sage);}
+.verdict.ok .dot{background:#E7F4EF;color:var(--sage);} .verdict.ok .t{color:var(--sage);}
+.verdict.warn{border-left-color:var(--tan);}
+.verdict.warn .dot{background:#FEF3E2;color:var(--taupe);} .verdict.warn .t{color:var(--taupe);}
 
-.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin-bottom:14px;}
-.kpi{background:var(--card);border-radius:var(--r);box-shadow:var(--sh);padding:0;position:relative;overflow:hidden;transition:box-shadow .15s,transform .15s;}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;margin-bottom:14px;align-items:stretch;}
+.kpi{background:var(--card);border-radius:var(--r);box-shadow:var(--sh);padding:0;
+position:relative;overflow:hidden;transition:box-shadow .15s,transform .15s;display:flex;flex-direction:column;}
 .kpi:hover{box-shadow:var(--sh-h);transform:translateY(-1px);}
-.kpi .banda{display:block;height:5px;background:var(--sage);}
-.kpi.neg .banda{background:var(--rose);}
+.kpi .banda{display:block;height:5px;background:var(--sage);flex:none;}
 .kpi.money .banda{background:var(--taupe);}
-.kpi .cuerpo{padding:14px 16px 16px;}
-.kpi .l{font-size:11px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;color:var(--stone);}
-.kpi .v{font-size:28px;font-weight:700;line-height:1.15;color:var(--sage);letter-spacing:-.5px;margin-top:6px;}
-.kpi.neg .v{color:var(--rose);} .kpi.money .v{color:var(--taupe);}
-.kpi .s{font-size:11px;color:var(--stone);margin-top:5px;}
-/* Protagonista: fondo Petróleo */
+.kpi.neutro .banda{background:var(--slate);}
+.kpi .cuerpo{padding:16px 18px 18px;flex:1;display:flex;flex-direction:column;}
+.kpi .l{font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--stone);}
+.kpi .row{display:flex;align-items:baseline;gap:10px;margin-top:8px;flex-wrap:wrap;}
+.kpi .v{font-size:52px;font-weight:700;line-height:1;color:var(--sage);letter-spacing:-1.5px;}
+.kpi:not(.hero) .v{font-size:34px;letter-spacing:-.8px;}
+.kpi.money .v{color:var(--taupe);} .kpi.neutro .v{color:var(--slate);}
+.kpi .d{font-size:13px;font-weight:700;padding:4px 11px;border-radius:20px;white-space:nowrap;}
+.d.bien{color:var(--sage);background:#E7F4EF;}
+.d.mal{color:var(--rose);background:#FCEBEB;}
+.d.flat{color:var(--stone);background:var(--warm-light);}
+.kpi .s{font-size:11.5px;color:var(--stone);margin-top:6px;}
+.kpi .spark{height:26px;margin-top:auto;padding-top:6px;position:relative;}
+.kpi .spark canvas{position:absolute;inset:6px 0 0 0;}
 .kpi.hero{background:var(--petrol);}
 .kpi.hero .banda{background:var(--emer);}
+.kpi.hero.money .banda{background:var(--taupe);}
 .kpi.hero .l{color:#8FB3AC;}
-.kpi.hero .v{color:#fff;font-size:34px;}
+.kpi.hero .v{color:#fff;}
 .kpi.hero .s{color:#8FB3AC;}
+.kpi.hero .d.bien{color:#9BE8CB;background:rgba(16,185,129,.22);}
+.kpi.hero .d.mal{color:#FFC9C9;background:rgba(220,38,38,.30);}
+.kpi.hero .d.flat{color:#B9CFC9;background:rgba(255,255,255,.12);}
 
-.sectitle{font-size:17px;font-weight:700;color:var(--sage-dark);margin:26px 0 12px;padding-bottom:6px;border-bottom:2px solid var(--warm-light);}
-.note{background:var(--card);border-radius:var(--r);box-shadow:var(--sh);padding:12px 16px;margin-top:18px;font-size:13px;}
-.note summary{cursor:pointer;font-weight:700;color:var(--sage-dark);}
-.note p{color:var(--stone);margin:8px 0 0;line-height:1.55;}
-.note p b{color:var(--sage-dark);}
+.insight{background:var(--card);border-left:4px solid var(--tan);border-radius:0 var(--r) var(--r) 0;
+box-shadow:var(--sh);padding:12px 16px;margin-bottom:14px;font-size:13.5px;}
+.insight b{color:var(--sage-dark);}
+.note{background:var(--card);border-left:4px solid var(--slate);border-radius:0 var(--r) var(--r) 0;
+box-shadow:var(--sh);padding:10px 16px;margin-bottom:14px;font-size:12.5px;color:var(--stone);}
+.note.aviso{border-left-color:var(--tan);color:#7A4A0B;}
+.insight:empty,.note:empty{display:none;}
 
-.panel{background:var(--card);border-radius:var(--r);box-shadow:var(--sh);padding:20px 18px 16px;margin-bottom:18px;position:relative;overflow:hidden;}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--warm);margin:22px 0 14px;flex-wrap:wrap;}
+.tabs button{background:none;border:none;font-family:inherit;font-size:13.5px;font-weight:700;
+color:var(--stone);padding:10px 16px;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-1px;}
+.tabs button:hover{color:var(--sage);}
+.tabs button.active{color:var(--sage-dark);border-bottom-color:var(--sage);}
+.tabpane{display:none;} .tabpane.active{display:block;}
+
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:14px;}
+.col12{grid-column:span 12;} .col8{grid-column:span 8;}
+.col6{grid-column:span 6;} .col4{grid-column:span 4;}
+@media(max-width:1100px){.col8,.col6,.col4{grid-column:span 12;}}
+.panel{background:var(--card);border-radius:var(--r);box-shadow:var(--sh);padding:20px 18px 16px;
+position:relative;overflow:hidden;}
+.panel .pt{font-size:15px;font-weight:700;}
+.panel .ph{font-size:11.5px;color:var(--stone);margin-top:2px;margin-bottom:12px;}
+.grid>.panel:not([class*="col"]){grid-column:span 12;}
 .panel .tira{position:absolute;left:0;right:0;top:0;height:4px;background:var(--warm);}
 .panel .tira.resultado{background:var(--sage);}
+.panel .tira.riesgo{background:var(--rose);}
+.panel .tira.volumen{background:var(--slate);}
 .panel .tira.dinero{background:var(--taupe);}
-.panel .pt{font-size:15px;font-weight:700;color:#333;}
-.panel .ph{font-size:11.5px;color:var(--stone);margin-top:2px;margin-bottom:10px;}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
-@media(max-width:760px){.grid2{grid-template-columns:1fr;}}
-.cwrap{position:relative;width:100%;min-height:220px;}
+.panel:empty{display:none;}
+.panel .explica{font-size:13px;color:var(--stone);padding:8px 0;}
+
+.cwrap{position:relative;width:100%;height:clamp(220px,26vh,320px);}
+.cwrap.tall{height:clamp(260px,34vh,400px);}
 .cwrap canvas{position:absolute;inset:0;}
+@media(min-width:1700px){
+  .kpis{grid-template-columns:repeat(auto-fit,minmax(280px,1fr));}
+  .cwrap{height:clamp(260px,28vh,380px);}
+  .cwrap.tall{height:clamp(300px,36vh,460px);}
+}
 
 table{width:100%;border-collapse:collapse;font-size:12.5px;}
-table th{background:var(--warm-light);color:var(--petrol);text-align:left;padding:8px 9px;font-weight:700;border-bottom:2px solid var(--warm);position:sticky;top:0;}
-table td{padding:7px 9px;border-bottom:1px solid var(--warm-light);}
-table tr:hover td{background:#FAFCFB;}
-.ef-alta{color:var(--sage);font-weight:700;}
-.ef-baja{color:var(--rose);font-weight:700;}
-.dif-pos{color:var(--sage);font-weight:700;}
-.dif-neg{color:var(--rose);font-weight:700;}
-.chip-tipo{display:inline-block;font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:10px;background:var(--warm-light);color:var(--stone);}
-.tabla-scroll{max-height:520px;overflow-y:auto;overflow-x:auto;}
+th{text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:.5px;
+color:var(--stone);border-bottom:1px solid var(--warm);padding:8px 6px;white-space:nowrap;}
+th.n,td.n{text-align:right;}
+td{padding:8px 6px;border-bottom:1px solid var(--warm-light);}
+tr:hover td{background:var(--warm-light);}
+td.money{color:var(--taupe);font-weight:700;}
+.pill,.st{font-size:11px;font-weight:700;padding:2px 9px;border-radius:20px;white-space:nowrap;}
+.st.bue{background:#ECFDF5;color:var(--sage);} .st.ale{background:#FCEBEB;color:var(--rose);}
+.st.low{background:var(--warm-light);color:var(--stone);}
+.tscroll{max-height:560px;overflow:auto;}
 
-@media(min-width:1700px){
-  .kpis{grid-template-columns:repeat(auto-fit,minmax(240px,1fr));}
+details.help{background:var(--card);border-radius:var(--r);box-shadow:var(--sh);
+padding:12px 16px;margin-top:18px;font-size:13px;}
+details.help summary{cursor:pointer;font-weight:700;color:var(--sage-dark);}
+details.help p{color:var(--stone);margin:8px 0 0;}
+details.help p b{color:#333;}
+
+.err{display:none;background:#FBE9E9;border:1px solid var(--rose);border-radius:8px;
+padding:12px 16px;color:var(--rose);font-size:13px;margin-bottom:16px;}
+.vacio{font-size:13.5px;color:var(--stone);padding:26px 20px;text-align:center;background:var(--card);
+border-radius:var(--r);box-shadow:var(--sh);}
+
+/* ===== TABLET (hasta 900px) ===== */
+@media(max-width:900px){
+  .wrap{padding:14px 14px 36px;}
+  .col12,.col8,.col6,.col4{grid-column:span 12;}
+  .kpis{grid-template-columns:repeat(2,1fr);}
+  .cwrap{height:300px;}
+  .cwrap.tall{height:340px;}
 }
 
+/* ===== CELULAR (hasta 600px) ===== */
 @media(max-width:600px){
-  .header{padding:0 16px;min-height:60px;}
-  .header img{height:32px;}
-  main{padding:14px 14px 32px;}
-  .bar{padding:10px;gap:8px;position:static;}
+  body{font-size:13.5px;}
+  .header{min-height:auto;padding:12px 14px;gap:10px;}
+  .header img{height:30px;}
+  .divider{display:none;}
+  .htitle{font-size:15px;}
+  .hstate{margin-left:0;text-align:left;width:100%;}
+  .bar{position:static;flex-wrap:nowrap;overflow-x:auto;padding:8px 10px;gap:8px;-webkit-overflow-scrolling:touch;}
+  .bar::-webkit-scrollbar{display:none;}
   .bar>*{flex:none;}
-  .wsel select,.btnlink,.mbtn{min-height:40px;}
+  .btn,select,.seg button,.seg .mbtn{min-height:44px;font-size:14px;}
+  .spacer{display:none;}
+  .verdict{padding:14px;gap:12px;}
+  .verdict .dot{width:36px;height:36px;font-size:18px;}
+  .verdict .t{font-size:16px;}
   .kpis{grid-template-columns:1fr;gap:10px;}
-  .kpi .v{font-size:24px;} .kpi.hero .v{font-size:28px;}
+  .kpi .v,.kpi:not(.hero) .v{font-size:38px;}
+  .kpi .spark{display:none;}
   .kpi:hover{transform:none;box-shadow:var(--sh);}
-  .sectitle{font-size:15px;margin:20px 0 10px;}
-  .panel{padding:16px 12px 12px;}
+  .cwrap,.cwrap.tall{height:260px;}
+  .tabs{flex-wrap:nowrap;overflow-x:auto;gap:0;}
+  .tabs::-webkit-scrollbar{display:none;}
+  .tabs button{flex:none;padding:12px 14px;font-size:13px;}
+  .panel{padding:18px 14px 14px;overflow-x:auto;}
   table{min-width:640px;}
+  .panel:hover{box-shadow:var(--sh);}
+  .kpi:active{background:var(--warm-light);}
+  .grid,.kpis{grid-template-columns:1fr!important;}
+  .grid>*{grid-column:span 12!important;}
+  .panel.plegable.plegado table,
+  .panel.plegable.plegado .tscroll{display:none!important;}
+  .verdet{display:block;width:100%;margin-top:10px;background:#fff;border:1px solid var(--warm);
+          color:var(--sage);border-radius:8px;padding:12px;font-family:inherit;font-size:14px;
+          font-weight:700;cursor:pointer;min-height:44px;}
 }
+.verdet{display:none;}
+@media(max-width:600px){.panel.plegable .verdet{display:block;}}
 
 @media print{
   @page{size:A4 landscape;margin:9mm;}
   *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}
-  .bar,.err{display:none!important;}
+  .bar,.tabs,.no-print,details.help,#err,.verdet{display:none!important;}
   body{background:#fff!important;}
-  main{padding:0;}
-  .panel,.kpi{box-shadow:none;border:1px solid var(--warm);break-inside:avoid;}
+  .wrap{max-width:none;padding:0;}
+  .tabpane{display:block!important;margin-bottom:10px;}
+  .panel,.kpi,.insight,.verdict,.note{box-shadow:none;border:1px solid var(--warm);break-inside:avoid;}
   .kpi.hero{background:#fff!important;}
   .kpi.hero .v{color:var(--sage)!important;}
+  .kpi.hero.money .v{color:var(--taupe)!important;}
   .kpi.hero .l,.kpi.hero .s{color:var(--stone)!important;}
-  .cwrap{height:220px!important;}
+  .cwrap{height:170px!important;}
+  .tscroll{max-height:none;overflow:visible;}
 }
 </style>
 </head>
 <body>
 
 <div class="header">
-  <img src="data:image/png;base64,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" alt="LIVES" style="height:38px;display:block;">
+  <img src="data:image/png;base64,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" alt="LIVES">
   <div class="divider"></div>
-  <div><div class="htitle">CORTE — Eficiencia e Incentivos</div><div class="hsub">Comparativo real vs. sistema, por semana</div></div>
+  <div>
+    <div class="htitle">CORTE — Eficiencia e Incentivos</div>
+    <div class="hsub">Lo que resulta del registro diario (real) frente a lo que reporta el sistema, por semana</div>
+  </div>
+  <div class="hstate" id="hEstado">Cargando…</div>
 </div>
 
-<main>
+<div class="wrap">
 
   <div class="bar">
-    <div class="wsel">
-      <select id="sel-semana"></select>
-    </div>
-    <div class="modesel" id="filtro-tipo">
+    <select id="sel-semana" aria-label="Semana"></select>
+    <div class="seg" id="filtro-tipo">
       <button class="mbtn active" data-tipo="">Todos</button>
       <button class="mbtn" data-tipo="MANUAL">Manual</button>
       <button class="mbtn" data-tipo="CORTE_PAÑO">Corte Paño</button>
       <button class="mbtn" data-tipo="MODULO">Módulos</button>
     </div>
-    <a class="btnlink" href="index.html">← Volver al formulario</a>
+    <div class="spacer"></div>
+    <a class="btn" href="index.html">Formulario</a>
+    <a class="btn" href="panel_corte.html">Panel</a>
+    <button class="btn" type="button" onclick="window.print()">Imprimir</button>
   </div>
 
   <div class="err" id="err"></div>
-  <div id="contenido">
-    <div class="vacio">Cargando semanas disponibles…</div>
-  </div>
 
-</main>
+  <div id="sinDatos" class="vacio" style="display:none"></div>
+
+  <div id="app" style="display:none">
+
+    <div class="verdict" id="verdict">
+      <div class="dot">—</div>
+      <div><div class="t">—</div><div class="s">—</div></div>
+    </div>
+
+    <div class="kpis" id="kpis"></div>
+
+    <div class="insight" id="insight"></div>
+    <div class="note" id="fuente"></div>
+
+    <div id="bloqueTabs">
+      <div class="tabs" id="tabs">
+        <button class="active" type="button" onclick="tab(0,this)">Real vs. Sistema</button>
+        <button type="button" onclick="tab(1,this)" id="tabTend">Semana a semana</button>
+        <button type="button" onclick="tab(2,this)">Detalle por colaborador</button>
+      </div>
+
+      <div class="tabpane active">
+        <div class="grid">
+          <div class="panel col6" id="pEf"><span class="tira resultado"></span>
+            <div class="pt">Eficiencia por colaborador</div>
+            <div class="ph">EF % = minutos producidos ÷ minutos trabajados de la semana. Real (formulario) vs. Sistema (SIGE). Bajo 55 % no se cobra incentivo. Ordenado por diferencia de incentivo, de mayor a menor.</div>
+            <div class="cwrap" id="cwrap-ef"><canvas id="chart-ef"></canvas></div>
+          </div>
+          <div class="panel col6" id="pInc"><span class="tira dinero"></span>
+            <div class="pt">Incentivo por colaborador (S/)</div>
+            <div class="ph">Incentivo de la semana según lo digitado (Real) y según el sistema. La diferencia es lo que el sistema paga de menos (o de más) respecto de lo digitado.</div>
+            <div class="cwrap" id="cwrap-inc"><canvas id="chart-inc"></canvas></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tabpane">
+        <div class="grid">
+          <div class="panel col8" id="pTend"><span class="tira resultado"></span>
+            <div class="pt">Eficiencia semana a semana</div>
+            <div class="ph" id="phTend"></div>
+            <div class="cwrap tall"><canvas id="chart-tend"></canvas></div>
+          </div>
+          <div class="panel col4" id="pTendDif"><span class="tira dinero"></span>
+            <div class="pt">Diferencia de incentivo por semana</div>
+            <div class="ph">Real − Sistema, en soles. Positivo: lo digitado da más incentivo que el sistema.</div>
+            <div class="cwrap tall"><canvas id="chart-dif"></canvas></div>
+          </div>
+          <div class="panel col12" id="pTendNo" style="display:none"><span class="tira"></span>
+            <div class="explica" id="tendNoTxt"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tabpane">
+        <div class="grid">
+          <div class="panel col12" id="pTabla"><span class="tira volumen"></span>
+            <div class="pt">Detalle por colaborador</div>
+            <div class="ph" id="phTabla">Una fila por colaborador en la semana. EF en % sobre sus propios minutos; incentivos y diferencia en soles.</div>
+            <div class="tscroll">
+            <table>
+              <thead><tr>
+                <th>Colaborador</th><th>Tipo</th><th class="n">Días</th>
+                <th class="n">Min. prod.</th><th class="n">Min. trab.</th>
+                <th class="n">EF Real</th><th class="n">EF Sistema</th>
+                <th class="n">Inc. Real S/</th><th class="n">Inc. Sistema S/</th><th class="n">Diferencia S/</th>
+              </tr></thead>
+              <tbody id="tabla-body"></tbody>
+            </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <details class="help">
+      <summary>¿Cómo leo este tablero?</summary>
+      <p><b>Qué es un registro.</b> Cada día Estefani digita en el formulario la producción de cada colaborador (Manual de Corte, Corte Paño o Módulo): operaciones con su cantidad, y los minutos trabajados. El tablero agrupa esos registros por semana, de lunes a domingo.</p>
+      <p><b>EF Real %</b> = suma de minutos producidos ÷ suma de minutos trabajados de la semana (promedio <b>ponderado</b>, nunca promedio de porcentajes diarios). Minuto producido = cantidad × tiempo estándar (T.Std) de la operación, fijado el día que se guardó el registro.</p>
+      <p><b>EF Sistema %</b> = la eficiencia que reporta el sistema oficial (SIGE), ponderada con los <b>minutos del sistema</b> de cada día, igual que la calcula el propio sistema. Solo cuenta los días que también tienen registro digitado.</p>
+      <p><b>Incentivo S/</b> sale de la tabla de incentivos según el % de eficiencia del día y el básico de la categoría (A e Y: S/ 1,300; B: S/ 1,200; C: S/ 1,150), dividido entre 30. Bajo 55 % de eficiencia no hay incentivo; desde 90 % se paga el máximo (71 %).</p>
+      <p><b>Diferencia S/</b> = Incentivo Real − Incentivo Sistema. Positivo: según lo digitado correspondería más de lo que registra el sistema. Es una señal para revisar, no una causa: puede venir de minutos distintos, de producción no registrada en el sistema o de errores de digitación.</p>
+      <p><b>Referencia.</b> No hay meta de eficiencia fijada, por eso la banda de arriba compara con la semana anterior que tenga registros del mismo tipo.</p>
+      <p><b>Cuando falta el dato.</b> Si la semana no tiene cargado el extracto del sistema, EF Sistema e Incentivo Sistema salen como “—” y se avisa. Si no hay al menos dos semanas con registros, la pestaña “Semana a semana” explica por qué no se dibuja.</p>
+      <p><b>Filtro de tipo.</b> “Manual / Corte Paño / Módulos” recalcula todo con solo ese tipo de registro.</p>
+    </details>
+  </div>
+</div>
 
 <script>
   const $ = id => document.getElementById(id);
-  let FILAS_SEMANA = [];
-  let TIPO_ACTIVO = '';
-  let chartEf = null, chartInc = null;
+  const SAGE="#0F7A5A", EMER="#10B981", ROSE="#DC2626", TAN="#F59E0B",
+        SLATE="#4E6B78", TAUPE="#B45309", STONE="#5F726C";
+  const LEYENDA={position:'top',align:'end',labels:{boxWidth:12,usePointStyle:true,padding:14}};
+  const ANIM={duration:900,easing:'easeOutCubic',
+    delay:c=>(c.type==='data'&&c.mode==='default')?c.dataIndex*45:0};
 
   Chart.defaults.font.family = "Calibri, Arial, sans-serif";
   Chart.defaults.font.size = 12;
   Chart.defaults.color = "#5F726C";
   Chart.defaults.borderColor = "#F1F6F4";
-  Chart.defaults.plugins.tooltip.backgroundColor = "rgba(51,51,51,0.95)";
+  Chart.defaults.maintainAspectRatio = false;
+  Chart.defaults.plugins.tooltip.backgroundColor = 'rgba(14,59,54,.95)';
   Chart.defaults.plugins.tooltip.padding = 10;
-  Chart.defaults.plugins.tooltip.cornerRadius = 4;
+  Chart.defaults.plugins.tooltip.cornerRadius = 6;
+  if (window.matchMedia('(max-width:600px)').matches) {
+    Chart.defaults.font.size = 11;
+    Chart.defaults.plugins.legend.labels.boxWidth = 10;
+  }
 
-  // ------- Supabase (reemplaza al Apps Script; la sesión la pone el bloque lives-sesion) -------
+  const AREA = (ctx, rgb) => {
+    const { chartArea } = ctx.chart;
+    if (!chartArea) return 'transparent';
+    const g = ctx.chart.ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+    g.addColorStop(0, 'rgba(' + rgb + ',.22)');
+    g.addColorStop(1, 'rgba(255,255,255,0)');
+    return g;
+  };
+  const serieTendencia = (color, rgb) => ({
+    borderColor: color, borderWidth: 3.5, tension: .35, fill: true,
+    backgroundColor: c => AREA(c, rgb),
+    pointRadius: 5, pointHoverRadius: 8, pointBackgroundColor: color,
+    pointBorderColor: '#fff', pointBorderWidth: 2.5, pointHoverBorderWidth: 3, spanGaps: false
+  });
+  const etiquetasTendencia = {
+    id: 'etiquetasTendencia',
+    afterDatasetsDraw(chart, args, opts) {
+      const ctx = chart.ctx;
+      const fmt = (opts && opts.fmt) || (v => v.toFixed(1) + '%');
+      const div = window.matchMedia('(max-width:600px)').matches ? 7 : 14;
+      chart.data.datasets.forEach((ds, di) => {
+        if (ds.sinEtiquetas) return;
+        const meta = chart.getDatasetMeta(di);
+        if (meta.hidden) return;
+        const paso = Math.max(1, Math.ceil(meta.data.length / div));
+        meta.data.forEach((pt, i) => {
+          const ultimo = i === meta.data.length - 1;
+          if (!ultimo && i % paso !== 0) return;
+          const v = ds.data[i];
+          if (v === null || v === undefined) return;
+          const txt = fmt(v);
+          ctx.save();
+          ctx.font = '700 11.5px Calibri, Arial, sans-serif';
+          const w = ctx.measureText(txt).width;
+          const x = pt.x, y = pt.y + (ds.etiquetaAbajo ? 20 : -18);
+          ctx.beginPath();
+          const rx = x - w / 2 - 7, ry = y - 9.5, rw = w + 14, rh = 19, r = 9.5;
+          ctx.moveTo(rx + r, ry);
+          ctx.arcTo(rx + rw, ry, rx + rw, ry + rh, r);
+          ctx.arcTo(rx + rw, ry + rh, rx, ry + rh, r);
+          ctx.arcTo(rx, ry + rh, rx, ry, r);
+          ctx.arcTo(rx, ry, rx + rw, ry, r);
+          ctx.closePath();
+          ctx.fillStyle = '#fff';
+          ctx.shadowColor = 'rgba(14,59,54,.18)';
+          ctx.shadowBlur = 4; ctx.shadowOffsetY = 1;
+          ctx.fill();
+          ctx.shadowColor = 'transparent';
+          ctx.fillStyle = ds.borderColor || SAGE;
+          ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+          ctx.fillText(txt, x, y);
+          ctx.restore();
+        });
+      });
+    }
+  };
+
+  // ------- Supabase (la sesión la pone el bloque lives-sesion) -------
   const SB_URL = 'https://xxfufpddgoyhbotjmaiy.supabase.co';
-  const PENDIENTES = {};   // token por guardado: un reintento del mismo guardado no duplica
-  function nuevoToken(){ return (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : (Date.now().toString(36) + Math.random().toString(36).slice(2)); }
   async function api(accion, p) {
     // Un reintento si falla la red; nunca deja la pantalla bloqueada.
     for (let i = 0; i < 2; i++) {
@@ -445,261 +698,382 @@ table tr:hover td{background:#FAFCFB;}
         if (r.ok) return j;
         const err = new Error((j && (j.message || j.hint)) || ('Error ' + r.status)); err.servidor = true; throw err;
       } catch (e) {
-        if (e.servidor || i === 1) throw (e.servidor ? e : new Error('No hay conexión con la base de datos. Revisa la señal y vuelve a intentar: no se perdió nada de lo escrito.'));
+        if (e.servidor || i === 1) throw (e.servidor ? e : new Error('No hay conexión con la base de datos. Revisa la señal y vuelve a intentar.'));
         await new Promise(ok => setTimeout(ok, 1500));
       }
     }
   }
-  // Misma forma de respuesta que tenía el Apps Script ({ok, data} / {ok:false, error}).
   async function llamarApi(params) {
-    const { action, ...resto } = params; const p = {};
-    Object.keys(resto).forEach(k => {
-      let v = resto[k];
-      if (typeof v === 'string' && /^\s*[\[{]/.test(v)) { try { v = JSON.parse(v); } catch (e) {} }
-      if (v !== '' && v !== undefined) p[k] = v;
-    });
-    if (action.indexOf('guardar') === 0) {
-      const firma = JSON.stringify(p);
-      if (!PENDIENTES[action] || PENDIENTES[action].firma !== firma) PENDIENTES[action] = { firma, token: nuevoToken() };
-      p.token = PENDIENTES[action].token;
+    const { action, ...p } = params;
+    try { return { ok: true, data: await api(action, p) }; }
+    catch (e) { return { ok: false, error: e.message }; }
+  }
+  function mostrarError(msg) { const el = $('err'); el.textContent = msg; el.style.display = msg ? 'block' : 'none'; }
+
+  // ------- Estado -------
+  let SEMANAS = [];          // claves ISO, de la más reciente a la más antigua
+  const CACHE = {};          // semana -> filas
+  let TIPO_ACTIVO = '';
+  let SEM_ACTIVA = '';
+  const charts = {};
+  let sparkChart = null;
+
+  // ------- Utilidades -------
+  const NOMBRE_TIPO = { MANUAL: 'Manual', CORTE_PAÑO: 'Corte Paño', MODULO: 'Módulo' };
+  const NOMBRE_FILTRO = { MANUAL: 'Manual de Corte', CORTE_PAÑO: 'Corte Paño', MODULO: 'Módulos' };
+  const f1 = v => v.toLocaleString('es-PE', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+  const f2 = v => v.toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const f0 = v => Math.round(v).toLocaleString('es-PE');
+  const soles = v => 'S/ ' + f2(v);
+  const solesSigno = v => (v >= 0 ? '+' : '−') + 'S/ ' + f2(Math.abs(v));
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+  function lunesDe(clave) {
+    const m = /^(\d{4})-W(\d{2})$/.exec(clave || ''); if (!m) return null;
+    const y = +m[1], w = +m[2];
+    const jan4 = new Date(Date.UTC(y, 0, 4)); const dow = jan4.getUTCDay() || 7;
+    const lun = new Date(jan4); lun.setUTCDate(jan4.getUTCDate() - dow + 1 + (w - 1) * 7);
+    return lun;
+  }
+  const dm = d => String(d.getUTCDate()).padStart(2, '0') + '/' + String(d.getUTCMonth() + 1).padStart(2, '0');
+  function etiquetaCorta(clave) { const m = /-W(\d{2})$/.exec(clave || ''); return m ? 'S' + (+m[1]) : clave; }
+  function etiquetaLarga(clave) {
+    const l = lunesDe(clave); if (!l) return clave;
+    const dgo = new Date(l); dgo.setUTCDate(l.getUTCDate() + 6);
+    return etiquetaCorta(clave) + ' · ' + dm(l) + ' al ' + dm(dgo) + '/' + dgo.getUTCFullYear();
+  }
+
+  // Mismas fórmulas que el dashboard anterior (v3): todo ponderado.
+  function agregar(filas) {
+    const sumMinProd = filas.reduce((a, f) => a + (f.minProducido || 0), 0);
+    const sumMinTrab = filas.reduce((a, f) => a + (f.minTrabajado || 0), 0);
+    const efReal = sumMinTrab > 0 ? (sumMinProd / sumMinTrab) * 100 : 0;
+    // EF Sistema se pondera con los minutos del SISTEMA (SIGE), como la calcula el propio sistema.
+    const sumMinSist = filas.reduce((a, f) => a + (f.minTrabSist || 0), 0);
+    const efSist = sumMinSist > 0 ? filas.reduce((a, f) => a + (f.efSist || 0) * (f.minTrabSist || 0), 0) / sumMinSist : 0;
+    const incReal = filas.reduce((a, f) => a + (f.incReal || 0), 0);
+    const incSist = filas.reduce((a, f) => a + (f.incSist || 0), 0);
+    return { n: filas.length, sumMinProd, sumMinTrab, efReal, sumMinSist, efSist, incReal, incSist,
+             diferencia: incReal - incSist, conSistema: sumMinSist > 0 };
+  }
+  const filtrar = filas => TIPO_ACTIVO ? (filas || []).filter(f => f.tipo === TIPO_ACTIVO) : (filas || []);
+
+  // ------- Carga -------
+  async function cargarSemana(clave) {
+    if (CACHE[clave]) return CACHE[clave];
+    const res = await llamarApi({ action: 'resumenSemana', semana: clave });
+    if (!res.ok) throw new Error(res.error);
+    CACHE[clave] = (res.data && res.data.filas) || [];
+    return CACHE[clave];
+  }
+
+  async function iniciar() {
+    const res = await llamarApi({ action: 'semanasDisponibles' });
+    if (!res.ok) { mostrarError('No se pudieron cargar las semanas: ' + res.error); $('hEstado').textContent = 'Sin conexión'; return; }
+    SEMANAS = res.data || [];
+    if (!SEMANAS.length) {
+      $('hEstado').textContent = 'Sin registros';
+      $('sel-semana').style.display = 'none';
+      $('sinDatos').style.display = 'block';
+      $('sinDatos').textContent = 'Todavía no hay registros de producción guardados. En cuanto se guarde el primero desde el formulario, aparecerá aquí.';
+      return;
     }
-    try {
-      const data = await api(action, p);
-      if (action.indexOf('guardar') === 0) delete PENDIENTES[action];
-      if (data && data.personas !== undefined && data.operarios === undefined) data.operarios = data.personas;
-      return { ok: true, data };
-    } catch (e) { return { ok: false, error: e.message }; }
+    $('sel-semana').innerHTML = SEMANAS.map(s => `<option value="${s}">${etiquetaLarga(s)}</option>`).join('');
+    $('sel-semana').addEventListener('change', () => elegirSemana($('sel-semana').value));
+    await elegirSemana(SEMANAS[0]);
   }
 
-  function mostrarError(msg) {
-    const el = $('err'); el.textContent = msg; el.style.display = 'block';
+  async function elegirSemana(clave) {
+    SEM_ACTIVA = clave;
+    mostrarError('');
+    $('hEstado').textContent = 'Cargando ' + etiquetaCorta(clave) + '…';
+    try { await cargarSemana(clave); }
+    catch (e) { mostrarError('Error al cargar la semana: ' + e.message); $('hEstado').textContent = 'Sin conexión'; return; }
+    // Hasta 7 semanas previas, para la comparación y la tendencia (si alguna falla, se omite).
+    const i = SEMANAS.indexOf(clave);
+    const previas = SEMANAS.slice(i + 1, i + 8);
+    await Promise.all(previas.map(s => cargarSemana(s).catch(() => null)));
+    if (SEM_ACTIVA !== clave) return;
+    render();
   }
 
-  // ------- Filtro por tipo de registro -------
   document.querySelectorAll('#filtro-tipo .mbtn').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('#filtro-tipo .mbtn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       TIPO_ACTIVO = btn.dataset.tipo;
-      renderTodo();
+      if (SEM_ACTIVA) render();
     });
   });
 
-  // ------- Cargar lista de semanas -------
-  async function cargarSemanas() {
-    try {
-      const res = await llamarApi({ action: 'semanasDisponibles' });
-      if (!res.ok) { mostrarError('No se pudieron cargar las semanas: ' + res.error); return; }
-      const semanas = res.data;
-      if (!semanas.length) {
-        $('contenido').innerHTML = '<div class="vacio">Todavía no hay datos calculados. Guarda al menos un registro desde el formulario.</div>';
-        $('sel-semana').style.display = 'none';
-        return;
-      }
-      $('sel-semana').innerHTML = semanas.map(s => `<option value="${s}">Semana ${s}</option>`).join('');
-      $('sel-semana').addEventListener('change', cargarSemanaActual);
-      await cargarSemanaActual();
-    } catch (e) {
-      mostrarError('Error de conexión al cargar semanas: ' + e.message);
-    }
+  function tab(i, btn) {
+    document.querySelectorAll('.tabs button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.tabpane').forEach((p, k) => p.classList.toggle('active', k === i));
+    Object.values(charts).forEach(c => { try { c.resize(); } catch (e) {} });
   }
 
-  async function cargarSemanaActual() {
-    const semana = $('sel-semana').value;
-    $('contenido').innerHTML = '<div class="vacio">Cargando datos de la semana ' + semana + '…</div>';
-    try {
-      const res = await llamarApi({ action: 'resumenSemana', semana });
-      if (!res.ok) { mostrarError('Error al cargar la semana: ' + res.error); return; }
-      FILAS_SEMANA = res.data.filas || [];
-      construirLayout();
-      renderTodo();
-    } catch (e) {
-      mostrarError('Error de conexión: ' + e.message);
-    }
+  // Serie de semanas con datos (de la más antigua a la activa), con el filtro de tipo.
+  function serieSemanas() {
+    const i = SEMANAS.indexOf(SEM_ACTIVA);
+    return SEMANAS.slice(i, i + 8).reverse()
+      .filter(s => CACHE[s])
+      .map(s => ({ s, a: agregar(filtrar(CACHE[s])) }))
+      .filter(x => x.a.n > 0);
   }
 
-  // ------- Layout fijo (se construye una vez que hay datos) -------
-  function construirLayout() {
-    $('contenido').innerHTML = `
-      <div class="kpis" id="kpis"></div>
+  // ------- Render -------
+  function render() {
+    const filas = filtrar(CACHE[SEM_ACTIVA]);
+    const a = agregar(filas);
+    const serie = serieSemanas();
+    const idx = serie.findIndex(x => x.s === SEM_ACTIVA);
+    const prev = idx > 0 ? serie[idx - 1] : null;
+    const etiquetaTipo = TIPO_ACTIVO ? ' · ' + NOMBRE_FILTRO[TIPO_ACTIVO] : '';
 
-      <div class="sectitle">Comparativo Real vs. Sistema</div>
-      <div class="grid2">
-        <div class="panel"><span class="tira resultado"></span>
-          <div class="pt">Eficiencia % por colaborador</div>
-          <div class="ph">Real (digitado) vs. Sistema (oficial)</div>
-          <div class="cwrap" id="cwrap-ef"><canvas id="chart-ef"></canvas></div>
-        </div>
-        <div class="panel"><span class="tira dinero"></span>
-          <div class="pt">Incentivo S/ por colaborador</div>
-          <div class="ph">Real vs. Sistema — la diferencia es lo que el sistema no está pagando (o está pagando de más)</div>
-          <div class="cwrap" id="cwrap-inc"><canvas id="chart-inc"></canvas></div>
-        </div>
-      </div>
+    $('app').style.display = 'block';
+    $('hEstado').innerHTML = esc(etiquetaLarga(SEM_ACTIVA)) + etiquetaTipo + '<br>' +
+      (a.n ? a.n + ' colaboradores · datos en vivo' : 'sin registros para este filtro');
 
-      <div class="sectitle">Detalle por trabajador</div>
-      <div class="panel">
-        <div class="tabla-scroll">
-        <table>
-          <thead><tr>
-            <th>Colaborador</th><th>Tipo</th><th>Días</th>
-            <th>Min.Prod</th><th>Min.Trab</th>
-            <th>EF Real</th><th>EF Sistema</th>
-            <th>Inc.Real S/</th><th>Inc.Sistema S/</th><th>Diferencia S/</th>
-          </tr></thead>
-          <tbody id="tabla-body"></tbody>
-        </table>
-        </div>
-      </div>
-
-      <details class="note" open>
-        <summary>¿Cómo leo este tablero?</summary>
-        <p><b>EF Real %</b> = suma de minutos producidos ÷ suma de minutos trabajados, de la semana elegida — promedio <b>ponderado</b>, nunca promedio simple de porcentajes diarios.</p>
-        <p><b>Real</b> es lo digitado y calculado en este sistema (formulario de Estefani); <b>Sistema</b> es lo que reporta el sistema oficial de la empresa. La diferencia es la señal de subregistro o sobreregistro.</p>
-        <p><b>Incentivo S/</b> sale de la tabla de incentivos por % de eficiencia y básico de cada colaborador (categoría A/B/C/Y). Por debajo de 55% de eficiencia no hay incentivo; desde 90% el % se satura en 71%.</p>
-        <p>El filtro "Manual / Corte Paño / Módulos" recalcula los KPI, los gráficos y la tabla solo con ese tipo de registro.</p>
-      </details>
-    `;
-  }
-
-  function filasFiltradas() {
-    return TIPO_ACTIVO ? FILAS_SEMANA.filter(f => f.tipo === TIPO_ACTIVO) : FILAS_SEMANA;
-  }
-
-  function renderTodo() {
-    if (!$('kpis')) return; // layout aún no construido
-    const filas = filasFiltradas();
-    renderKpis(filas);
-    renderCharts(filas);
-    renderTabla(filas);
-  }
-
-  // ------- KPIs (ponderados) -------
-  function renderKpis(filas) {
-    if (!filas.length) {
-      $('kpis').innerHTML = '<div class="vacio">Sin datos para este filtro.</div>';
+    if (!a.n) {
+      setVerdict('', '—', 'Sin registros para este filtro',
+        `No hay registros de ${esc(NOMBRE_FILTRO[TIPO_ACTIVO] || 'producción')} en ${esc(etiquetaLarga(SEM_ACTIVA))}. Cambia de tipo o de semana en la barra de arriba.`);
+      $('kpis').innerHTML = kpisVacios();
+      $('insight').innerHTML = ''; $('fuente').innerHTML = ''; $('fuente').className = 'note';
+      $('bloqueTabs').style.display = 'none';
       return;
     }
-    const sumMinProd = filas.reduce((a, f) => a + (f.minProducido || 0), 0);
-    const sumMinTrab = filas.reduce((a, f) => a + (f.minTrabajado || 0), 0);
-    const efRealPond = sumMinTrab > 0 ? (sumMinProd / sumMinTrab) * 100 : 0;
-    const efSistPond = sumMinTrab > 0 ? filas.reduce((a, f) => a + (f.efSist || 0) * (f.minTrabajado || 0), 0) / sumMinTrab : 0;
-    const incReal = filas.reduce((a, f) => a + (f.incReal || 0), 0);
-    const incSist = filas.reduce((a, f) => a + (f.incSist || 0), 0);
-    const diferencia = incReal - incSist;
+    $('bloqueTabs').style.display = '';
 
-    $('kpis').innerHTML = `
-      <div class="kpi hero">
-        <span class="banda"></span>
-        <div class="cuerpo">
-          <div class="l">EF Real (ponderada)</div>
-          <div class="v">${efRealPond.toFixed(1)}%</div>
-          <div class="s">${filas.length} colaboradores</div>
-        </div>
-      </div>
-      <div class="kpi">
-        <span class="banda"></span>
-        <div class="cuerpo">
-          <div class="l">EF Sistema (ponderada)</div>
-          <div class="v">${efSistPond.toFixed(1)}%</div>
-        </div>
-      </div>
-      <div class="kpi money">
-        <span class="banda"></span>
-        <div class="cuerpo">
-          <div class="l">Incentivo Real total</div>
-          <div class="v">S/ ${incReal.toFixed(2)}</div>
-        </div>
-      </div>
-      <div class="kpi money">
-        <span class="banda"></span>
-        <div class="cuerpo">
-          <div class="l">Incentivo Sistema total</div>
-          <div class="v">S/ ${incSist.toFixed(2)}</div>
-        </div>
-      </div>
-      <div class="kpi ${diferencia < 0 ? 'neg' : ''}">
-        <span class="banda"></span>
-        <div class="cuerpo">
-          <div class="l">Diferencia (Real − Sistema)</div>
-          <div class="v">${diferencia >= 0 ? '+' : ''}S/ ${diferencia.toFixed(2)}</div>
-        </div>
-      </div>
-    `;
+    renderVerdict(a, prev);
+    renderKpis(a, prev, serie);
+    renderInsight(filas, a);
+    renderFuente(a);
+    renderCharts(filas);
+    renderTendencia(serie);
+    renderTabla(filas);
+    plegarTablasEnCelular();
   }
 
-  // ------- Gráficos comparativos -------
+  function setVerdict(clase, dot, t, s) {
+    const v = $('verdict');
+    v.className = 'verdict' + (clase ? ' ' + clase : '');
+    v.innerHTML = `<div class="dot">${dot}</div><div><div class="t">${t}</div><div class="s">${s}</div></div>`;
+  }
+
+  function renderVerdict(a, prev) {
+    const base = `EF Real de ${esc(etiquetaCorta(SEM_ACTIVA))}: <b>${f1(a.efReal)} %</b>.`;
+    const sinMeta = ' No hay meta de eficiencia fijada, por eso se compara con la semana anterior con registros.';
+    if (!prev) {
+      setVerdict('', '—', 'Sin semana anterior para comparar', base + ' No hay una semana previa con registros de este tipo.');
+      return;
+    }
+    const d = +(a.efReal.toFixed(1)) - +(prev.a.efReal.toFixed(1));
+    const cmp = `${esc(etiquetaCorta(prev.s))} tuvo ${f1(prev.a.efReal)} %`;
+    if (Math.abs(d) < 0.05) setVerdict('', '=', 'Igual que ' + esc(etiquetaCorta(prev.s)), base + ' ' + cmp + '.' + sinMeta);
+    else if (d > 0) setVerdict('ok', '▲', 'Mejor que ' + esc(etiquetaCorta(prev.s)), base + ' Son ' + f1(d) + ' puntos más; ' + cmp + '.' + sinMeta);
+    else setVerdict('warn', '▼', 'Peor que ' + esc(etiquetaCorta(prev.s)), base + ' Son ' + f1(-d) + ' puntos menos; ' + cmp + '.' + sinMeta);
+  }
+
+  function kpiHTML(o) {
+    return `<div class="kpi ${o.cls || ''}"><span class="banda"></span><div class="cuerpo">
+      <div class="l">${o.l}</div>
+      <div class="row"><span class="v">${o.v}</span>${o.d || ''}</div>
+      <div class="s">${o.s || ''}</div>${o.spark ? '<div class="spark"><canvas id="spkEf"></canvas></div>' : ''}
+    </div></div>`;
+  }
+  function kpisVacios() {
+    return [['hero', 'EF Real'], ['neutro', 'EF Sistema'], ['money', 'Incentivo Real'], ['money', 'Incentivo Sistema'], ['hero money', 'Diferencia Real − Sistema']]
+      .map(([c, l]) => kpiHTML({ cls: c, l, v: '—', s: 'sin registros' })).join('');
+  }
+
+  function renderKpis(a, prev, serie) {
+    let dEf = '', dDif = '';
+    if (prev) {
+      const d = +(a.efReal.toFixed(1)) - +(prev.a.efReal.toFixed(1));
+      dEf = Math.abs(d) < 0.05 ? '<span class="d flat">= igual</span>'
+          : `<span class="d ${d > 0 ? 'bien' : 'mal'}">${d > 0 ? '▲' : '▼'} ${f1(Math.abs(d))} pts</span>`;
+      if (prev.a.conSistema && a.conSistema) {
+        const dd = a.diferencia - prev.a.diferencia;
+        dDif = `<span class="d flat">${dd >= 0 ? '▲' : '▼'} S/ ${f2(Math.abs(dd))}</span>`;
+      }
+    }
+    const conSpark = serie.length >= 3;
+    const html = [
+      kpiHTML({ cls: 'hero', l: 'EF Real', v: f1(a.efReal) + '%', d: dEf,
+        s: `${f0(a.sumMinProd)} min producidos ÷ ${f0(a.sumMinTrab)} min trabajados · ${a.n} colaboradores`,
+        spark: conSpark }),
+      kpiHTML({ cls: 'neutro', l: 'EF Sistema', v: a.conSistema ? f1(a.efSist) + '%' : '—',
+        s: a.conSistema ? `ponderada con ${f0(a.sumMinSist)} min del sistema` : 'sin extracto del sistema para esta semana' }),
+      kpiHTML({ cls: 'money', l: 'Incentivo Real', v: soles(a.incReal), s: 'según lo digitado en el formulario' }),
+      kpiHTML({ cls: 'money', l: 'Incentivo Sistema', v: a.conSistema ? soles(a.incSist) : '—',
+        s: a.conSistema ? 'según el sistema (SIGE)' : 'sin extracto del sistema para esta semana' }),
+      kpiHTML({ cls: 'hero money', l: 'Diferencia Real − Sistema', v: a.conSistema ? solesSigno(a.diferencia) : '—', d: dDif,
+        s: a.conSistema ? 'positivo: lo digitado da más incentivo que el sistema' : 'no se puede calcular sin el extracto del sistema' })
+    ].join('');
+    $('kpis').innerHTML = html;
+    if (sparkChart) { sparkChart.destroy(); sparkChart = null; }
+    if (conSpark && $('spkEf')) {
+      sparkChart = new Chart($('spkEf'), {
+        type: 'line',
+        data: { labels: serie.map(x => etiquetaCorta(x.s)),
+          datasets: [{ data: serie.map(x => +x.a.efReal.toFixed(1)), borderColor: '#9BE8CB', borderWidth: 1.8, pointRadius: 0, tension: .35,
+            fill: true, backgroundColor: c => AREA(c, '155,232,203') }] },
+        options: { animation: false, plugins: { legend: { display: false }, tooltip: { enabled: false } },
+          scales: { x: { display: false }, y: { display: false } } }
+      });
+    }
+  }
+
+  function renderInsight(filas, a) {
+    const partes = [];
+    if (a.conSistema) {
+      const bruto = filas.reduce((s, f) => s + Math.abs(f.diferencia || 0), 0);
+      if (bruto >= 0.005) {
+        const ord = [...filas].sort((x, y) => Math.abs(y.diferencia || 0) - Math.abs(x.diferencia || 0));
+        let acum = 0, k = 0;
+        while (k < ord.length && acum < bruto * 0.5) { acum += Math.abs(ord[k].diferencia || 0); k++; }
+        const nombres = ord.slice(0, Math.min(k, 3)).map(f => `${esc(f.nombre.split(',')[0])} (${solesSigno(f.diferencia || 0)})`).join(', ');
+        partes.push(`<b>${f0(acum / bruto * 100)} %</b> de la diferencia (S/ ${f2(acum)} de S/ ${f2(bruto)}, sumadas sin signo) está en <b>${k} de ${filas.length}</b> colaboradores: ${nombres}${k > 3 ? ' y otros' : ''}.`);
+      } else {
+        partes.push('Lo digitado y el sistema coinciden en el incentivo de todos los colaboradores de esta semana.');
+      }
+    }
+    const bajo = filas.filter(f => (f.efReal || 0) < 55).length;
+    if (bajo) partes.push(`<b>${bajo} de ${filas.length}</b> colaboradores quedan bajo 55 % de EF Real en la semana, el mínimo para cobrar incentivo.`);
+    $('insight').innerHTML = partes.join(' ');
+  }
+
+  function renderFuente(a) {
+    const el = $('fuente');
+    if (!a.conSistema) {
+      el.className = 'note aviso';
+      el.innerHTML = 'Esta semana todavía no tiene cargado el extracto del sistema (BD_MINTRAB). Por eso EF Sistema, Incentivo Sistema y la diferencia salen como “—”. Se carga desde el Panel de Corte, pestaña Sistema.';
+    } else {
+      el.className = 'note';
+      el.innerHTML = 'Fuente: registros del formulario de Corte (Real) y extracto semanal del SIGE (Sistema), leídos en vivo de la base de datos de LIVES.';
+    }
+  }
+
   function renderCharts(filas) {
     const ordenadas = [...filas].sort((a, b) => (b.diferencia || 0) - (a.diferencia || 0));
-    const nombres = ordenadas.map(f => f.nombre.split(',')[0]); // solo apellido, para que quepa
-    const alto = Math.max(220, ordenadas.length * 24);
+    const nombres = ordenadas.map(f => f.nombre.split(',')[0]);
+    const alto = Math.max(240, ordenadas.length * 26 + 60);
     $('cwrap-ef').style.height = alto + 'px';
     $('cwrap-inc').style.height = alto + 'px';
+    ['ef', 'inc'].forEach(k => { if (charts[k]) { charts[k].destroy(); delete charts[k]; } });
 
-    if (chartEf) chartEf.destroy();
-    if (chartInc) chartInc.destroy();
-
-    chartEf = new Chart($('chart-ef'), {
+    const barra = (label, data, color) => ({ label, data, backgroundColor: color, borderRadius: 4, barThickness: 11 });
+    charts.ef = new Chart($('chart-ef'), {
       type: 'bar',
-      data: {
-        labels: nombres,
-        datasets: [
-          { label: 'EF Real %', data: ordenadas.map(f => f.efReal || 0), backgroundColor: '#0F7A5A', borderRadius: 3, barThickness: 12 },
-          { label: 'EF Sistema %', data: ordenadas.map(f => f.efSist || 0), backgroundColor: '#4E6B78', borderRadius: 3, barThickness: 12 }
-        ]
-      },
-      options: {
-        indexAxis: 'y', maintainAspectRatio: false, responsive: true,
-        scales: {
-          x: { min: 0, grid: { color: '#F1F6F4' }, border: { color: '#DCE5E2' }, ticks: { callback: v => v + '%' } },
-          y: { grid: { display: false } }
-        },
-        plugins: { legend: { position: 'top', labels: { boxWidth: 12 } } }
-      }
+      data: { labels: nombres, datasets: [
+        barra('EF Real %', ordenadas.map(f => f.efReal || 0), EMER),
+        barra('EF Sistema %', ordenadas.map(f => f.efSist || 0), SLATE)] },
+      options: { indexAxis: 'y', animation: ANIM,
+        scales: { x: { beginAtZero: true, ticks: { callback: v => v + '%' } }, y: { grid: { display: false } } },
+        plugins: { legend: LEYENDA, tooltip: { callbacks: { label: c => c.dataset.label + ': ' + f1(c.raw) + '%' } } } }
     });
-
-    chartInc = new Chart($('chart-inc'), {
+    charts.inc = new Chart($('chart-inc'), {
       type: 'bar',
-      data: {
-        labels: nombres,
-        datasets: [
-          { label: 'Incentivo Real S/', data: ordenadas.map(f => f.incReal || 0), backgroundColor: '#0F7A5A', borderRadius: 3, barThickness: 12 },
-          { label: 'Incentivo Sistema S/', data: ordenadas.map(f => f.incSist || 0), backgroundColor: '#4E6B78', borderRadius: 3, barThickness: 12 }
-        ]
-      },
-      options: {
-        indexAxis: 'y', maintainAspectRatio: false, responsive: true,
-        scales: {
-          x: { min: 0, grid: { color: '#F1F6F4' }, border: { color: '#DCE5E2' }, ticks: { callback: v => 'S/' + v } },
-          y: { grid: { display: false } }
-        },
-        plugins: { legend: { position: 'top', labels: { boxWidth: 12 } } }
-      }
+      data: { labels: nombres, datasets: [
+        barra('Incentivo Real S/', ordenadas.map(f => f.incReal || 0), TAUPE),
+        barra('Incentivo Sistema S/', ordenadas.map(f => f.incSist || 0), SLATE)] },
+      options: { indexAxis: 'y', animation: ANIM,
+        scales: { x: { beginAtZero: true, ticks: { callback: v => 'S/ ' + v } }, y: { grid: { display: false } } },
+        plugins: { legend: LEYENDA, tooltip: { callbacks: { label: c => c.dataset.label.replace(' S/', '') + ': ' + soles(c.raw) } } } }
     });
   }
 
-  // ------- Tabla de detalle -------
-  const NOMBRE_TIPO = { MANUAL: 'Manual', CORTE_PAÑO: 'Corte Paño', MODULO: 'Módulo' };
+  function renderTendencia(serie) {
+    ['tend', 'dif'].forEach(k => { if (charts[k]) { charts[k].destroy(); delete charts[k]; } });
+    if (serie.length < 2) {
+      $('pTend').style.display = 'none'; $('pTendDif').style.display = 'none';
+      $('pTendNo').style.display = '';
+      $('tendNoTxt').textContent = 'Todavía hay una sola semana con registros' + (TIPO_ACTIVO ? ' de ' + NOMBRE_FILTRO[TIPO_ACTIVO] : '') + ': la comparación semana a semana aparece cuando haya al menos dos.';
+      return;
+    }
+    $('pTend').style.display = ''; $('pTendNo').style.display = 'none';
+    const labels = serie.map(x => etiquetaCorta(x.s));
+    const real = serie.map(x => +x.a.efReal.toFixed(1));
+    const sist = serie.map(x => x.a.conSistema ? +x.a.efSist.toFixed(1) : null);
+    const cerca = real.some((v, i) => sist[i] != null && Math.abs(v - sist[i]) < 6);
+    $('phTend').textContent = `EF % ponderada de cada semana (últimas ${serie.length} con registros${TIPO_ACTIVO ? ' de ' + NOMBRE_FILTRO[TIPO_ACTIVO] : ''}). Real: minutos producidos ÷ trabajados; Sistema: la del SIGE, ponderada con sus propios minutos. Las semanas sin extracto del sistema no llevan punto de Sistema.`;
+    charts.tend = new Chart($('chart-tend'), {
+      type: 'line',
+      data: { labels, datasets: [
+        Object.assign({}, serieTendencia(EMER, '16,185,129'), { label: 'EF Real %', data: real }),
+        Object.assign({}, serieTendencia(SLATE, '78,107,120'), { label: 'EF Sistema %', data: sist, fill: false, etiquetaAbajo: cerca })] },
+      options: { animation: ANIM, layout: { padding: { top: 30, bottom: cerca ? 16 : 0 } },
+        plugins: { legend: LEYENDA, etiquetasTendencia: { fmt: v => v.toFixed(1) + '%' } },
+        scales: { x: { offset: true }, y: { beginAtZero: true, ticks: { callback: v => v + '%' } } } },
+      plugins: [etiquetasTendencia]
+    });
+    const dif = serie.map(x => x.a.conSistema ? +x.a.diferencia.toFixed(2) : null);
+    if (dif.filter(v => v != null).length < 2) { $('pTendDif').style.display = 'none'; }
+    else {
+      $('pTendDif').style.display = '';
+      charts.dif = new Chart($('chart-dif'), {
+        type: 'line',
+        data: { labels, datasets: [Object.assign({}, serieTendencia(TAUPE, '180,83,9'), { label: 'Diferencia S/', data: dif })] },
+        options: { animation: ANIM, layout: { padding: { top: 30 } },
+          plugins: { legend: { display: false }, etiquetasTendencia: { fmt: v => (v >= 0 ? '+' : '−') + f2(Math.abs(v)) } },
+          scales: { x: { offset: true }, y: { ticks: { callback: v => 'S/ ' + v } } } },
+        plugins: [etiquetasTendencia]
+      });
+    }
+    reajustarGrids();
+  }
+
   function renderTabla(filas) {
     const ordenadas = [...filas].sort((a, b) => a.nombre.localeCompare(b.nombre));
-    $('tabla-body').innerHTML = ordenadas.map(f => `
-      <tr>
-        <td>${f.nombre}</td>
-        <td><span class="chip-tipo">${NOMBRE_TIPO[f.tipo] || f.tipo}</span></td>
-        <td>${f.diasTrabajados}</td>
-        <td>${Math.round(f.minProducido || 0)}</td>
-        <td>${Math.round(f.minTrabajado || 0)}</td>
-        <td class="${(f.efReal || 0) >= 55 ? 'ef-alta' : 'ef-baja'}">${(f.efReal || 0).toFixed(1)}%</td>
-        <td>${(f.efSist || 0).toFixed(1)}%</td>
-        <td>${(f.incReal || 0).toFixed(2)}</td>
-        <td>${(f.incSist || 0).toFixed(2)}</td>
-        <td class="${(f.diferencia || 0) >= 0 ? 'dif-pos' : 'dif-neg'}">${(f.diferencia || 0) >= 0 ? '+' : ''}${(f.diferencia || 0).toFixed(2)}</td>
-      </tr>
-    `).join('');
+    $('tabla-body').innerHTML = ordenadas.map(f => {
+      const sinSist = !(f.minTrabSist > 0);
+      return `<tr>
+        <td>${esc(f.nombre)}</td>
+        <td><span class="pill st low">${NOMBRE_TIPO[f.tipo] || esc(f.tipo)}</span></td>
+        <td class="n">${f.diasTrabajados}</td>
+        <td class="n">${f0(f.minProducido || 0)}</td>
+        <td class="n">${f0(f.minTrabajado || 0)}</td>
+        <td class="n"><span class="st ${(f.efReal || 0) >= 55 ? 'bue' : 'ale'}">${f1(f.efReal || 0)}%</span></td>
+        <td class="n">${sinSist ? '—' : f1(f.efSist || 0) + '%'}</td>
+        <td class="n money">${f2(f.incReal || 0)}</td>
+        <td class="n money">${sinSist ? '—' : f2(f.incSist || 0)}</td>
+        <td class="n money">${sinSist ? '—' : ((f.diferencia || 0) >= 0 ? '+' : '−') + f2(Math.abs(f.diferencia || 0))}</td>
+      </tr>`;
+    }).join('');
   }
 
-  cargarSemanas();
+  function reajustarGrids() {
+    const spanOf = c => c.classList.contains('col8') ? 8 : c.classList.contains('col6') ? 6 : c.classList.contains('col4') ? 4 : 12;
+    document.querySelectorAll('.grid').forEach(g => {
+      const vis = [].filter.call(g.children, c => c.style.display !== 'none');
+      [].forEach.call(g.children, c => { c.style.gridColumn = ''; });
+      let fila = [], acum = 0;
+      const cerrar = () => { if (fila.length && acum < 12) { const u = fila[fila.length - 1]; u.style.gridColumn = 'span ' + (12 - acum + spanOf(u)); } fila = []; acum = 0; };
+      vis.forEach(c => { const sp = spanOf(c); if (acum + sp > 12) cerrar(); fila.push(c); acum += sp; if (acum >= 12) { fila = []; acum = 0; } });
+      cerrar();
+    });
+  }
 
+  function plegarTablasEnCelular() {
+    const movil = window.matchMedia('(max-width:600px)').matches;
+    document.querySelectorAll('.panel').forEach(p => {
+      if (!p.querySelector('table')) return;
+      if (!movil) { p.classList.remove('plegable', 'plegado'); return; }
+      if (p.classList.contains('plegable')) return;
+      p.classList.add('plegable', 'plegado');
+      let b = p.querySelector('.verdet');
+      if (!b) {
+        b = document.createElement('button'); b.type = 'button'; b.className = 'verdet';
+        b.onclick = () => { const sigue = p.classList.toggle('plegado'); b.textContent = sigue ? 'Ver tabla' : 'Ocultar tabla'; };
+        p.appendChild(b);
+      }
+      b.textContent = 'Ver tabla';
+    });
+  }
+  window.addEventListener('resize', plegarTablasEnCelular);
+
+  iniciar();
 </script>
 </body>
 </html>
