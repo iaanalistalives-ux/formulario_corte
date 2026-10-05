@@ -3,19 +3,22 @@
 <head>
 <meta charset="UTF-8">
 <!-- ============================================================================
-     LIVES · SESIÓN DEL PORTAL EN LAS HERRAMIENTAS            lives-sesion v1 · 2026-09-18
+     LIVES · SESIÓN DEL PORTAL EN LAS HERRAMIENTAS            lives-sesion v3 · 2026-10-05
      Bloque común: es idéntico en todas las herramientas. Si se corrige, se corrige en
      todas. No depende de nada de la página.
-     · Toma la sesión del portal (misma dirección github.io, se comparte sola). Dentro del
-       portal no se ve nada distinto.
-     · Si la herramienta se abre suelta y no hay sesión, pide usuario y clave aquí mismo,
-       con las mismas cuentas del portal. Esa sesión también sirve para el portal.
-     · Toda lectura a Supabase sale con la llave de la persona. Cuando Supabase deje de
-       aceptar lecturas anónimas (SQL 21), sin sesión no se lee nada.
-     · El nombre de quien trabaja sale de la sesión, no de la dirección: ?usuario= se
-       reescribe con el nombre real para que nadie pueda escribir otro.
-     · Renueva la llave antes de que venza (dura 1 hora) sin chocar con el portal ni con
-       otras pestañas.
+     · Toma la sesión del portal (misma dirección github.io, se comparte sola).
+     · Sin sesión del portal no pide clave: avisa "Abre esto desde el portal".
+     · Toda lectura a Supabase sale con la llave de la persona y la renueva antes de que
+       venza (1 hora) sin chocar con el portal ni con otras pestañas.
+     · El nombre de quien trabaja sale de la sesión: ?usuario= se reescribe con el real.
+     · v3 · MODO SUPERVISIÓN: Rodrigo (rcamogliano) ve y usa TODAS las herramientas,
+       formularios incluidos, pero NADA se guarda:
+       - si la herramienta pregunta "¿puede editar/subir?" y la base dice que no, para
+         ellos responde que sí, para que la pantalla quede activa;
+       - todo intento de guardar lo rechaza Supabase (para ellos cada guardado corre en
+         "solo lectura" y los archivos no se suben) y aquí se avisa "Modo supervisión: no
+         se guardó".
+       Christian (ctalepcio) no supervisa: tiene acceso completo y guarda en todas.
      ============================================================================ -->
 <style id="lsCss">
 #lsCapa{position:fixed;inset:0;z-index:2147483000;display:none;align-items:center;justify-content:center;
@@ -31,6 +34,12 @@
 #lsCapa .lsBtn{display:inline-block;min-height:46px;background:#0F7A5A;color:#fff;border:none;border-radius:9px;
   font-family:inherit;font-size:15px;font-weight:800;padding:13px 26px;text-decoration:none;line-height:20px;}
 #lsCapa .lsBtn:hover{background:#0B815E;}
+#lsSup{position:fixed;right:12px;bottom:12px;z-index:2147482000;background:#0E3B36;color:#fff;
+  font-family:Calibri,Arial,sans-serif;font-size:12.5px;font-weight:700;border-radius:999px;padding:7px 14px;
+  box-shadow:0 4px 14px rgba(14,59,54,.25);border:2px solid #10B981;pointer-events:none;opacity:.92;}
+#lsToast{position:fixed;left:50%;bottom:56px;transform:translateX(-50%);z-index:2147482001;background:#B45309;
+  color:#fff;font-family:Calibri,Arial,sans-serif;font-size:14px;font-weight:700;border-radius:10px;
+  padding:11px 18px;box-shadow:0 8px 24px rgba(0,0,0,.25);display:none;max-width:90vw;text-align:center;}
 </style>
 <script id="lsJs">
 (function(){
@@ -177,24 +186,99 @@
     o.headers = h;
     return o;
   }
+  /* ---------- MODO SUPERVISIÓN (v3) ---------- */
+  /* 05/10: solo Rodrigo supervisa. Christian (ctalepcio) tiene acceso completo y guarda
+     en todas las herramientas, para sus pruebas (lo da Supabase con es_superusuario()). */
+  var SUPERVISORES = ['rcamogliano'];
+  function supervisando(){
+    var s = sesion(); if (!s) return false;
+    return SUPERVISORES.indexOf(String(s.usuario || '').trim().toLowerCase()) !== -1;
+  }
+  /* El bloqueo de verdad lo hace Supabase: para los supervisores, todo pedido que intenta
+     guardar corre en modo "solo lectura" y la base lo rechaza (y los archivos tampoco se
+     suben). Aquí solo se deja la pantalla activa y se avisa con claridad. */
+  var RPC_PUEDE = /(puede|permiso|es_editor|editor_de)/i;
+  function rutaSB(url){ return url.indexOf(SB_URL) === 0 ? url.slice(SB_URL.length).split('?')[0] : ''; }
+  function esRechazoSup(txt){ return /read-only transaction|solo lectura|SUPERVISION/i.test(txt || ''); }
+  var _toastT = null;
+  function avisoSup(txt){
+    function poner(){
+      var t = document.getElementById('lsToast');
+      if (!t){ t = document.createElement('div'); t.id = 'lsToast'; document.body.appendChild(t); }
+      t.textContent = txt; t.style.display = 'block';
+      clearTimeout(_toastT); _toastT = setTimeout(function(){ t.style.display = 'none'; }, 4500);
+    }
+    if (document.body) poner(); else document.addEventListener('DOMContentLoaded', poner);
+  }
+  function marcaSup(){
+    if (!supervisando() || document.getElementById('lsSup')) return;
+    var b = document.createElement('div'); b.id = 'lsSup';
+    b.textContent = '👁️ Modo supervisión · puedes usar todo, nada se guarda';
+    document.body.appendChild(b);
+  }
+  if (document.body) marcaSup(); else document.addEventListener('DOMContentLoaded', marcaSup);
+  function respuesta(cuerpo, estado){
+    return new Response(JSON.stringify(cuerpo), { status: estado,
+      headers: { 'Content-Type': 'application/json' } });
+  }
+
+  /* Para supervisores: "¿puede editar?" pasa a sí, y los rechazos por solo lectura se
+     convierten en un aviso claro. Todo lo demás pasa igual que siempre. */
+  function ajustarSup(r, url, metodo){
+    if (!supervisando()) return r;
+    var ruta = rutaSB(url);
+    if (!ruta) return r;
+    var esRpc = ruta.indexOf('/rest/v1/rpc/') === 0;
+    var fn = esRpc ? ruta.slice('/rest/v1/rpc/'.length) : '';
+    if (!r.ok){
+      return r.clone().text().then(function(t){
+        var sube = ruta.indexOf('/storage/v1/object') === 0 && !/\/object\/(list|sign|info)\//.test(ruta) &&
+                   String(metodo).toUpperCase() !== 'GET';
+        if (esRechazoSup(t) || sube){
+          avisoSup('👁️ Modo supervisión: no se guardó. Estás revisando, los datos no cambian.');
+          return respuesta({ message: 'Modo supervisión: no se guardó (estás revisando).',
+                             error: 'MODO_SUPERVISION', code: 'SUPERVISION' }, r.status);
+        }
+        return r;
+      }, function(){ return r; });
+    }
+    if (!esRpc) return r;
+    return r.clone().text().then(function(t){
+      var x = t.trim();
+      if (RPC_PUEDE.test(fn) && (x === 'false' || x === '')) return respuesta(true, 200);
+      if (x.charAt(0) === '{' && /"(puede|es_editor|editor)[a-z_]*"\s*:\s*false/i.test(x)){
+        try{
+          var o = JSON.parse(x), k, cambio = false;
+          for (k in o) if (/^(puede|es_editor|editor)/i.test(k) && o[k] === false){ o[k] = true; cambio = true; }
+          if (cambio) return respuesta(o, r.status);
+        }catch(e){}
+      }
+      return r;
+    }, function(){ return r; });
+  }
+
   window.fetch = function(entrada, init){
-    var url = (typeof entrada === 'string') ? entrada : '';
-    if (url.indexOf(SB_URL + '/rest/v1/') !== 0) return fetchBase(entrada, init);
+    var url = (typeof entrada === 'string') ? entrada
+            : (entrada && entrada.url) ? entrada.url : String(entrada || '');
+    var metodo = (init && init.method) || (entrada && entrada.method) || 'GET';
+    if (supervisando() && url.indexOf(SB_URL) === 0 && url.indexOf(SB_URL + '/rest/v1/') !== 0){
+      return fetchBase(entrada, init).then(function(r){ return ajustarSup(r, url, metodo); });
+    }
+    if (typeof entrada !== 'string' || url.indexOf(SB_URL + '/rest/v1/') !== 0) return fetchBase(entrada, init);
     return llave(false).then(function(tk){
       return fetchBase(url, conLlave(init, tk)).then(function(r){
-        if (r.status !== 401) return r;
+        if (r.status !== 401) return ajustarSup(r, url, metodo);
         /* 401: la llave venció o la cerraron. Se renueva una vez y se reintenta. */
         return llave(true).then(function(tk2){
           if (!tk2){ pedirSesion(); return r; }
           return fetchBase(url, conLlave(init, tk2)).then(function(r2){
             if (r2.status === 401) pedirSesion();
-            return r2;
+            return ajustarSup(r2, url, metodo);
           });
         });
       });
     });
   };
-
   /* ---------- el nombre sale de la sesión, no de la dirección ---------- */
   function fijarNombre(s){
     if (!s || !s.nombre) return;
@@ -266,14 +350,15 @@
   }
 
   window.LIVES_SESION = {
-    version: 'lives-sesion v2 · 2026-09-21 (sin login propio, solo portal)',
+    version: 'lives-sesion v3 · 2026-10-05 (solo portal · modo supervisión)',
+    supervision: function(){ return supervisando(); },
     actual: function(){ var s = sesion(); return s ? { usuario: s.usuario, nombre: s.nombre, conSupabase: !!s.sb } : null; },
     llave: function(){ return llave(false); },
     pedir: function(){ pedirSesion(); }
   };
 })();
 </script>
-<!-- ===== fin lives-sesion v1 ===== -->
+<!-- ===== fin lives-sesion v3 ===== -->
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Corte · Eficiencia e Incentivos | LIVES</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
