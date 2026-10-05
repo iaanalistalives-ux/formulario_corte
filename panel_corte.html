@@ -360,765 +360,551 @@
 </script>
 <!-- ===== fin lives-sesion v3 ===== -->
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Corte · Registro diario de producción | LIVES</title>
+<title>Corte — Panel de registros | LIVES</title>
 <style>
 :root{
-  --petrol:#0E3B36; --emer:#10B981; --sage:#0F7A5A; --sage-dark:#0B815E;
-  --slate:#4E6B78; --taupe:#B45309; --rose:#DC2626; --tan:#F59E0B;
-  --warm:#DCE5E2; --warm-light:#F1F6F4; --stone:#5F726C; --card:#fff;
-  --sh:0 1px 3px rgba(14,59,54,.06),0 1px 2px rgba(14,59,54,.04);
-  --sh-h:0 4px 12px rgba(14,59,54,.10); --r:12px;
+  --petrol:#0E3B36;--petrol-2:#12463F;--emer:#10B981;--sage:#0F7A5A;--sage-dark:#0B815E;
+  --slate:#4E6B78;--taupe:#B45309;--rose:#DC2626;--tan:#F59E0B;--warm:#DCE5E2;--warm-light:#F1F6F4;
+  --stone:#5F726C;--card:#fff;--sh:0 1px 3px rgba(14,59,54,.06),0 1px 2px rgba(14,59,54,.04);
+  --sh-h:0 4px 12px rgba(14,59,54,.10);--r:12px;
 }
-body{margin:0;background:var(--warm-light);color:#333;font-family:Calibri,Arial,sans-serif;
-font-size:14px;line-height:1.45;font-variant-numeric:tabular-nums;}
 *{box-sizing:border-box;}
-
-.header{background:var(--petrol);border-bottom:3px solid var(--emer);min-height:70px;
-display:flex;align-items:center;gap:16px;padding:10px 22px;flex-wrap:wrap;}
+body{margin:0;background:var(--warm-light);color:#333;font-family:Calibri,Arial,sans-serif;font-size:14px;line-height:1.45;font-variant-numeric:tabular-nums;}
+.header{background:var(--petrol);border-bottom:3px solid var(--emer);min-height:70px;display:flex;align-items:center;gap:16px;padding:0 22px;flex-wrap:wrap;}
 .header img{height:38px;display:block;}
 .divider{width:1px;height:34px;background:rgba(255,255,255,.3);}
-.htitle{color:#fff;font-size:17px;font-weight:700;}
+.htitle{color:#fff;font-size:17px;font-weight:700;letter-spacing:.2px;}
 .hsub{color:#B9CFC9;font-size:11.5px;}
-.hlinks{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap;}
-.hlinks a{color:#fff;text-decoration:none;font-size:12.5px;font-weight:700;border:1px solid rgba(255,255,255,.35);
-border-radius:8px;padding:8px 14px;min-height:36px;display:inline-flex;align-items:center;}
-.hlinks a:hover{background:rgba(255,255,255,.08);border-color:#fff;}
-
-.wrap{max-width:760px;margin:0 auto;padding:18px 16px 44px;}
-.card{background:var(--card);border-radius:var(--r);box-shadow:var(--sh);padding:22px 20px;
-margin-bottom:14px;position:relative;overflow:hidden;padding-top:24px;}
-.card .tira{position:absolute;left:0;right:0;top:0;height:4px;background:var(--sage);}
-.card .tira.volumen{background:var(--slate);}
-.card .pt{font-size:15px;font-weight:700;}
-.card .ph{font-size:11.5px;color:var(--stone);margin-top:2px;margin-bottom:14px;}
-
-.campo{margin-bottom:14px;}
-label,.lbl{display:block;font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;
-color:var(--stone);margin-bottom:5px;}
-label .req,.lbl .req{color:var(--rose);}
-input,select{width:100%;font-family:inherit;font-size:14px;color:#333;
-border:1px solid var(--warm);border-radius:8px;padding:10px 12px;background:#fff;min-height:44px;}
-input:focus,select:focus{outline:none;border-color:var(--sage);box-shadow:0 0 0 3px rgba(15,122,90,.12);}
-.campo.malo input,.campo.malo select,.fila.malo input,.fila.malo select{border-color:var(--rose);background:#FFF7F7;}
-.msg{display:none;font-size:12px;color:var(--rose);margin-top:4px;font-weight:700;}
-.campo.malo>.msg,.fila.malo>.msg,.bloque.malo>.msg{display:block;}
-.ayuda{font-size:11.5px;color:var(--stone);margin-top:4px;}
-.dos{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-
-.fechafila{display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;}
-.fechafila .campo{flex:1;min-width:190px;margin-bottom:0;}
-.chip{background:var(--warm-light);border-radius:20px;padding:10px 14px;font-size:13px;color:var(--petrol);font-weight:700;min-height:44px;display:inline-flex;align-items:center;}
-
-.seg{display:flex;background:var(--warm-light);border-radius:10px;padding:4px;gap:4px;margin:18px 0 16px;}
-.seg button{flex:1;background:none;border:none;font-family:inherit;font-size:14px;font-weight:700;
-color:var(--stone);padding:10px 8px;border-radius:8px;cursor:pointer;min-height:44px;}
-.seg button.active{background:var(--sage);color:#fff;box-shadow:var(--sh);}
-
-.seccion{display:none;} .seccion.on{display:block;}
-.sep{border:none;border-top:1px solid var(--warm);margin:18px 0 14px;}
-.bloque{margin-bottom:14px;}
-.fila{display:grid;grid-template-columns:1fr 130px auto;gap:8px;align-items:start;margin-bottom:8px;}
-.fila>.msg{grid-column:1/-1;margin-top:-2px;}
-.caja{border:1px solid var(--warm);border-radius:10px;padding:12px;margin-bottom:10px;background:var(--warm-light);}
-.caja .cab{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
-.caja .num{font-size:12px;color:var(--stone);font-weight:700;text-transform:uppercase;letter-spacing:.5px;}
-.caja .dos + .dos{margin-top:8px;}
-.caja label{margin-top:0;}
-.enlace{background:none;border:none;font-family:inherit;color:var(--sage);font-size:13px;font-weight:700;
-cursor:pointer;padding:8px 0;min-height:36px;}
-.enlace:hover{color:var(--sage-dark);text-decoration:underline;}
-.quitar{background:none;border:1px solid var(--warm);color:var(--stone);font-family:inherit;font-size:12.5px;
-font-weight:700;border-radius:8px;padding:0 12px;min-height:44px;cursor:pointer;}
-.quitar:hover{border-color:var(--rose);color:var(--rose);}
-.caja .quitar{min-height:34px;}
-
-.acciones{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:18px;}
-.btn{font-family:inherit;font-size:14px;font-weight:700;border-radius:8px;padding:12px 18px;
-cursor:pointer;border:1px solid var(--warm);background:#fff;color:var(--sage);min-height:44px;}
+.hstate{margin-left:auto;color:#B9CFC9;font-size:11.5px;text-align:right;}
+.wrap{width:100%;margin:0 auto;padding:18px clamp(16px,2.2vw,52px) 44px;}
+.bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--card);border-radius:var(--r);box-shadow:var(--sh);padding:10px 14px;margin-bottom:14px;position:sticky;top:0;z-index:15;}
+.btn{font-family:inherit;font-size:13px;font-weight:700;border-radius:8px;padding:8px 14px;cursor:pointer;border:1px solid var(--warm);background:#fff;color:var(--sage);min-height:36px;}
+a.btn{text-decoration:none;display:inline-flex;align-items:center;}
 .btn:hover{border-color:var(--sage);}
 .btn.primary{background:var(--sage);color:#fff;border-color:var(--sage);}
 .btn.primary:hover{background:var(--sage-dark);}
-.btn[disabled]{opacity:.6;cursor:default;}
-
-.aviso{display:none;border-radius:8px;padding:12px 16px;font-size:13px;margin-bottom:14px;}
-.aviso.error{display:block;background:#FBE9E9;border:1px solid var(--rose);color:var(--rose);}
-.aviso.info{display:block;background:#FEF3E2;border:1px solid var(--tan);color:var(--taupe);}
-
-.exito{display:none;text-align:center;padding:34px 20px;}
-.exito .dot{width:64px;height:64px;border-radius:50%;background:#E7F4EF;color:var(--sage);
-display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:700;margin:0 auto 14px;}
-.exito .t{font-size:20px;font-weight:700;color:var(--sage);}
-.exito .s{font-size:13.5px;color:var(--stone);margin-top:6px;}
-.exito .cod{font-size:15px;color:#333;margin-top:12px;font-weight:700;}
-
+.btn.peligro{color:var(--rose);} .btn.peligro:hover{border-color:var(--rose);}
+.btn.chico{font-size:12px;padding:5px 10px;min-height:30px;}
+.btn:disabled{opacity:.5;cursor:default;}
+.spacer{margin-left:auto;}
+input,select,textarea{font-family:inherit;font-size:14px;border:1px solid var(--warm);border-radius:8px;padding:8px 10px;background:#fff;color:#333;min-height:40px;}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--sage);outline-offset:1px;}
+.semlbl{font-size:15px;font-weight:700;color:var(--sage);}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--warm);margin:6px 0 14px;flex-wrap:wrap;}
+.tabs button{background:none;border:none;font-family:inherit;font-size:13.5px;font-weight:700;color:var(--stone);padding:10px 16px;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-1px;}
+.tabs button:hover{color:var(--sage);}
+.tabs button.active{color:var(--sage-dark);border-bottom-color:var(--sage);}
+.tabpane{display:none;} .tabpane.active{display:block;}
+.panel{background:var(--card);border-radius:var(--r);box-shadow:var(--sh);padding:20px 18px 16px;margin-bottom:14px;position:relative;overflow:hidden;}
+.panel .tira{position:absolute;left:0;right:0;top:0;height:4px;background:var(--warm);}
+.panel .tira.resultado{background:var(--sage);} .panel .tira.volumen{background:var(--slate);}
+.panel .tira.dinero{background:var(--taupe);} .panel .tira.meta{background:var(--tan);}
+.panel .pt{font-size:15px;font-weight:700;}
+.panel .ph{font-size:11.5px;color:var(--stone);margin-top:2px;margin-bottom:12px;}
+.scroll{overflow-x:auto;}
 table{width:100%;border-collapse:collapse;font-size:12.5px;}
-th{text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:.5px;color:var(--stone);
-border-bottom:1px solid var(--warm);padding:8px 6px;white-space:nowrap;}
-th.n,td.n{text-align:right;}
-td{padding:8px 6px;border-bottom:1px solid var(--warm-light);}
+th{text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:.5px;color:var(--stone);border-bottom:1px solid var(--warm);padding:8px 6px;white-space:nowrap;}
+td{padding:8px 6px;border-bottom:1px solid var(--warm-light);vertical-align:top;}
 tr:hover td{background:var(--warm-light);}
-td.money{color:var(--taupe);font-weight:700;}
+td.n,th.n{text-align:right;}
+tr.anulado td{color:#9AA8A4;text-decoration:line-through;}
+tr.anulado td.acc{text-decoration:none;}
 .st{font-size:11px;font-weight:700;padding:2px 9px;border-radius:20px;white-space:nowrap;}
-.st.bue{background:#ECFDF5;color:var(--sage);} .st.ale{background:#FCEBEB;color:var(--rose);}
-.tscroll{overflow-x:auto;}
-.vacio{color:var(--stone);font-size:13px;padding:10px 0;text-align:center;}
-
+.st.bue{background:#E7F4EF;color:var(--sage-dark);} .st.ale{background:#FCEBEB;color:var(--rose);}
+.st.rev{background:#FEF3E2;color:var(--taupe);} .st.low{background:var(--warm-light);color:var(--stone);}
+.money{color:var(--taupe);font-weight:700;}
+.sub{font-size:11.5px;color:var(--stone);}
+.vacio{color:var(--stone);font-size:13px;padding:22px 0;text-align:center;}
+.aviso{display:none;border-radius:8px;padding:11px 14px;font-size:13px;margin-bottom:14px;}
+.aviso.err{display:block;background:#FBE9E9;border:1px solid var(--rose);color:var(--rose);}
+.aviso.ok{display:block;background:#E7F4EF;border:1px solid var(--sage);color:var(--sage-dark);}
+.note{background:var(--card);border-left:4px solid var(--tan);border-radius:0 var(--r) var(--r) 0;box-shadow:var(--sh);padding:10px 14px;margin-bottom:14px;font-size:13px;}
+details.help{background:var(--card);border-radius:var(--r);box-shadow:var(--sh);padding:12px 16px;margin-top:18px;font-size:13px;}
+details.help summary{cursor:pointer;font-weight:700;color:var(--sage-dark);}
+details.help p{color:var(--stone);margin:8px 0 0;max-width:130ch;}
+/* ventana de edición */
+.fondo{position:fixed;inset:0;background:rgba(14,59,54,.5);z-index:100;display:none;align-items:flex-start;justify-content:center;padding:30px 14px;overflow:auto;}
+.fondo.ver{display:flex;}
+.ventana{background:#fff;border-radius:var(--r);box-shadow:0 10px 30px rgba(14,59,54,.2);width:100%;max-width:760px;overflow:hidden;}
+.ventana .vcab{background:var(--petrol);border-bottom:3px solid var(--emer);color:#fff;padding:14px 18px;display:flex;align-items:center;gap:10px;}
+.ventana .vcab .t{font-size:16px;font-weight:700;} .ventana .vcab .s{font-size:11.5px;color:#B9CFC9;}
+.ventana .vcab button{margin-left:auto;background:none;border:1px solid rgba(255,255,255,.35);color:#fff;border-radius:6px;width:34px;height:34px;cursor:pointer;font-size:16px;}
+.ventana .vcuerpo{padding:18px;}
+.ventana .vpie{padding:12px 18px 18px;display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;}
+.campo{display:flex;flex-direction:column;gap:4px;margin-bottom:12px;}
+.campo label,.lbl{font-size:12px;color:var(--stone);font-weight:700;}
+.fila{display:grid;gap:8px;align-items:center;margin-bottom:8px;}
+.f2{grid-template-columns:1fr 1fr;} .f3{grid-template-columns:2fr 1fr auto;} .f4{grid-template-columns:2fr 1fr 1fr auto;}
+.f5{grid-template-columns:1fr 1fr 1fr 1fr auto;}
+.grupo{border:1px solid var(--warm);border-radius:10px;padding:12px;margin-bottom:12px;background:var(--warm-light);}
+.error-campo{border-color:var(--rose)!important;background:#FFF7F7!important;}
+textarea{width:100%;min-height:170px;font-family:Consolas,monospace;font-size:12px;}
+@media(max-width:900px){.wrap{padding:14px 14px 36px;}}
 @media(max-width:600px){
-  .header{min-height:auto;padding:12px 14px;gap:10px;}
-  .header img{height:30px;}
-  .divider{display:none;}
-  .htitle{font-size:15px;}
-  .hlinks{margin-left:0;width:100%;}
-  .hlinks a{min-height:44px;flex:1;justify-content:center;}
-  .wrap{padding:14px 12px 36px;}
-  .card{padding:22px 14px 16px;}
-  .dos{grid-template-columns:1fr;}
-  .fila{grid-template-columns:1fr 1fr;}
-  .fila select{grid-column:1/-1;}
-  .seg button{font-size:13px;padding:10px 4px;}
-  .acciones .btn{flex:1;}
+  .header{min-height:auto;padding:12px 14px;gap:10px;} .header img{height:30px;} .divider{display:none;}
+  .htitle{font-size:15px;} .hstate{margin-left:0;text-align:left;width:100%;}
+  .bar{position:static;} .btn,select,input{min-height:44px;}
+  .tabs{flex-wrap:nowrap;overflow-x:auto;} .tabs button{flex:none;}
+  .f2,.f3,.f4,.f5{grid-template-columns:1fr;}
   table{min-width:640px;}
+}
+@media print{
+  @page{size:A4 landscape;margin:9mm;}
+  *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}
+  .bar,.tabs,.no-print,details.help,.aviso,.fondo,.acc{display:none!important;}
+  body{background:#fff!important;} .wrap{padding:0;}
+  .tabpane{display:none!important;} .tabpane.active{display:block!important;}
+  .panel{box-shadow:none;border:1px solid var(--warm);break-inside:avoid;}
 }
 </style>
 </head>
 <body>
-
 <div class="header">
   <img src="data:image/png;base64,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" alt="LIVES">
   <div class="divider"></div>
-  <div>
-    <div class="htitle">CORTE — Registro diario de producción</div>
-    <div class="hsub">Producción y minutos trabajados de cada colaborador, por día</div>
-  </div>
-  <div class="hlinks">
-    <a href="dashboard_corte.html">Dashboard</a>
-    <a href="panel_corte.html">Panel</a>
-  </div>
+  <div><div class="htitle">CORTE — Panel de registros</div><div class="hsub">Revisar, corregir y anular lo digitado · planilla semanal · catálogos</div></div>
+  <div class="hstate" id="hstate">Conectando…</div>
 </div>
-
 <div class="wrap">
+  <div class="bar">
+    <button class="btn" id="bAnt" title="Semana anterior">◀</button>
+    <span class="semlbl" id="semLbl">Semana —</span>
+    <button class="btn" id="bSig" title="Semana siguiente">▶</button>
+    <input type="date" id="irA" title="Ir a la semana de esta fecha">
+    <span class="spacer"></span>
+    <a class="btn" href="index.html">← Formulario</a>
+    <a class="btn" href="dashboard_corte.html">Dashboard</a>
+  </div>
+  <div class="aviso" id="aviso"></div>
+  <div class="tabs" id="tabs">
+    <button class="active" data-t="reg">Registros</button>
+    <button data-t="pla">Planilla semanal</button>
+    <button data-t="cat">Personal y operaciones</button>
+    <button data-t="sis" id="tabSis" style="display:none">Sistema (BD_MINTRAB)</button>
+  </div>
 
-  <div id="formulario">
-    <div class="card">
-      <span class="tira"></span>
-      <div class="pt">Registro del día</div>
-      <div class="ph">Los campos con <span style="color:#DC2626">*</span> son obligatorios. Se acepta 0 en minutos y cantidades.</div>
-
-      <div class="aviso" id="aviso"></div>
-
-      <div class="fechafila">
-        <div class="campo" id="c-fecha">
-          <label for="fecha">Fecha <span class="req">*</span></label>
-          <input type="date" id="fecha">
-          <div class="msg"></div>
-        </div>
-        <div class="chip" id="chip-semana">Semana —</div>
+  <!-- ===== REGISTROS ===== -->
+  <div class="tabpane active" id="p-reg">
+    <div class="panel"><span class="tira volumen"></span>
+      <div style="display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap">
+        <div><div class="pt">Registros de la semana</div>
+        <div class="ph" id="regPh">Cada fila es un guardado del formulario.</div></div>
+        <span class="spacer"></span>
+        <label class="sub no-print" style="display:flex;gap:6px;align-items:center"><input type="checkbox" id="verAnul" style="min-height:0"> Ver anulados</label>
       </div>
-
-      <div class="seg" id="selTipo">
-        <button type="button" class="active" data-tipo="MANUAL">Manual de Corte</button>
-        <button type="button" data-tipo="CORTE_PAÑO">Corte Paño</button>
-        <button type="button" data-tipo="MODULO">Módulos</button>
-      </div>
-
-      <!-- ============ MANUAL DE CORTE ============ -->
-      <div class="seccion on" id="sec-MANUAL">
-        <div class="campo" id="c-m-codigo">
-          <label for="m-codigo">Colaborador <span class="req">*</span></label>
-          <select id="m-codigo"></select>
-          <div class="msg"></div>
-        </div>
-        <div class="bloque" id="b-m-ops">
-          <div class="lbl">Operaciones realizadas <span class="req">*</span></div>
-          <div id="m-ops"></div>
-          <div class="msg"></div>
-          <button class="enlace" id="m-agregar-op" type="button">+ Agregar operación</button>
-        </div>
-        <div class="campo" id="c-m-mintrab" style="max-width:260px">
-          <label for="m-mintrab">Minutos trabajados (real) <span class="req">*</span></label>
-          <input type="number" id="m-mintrab" min="0" step="1" inputmode="numeric">
-          <div class="msg"></div>
-          <div class="ayuda">Tu estimación real, distinta de lo que marca el sistema.</div>
-        </div>
-        <div class="acciones">
-          <button class="btn primary" type="button" data-guardar="MANUAL">Guardar registro</button>
-          <button class="btn" type="button" data-limpiar="MANUAL">Limpiar</button>
-        </div>
-      </div>
-
-      <!-- ============ CORTE PAÑO ============ -->
-      <div class="seccion" id="sec-CORTE_PAÑO">
-        <div class="dos">
-          <div class="campo" id="c-cp-codigo1">
-            <label for="cp-codigo1">Colaborador 1 <span class="req">*</span></label>
-            <select id="cp-codigo1"></select>
-            <div class="msg"></div>
-          </div>
-          <div class="campo" id="c-cp-mintrab1">
-            <label for="cp-mintrab1">Minutos trabajados 1 <span class="req">*</span></label>
-            <input type="number" id="cp-mintrab1" min="0" step="1" inputmode="numeric">
-            <div class="msg"></div>
-          </div>
-        </div>
-        <div id="cp-op2-wrap">
-          <button class="enlace" id="cp-agregar-op2" type="button">+ Agregar un segundo colaborador (si trabajaron entre 2)</button>
-          <div class="dos" id="cp-op2-campos" style="display:none">
-            <div class="campo" id="c-cp-codigo2">
-              <label for="cp-codigo2">Colaborador 2</label>
-              <select id="cp-codigo2"></select>
-              <div class="msg"></div>
-            </div>
-            <div class="campo" id="c-cp-mintrab2">
-              <label for="cp-mintrab2">Minutos trabajados 2</label>
-              <input type="number" id="cp-mintrab2" min="0" step="1" inputmode="numeric">
-              <div class="msg"></div>
-            </div>
-          </div>
-          <button class="enlace" id="cp-quitar-op2" type="button" style="display:none">Quitar segundo colaborador</button>
-        </div>
-        <hr class="sep">
-        <div class="bloque" id="b-cp-ops">
-          <div class="lbl">Operaciones realizadas <span class="req">*</span></div>
-          <div id="cp-ops"></div>
-          <div class="msg"></div>
-          <button class="enlace" id="cp-agregar-op" type="button">+ Agregar operación</button>
-        </div>
-        <div class="acciones">
-          <button class="btn primary" type="button" data-guardar="CORTE_PAÑO">Guardar registro</button>
-          <button class="btn" type="button" data-limpiar="CORTE_PAÑO">Limpiar</button>
-        </div>
-      </div>
-
-      <!-- ============ MODULOS ============ -->
-      <div class="seccion" id="sec-MODULO">
-        <div class="campo" id="c-md-numero" style="max-width:260px">
-          <label for="md-numero">N° de módulo <span class="req">*</span></label>
-          <select id="md-numero">
-            <option value="MÓD-1">MÓD-1</option>
-            <option value="MÓD-2">MÓD-2</option>
-            <option value="MÓD-3">MÓD-3</option>
-          </select>
-          <div class="msg"></div>
-        </div>
-
-        <div class="bloque" id="b-md-operarios">
-          <div class="lbl">Operarios del módulo <span class="req">*</span></div>
-          <div class="ayuda" style="margin:-2px 0 8px">Se ingresan 1 sola vez por día, aunque el módulo trabaje varias O/C.</div>
-          <div id="md-operarios"></div>
-          <div class="msg"></div>
-          <button class="enlace" id="md-agregar-operario" type="button">+ Agregar operario</button>
-        </div>
-        <hr class="sep">
-        <div class="bloque" id="b-md-ocs">
-          <div class="lbl">O/C trabajadas <span class="req">*</span></div>
-          <div id="md-ocs"></div>
-          <div class="msg"></div>
-          <button class="enlace" id="md-agregar-oc" type="button">+ Agregar O/C</button>
-        </div>
-        <hr class="sep">
-        <div class="bloque" id="b-md-operaciones">
-          <div class="lbl">Operaciones sueltas (opcional)</div>
-          <div class="ayuda" style="margin:-2px 0 8px">Lo que el módulo haga fuera del corte de pieza.</div>
-          <div id="md-operaciones"></div>
-          <div class="msg"></div>
-          <button class="enlace" id="md-agregar-operacion" type="button">+ Agregar operación</button>
-        </div>
-        <div class="acciones">
-          <button class="btn primary" type="button" data-guardar="MODULO">Guardar registro</button>
-          <button class="btn" type="button" data-limpiar="MODULO">Limpiar</button>
-        </div>
-      </div>
+      <div class="scroll" id="regTabla"><div class="vacio">Cargando…</div></div>
     </div>
   </div>
 
-  <div class="card exito" id="exito">
-    <span class="tira"></span>
-    <div class="dot">✓</div>
-    <div class="t" id="exitoTit">Registro guardado</div>
-    <div class="s" id="exitoDet">Ya quedó en la base de datos. No hace falta enviar nada más.</div>
-    <div class="cod" id="exitoCod"></div>
-    <div style="margin-top:18px"><button class="btn primary" type="button" id="btnOtro">Registrar otro</button></div>
+  <!-- ===== PLANILLA ===== -->
+  <div class="tabpane" id="p-pla">
+    <div class="panel"><span class="tira resultado"></span>
+      <div style="display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap">
+        <div><div class="pt">Planilla semanal — EF real vs. EF sistema</div>
+        <div class="ph">Por persona y día: minutos producidos, minutos del sistema (disponibles), eficiencia real (digitada aquí) y del sistema (SIGE). Reemplaza a la pestaña PLANILLA_CORTE del Sheet.</div></div>
+        <span class="spacer"></span><button class="btn no-print" onclick="window.print()">Imprimir</button>
+      </div>
+      <div class="scroll" id="plaTabla"><div class="vacio">Cargando…</div></div>
+    </div>
   </div>
 
-  <div class="card">
-    <span class="tira volumen"></span>
-    <div class="pt">Lo que va de la semana <span id="chip-semana-resumen" style="font-weight:400;color:var(--stone);font-size:12px"></span></div>
-    <div class="ph">Un renglón por colaborador. EF = minutos producidos ÷ minutos trabajados de la semana. Bajo 55 % no se cobra incentivo.</div>
-    <div id="resumen-contenedor"><div class="vacio">Elige una fecha para ver el resumen.</div></div>
+  <!-- ===== CATÁLOGOS ===== -->
+  <div class="tabpane" id="p-cat">
+    <div class="note">Cambiar el <b>T.Std</b> de una operación solo afecta a lo que se registre desde ahora: cada registro guarda el T.Std que tenía el día que se guardó. Cambiar la <b>categoría</b> de una persona sí cambia su básico e incentivo en todas las semanas.</div>
+    <div class="panel"><span class="tira"></span>
+      <div style="display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap">
+        <div><div class="pt">Personal de Corte</div><div class="ph" id="perPh"></div></div>
+        <span class="spacer"></span><button class="btn primary edita" onclick="editarPersona(null)">+ Agregar persona</button>
+      </div>
+      <div class="scroll" id="perTabla"></div>
+    </div>
+    <div class="panel"><span class="tira"></span>
+      <div style="display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap">
+        <div><div class="pt">Operaciones y tiempos estándar (T.Std)</div><div class="ph" id="opPh"></div></div>
+        <span class="spacer"></span><button class="btn primary edita" onclick="editarOperacion(null)">+ Agregar operación</button>
+      </div>
+      <div class="scroll" id="opTabla"></div>
+    </div>
   </div>
 
+  <!-- ===== SISTEMA ===== -->
+  <div class="tabpane" id="p-sis">
+    <div class="panel"><span class="tira meta"></span>
+      <div class="pt">Subir el extracto semanal del sistema (BD_MINTRAB)</div>
+      <div class="ph">Copia en el Excel del SIGE las filas de las personas (desde la columna Cod.Linea hasta Incentivo Semanal, sin encabezados o con ellos, da igual) y pégalas aquí. Se guarda como la semana del lunes que elijas; si esa semana ya estaba, se reemplaza completa. Las demás semanas no se tocan.</div>
+      <div class="fila f2" style="max-width:520px">
+        <div class="campo"><label for="sisLunes">Lunes de la semana</label><input type="date" id="sisLunes"></div>
+        <div class="campo"><label>&nbsp;</label><span class="sub" id="sisSem"></span></div>
+      </div>
+      <textarea id="sisTexto" placeholder="Pega aquí las filas copiadas del Excel del SIGE…"></textarea>
+      <div id="sisPrev" style="margin-top:12px"></div>
+      <div style="display:flex;gap:10px;margin-top:12px"><button class="btn" id="sisRevisar" onclick="leerPegado()">Revisar</button><button class="btn primary" id="sisSubir" disabled onclick="subirSistema()">Subir semana</button></div>
+    </div>
+    <div class="panel"><span class="tira"></span>
+      <div class="pt">Semanas del sistema cargadas</div><div class="ph">Cada semana queda guardada con su fecha: subir una nueva no cambia las anteriores.</div>
+      <div class="scroll" id="sisLista"></div>
+    </div>
+  </div>
+
+  <details class="help">
+    <summary>¿Cómo leo este panel?</summary>
+    <p><b>Registros:</b> cada fila es un guardado del formulario. <b>Corregir</b> reemplaza sus datos (queda anotado quién y cuándo, y el cambio se guarda en la bitácora con el antes y el después). <b>Anular</b> lo saca de todos los cálculos sin borrarlo: se puede ver con "Ver anulados".</p>
+    <p><b>Eficiencia real</b> = minutos producidos ÷ minutos trabajados, ponderado (nunca promedio de porcentajes). Minutos producidos = cantidad × T.Std de cada operación. En Corte Paño la eficiencia es del bloque (entre los dos colaboradores). En Módulos es del módulo en el día: producción ÷ (minutos trabajados − improductivos), y a cada persona se le asigna esa eficiencia sobre sus minutos trabajados.</p>
+    <p><b>Incentivo diario</b> = % de la tabla de incentivos según la eficiencia redondeada × básico de la categoría ÷ 30 (A y Y 1,300 · B 1,200 · C 1,150). Menos de 55% no paga; desde 90% paga el tope de 71%. Si una persona se registra dos veces el mismo día, cuenta una sola vez con sus minutos sumados.</p>
+    <p><b>Sistema</b> = extracto semanal del SIGE (BD_MINTRAB). Si una persona no está en el extracto de esa semana, su dato del sistema sale en blanco (—), no en cero.</p>
+  </details>
+</div>
+
+<!-- ventana de edición -->
+<div class="fondo" id="fondo" onclick="if(event.target===this)cerrar()">
+  <div class="ventana">
+    <div class="vcab"><div><div class="t" id="vTit"></div><div class="s" id="vSub"></div></div><button onclick="cerrar()">✕</button></div>
+    <div class="vcuerpo" id="vCuerpo"></div>
+    <div class="aviso" id="vAviso" style="margin:0 18px"></div>
+    <div class="vpie"><button class="btn" onclick="cerrar()">Cancelar</button><button class="btn primary" id="vGuardar">Guardar cambios</button></div>
+  </div>
 </div>
 
 <script>
-  /* Backend: Supabase, función corte_api (SQL C01, C02 v2 y C04 de Corte).
-     La sesión la pone el bloque lives-sesion: sin sesión del portal no se guarda nada. */
-  const $ = id => document.getElementById(id);
-  let CATALOGO = { personal: [], operaciones: [] };
+const SB_URL = 'https://xxfufpddgoyhbotjmaiy.supabase.co';
+const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const f0 = n => (n == null || isNaN(n)) ? '—' : Math.round(n).toLocaleString('es-PE');
+const f1 = n => (n == null || isNaN(n)) ? '—' : Number(n).toLocaleString('es-PE', {minimumFractionDigits:1, maximumFractionDigits:1});
+const f2 = n => (n == null || isNaN(n)) ? '—' : Number(n).toLocaleString('es-PE', {minimumFractionDigits:2, maximumFractionDigits:2});
+const TIPO = { MANUAL:'Manual', 'CORTE_PAÑO':'Corte Paño', MODULO:'Módulo' };
+const DIAS = ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
+let CAT = { personal:[], operaciones:[], puedeEscribir:false, esAdmin:false };
+let LUNES = null, REGISTROS = [], EDIT = null;
 
-  // ------- Supabase (reemplaza al Apps Script; la sesión la pone el bloque lives-sesion) -------
-  const SB_URL = 'https://xxfufpddgoyhbotjmaiy.supabase.co';
-  const PENDIENTES = {};   // token por guardado: un reintento del mismo guardado no duplica
-  function nuevoToken(){ return (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : (Date.now().toString(36) + Math.random().toString(36).slice(2)); }
-  async function api(accion, p) {
-    // Un reintento si falla la red; nunca deja la pantalla bloqueada.
-    for (let i = 0; i < 2; i++) {
-      try {
-        const ctl = new AbortController(); const t = setTimeout(() => ctl.abort(), 20000);
-        const r = await fetch(SB_URL + '/rest/v1/rpc/corte_api', {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ p_accion: accion, p: p || {} }), signal: ctl.signal });
-        clearTimeout(t);
-        const txt = await r.text(); let j = null; try { j = txt ? JSON.parse(txt) : null; } catch (e) {}
-        if (r.ok) return j;
-        const err = new Error((j && (j.message || j.hint)) || ('Error ' + r.status)); err.servidor = true; throw err;
-      } catch (e) {
-        if (e.servidor || i === 1) throw (e.servidor ? e : new Error('No hay conexión con la base de datos. Revisa la señal y vuelve a intentar: no se perdió nada de lo escrito.'));
-        await new Promise(ok => setTimeout(ok, 1500));
-      }
-    }
-  }
-  // Misma forma de respuesta que tenía el Apps Script ({ok, data} / {ok:false, error}).
-  async function llamarApi(params) {
-    const { action, ...resto } = params; const p = {};
-    Object.keys(resto).forEach(k => {
-      let v = resto[k];
-      if (typeof v === 'string' && /^\s*[\[{]/.test(v)) { try { v = JSON.parse(v); } catch (e) {} }
-      if (v !== '' && v !== undefined) p[k] = v;
-    });
-    if (action.indexOf('guardar') === 0) {
-      const firma = JSON.stringify(p);
-      if (!PENDIENTES[action] || PENDIENTES[action].firma !== firma) PENDIENTES[action] = { firma, token: nuevoToken() };
-      p.token = PENDIENTES[action].token;
-    }
+async function api(accion, p) {
+  for (let i = 0; i < 2; i++) {
     try {
-      const data = await api(action, p);
-      if (action.indexOf('guardar') === 0) delete PENDIENTES[action];
-      if (data && data.personas !== undefined && data.operarios === undefined) data.operarios = data.personas;
-      return { ok: true, data };
-    } catch (e) { return { ok: false, error: e.message }; }
-  }
-
-  const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-
-  // ------- Semana ISO a partir de una fecha (mismo criterio que el Sheet) -------
-  function claveSemana(fechaStr) {
-    if (!fechaStr) return '';
-    const d = new Date(fechaStr + 'T00:00:00Z');
-    const dayNum = (d.getUTCDay() || 7);
-    d.setUTCDate(d.getUTCDate() + 4 - dayNum);
-    const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
-    const weekNo = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
-    return d.getUTCFullYear() + '-W' + (weekNo < 10 ? '0' + weekNo : weekNo);
-  }
-  function actualizarChipSemana() {
-    const semana = claveSemana($('fecha').value);
-    const corta = semana ? 'S' + (+semana.split('-W')[1]) + ' · ' + semana.split('-W')[0] : '';
-    $('chip-semana').textContent = semana ? 'Semana ' + corta : 'Semana —';
-    $('chip-semana-resumen').textContent = semana ? '· ' + corta : '';
-    return semana;
-  }
-
-  // ------- Tipo de registro -------
-  let TIPO = 'MANUAL';
-  document.querySelectorAll('#selTipo button').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('#selTipo button').forEach(b => b.classList.remove('active'));
-      document.querySelectorAll('.seccion').forEach(s => s.classList.remove('on'));
-      btn.classList.add('active');
-      TIPO = btn.dataset.tipo;
-      $('sec-' + TIPO).classList.add('on');
-      aviso('');
-    });
-  });
-
-  // ------- Poblar selects de código con nombre -------
-  function opcionesPersonal(tipo) {
-    return CATALOGO.personal
-      .filter(p => p.activo !== false && (tipo ? p.tipo === tipo : true))
-      .sort((a, b) => a.nombre.localeCompare(b.nombre))
-      .map(p => `<option value="${esc(p.codigo)}">${esc(p.nombre)} (${esc(p.codigo)})</option>`).join('');
-  }
-  function llenarSelectsPersonal() {
-    $('m-codigo').innerHTML = '<option value="">— Elegir —</option>' + opcionesPersonal('MANUAL');
-    $('cp-codigo1').innerHTML = '<option value="">— Elegir —</option>' + opcionesPersonal('CORTE_PAÑO');
-    $('cp-codigo2').innerHTML = '<option value="">— Elegir —</option>' + opcionesPersonal('CORTE_PAÑO');
-  }
-
-  // ------- Filas de operación (operación + cantidad) -------
-  function opcionesOperaciones() {
-    return '<option value="">— Operación —</option>' + CATALOGO.operaciones
-      .map(o => `<option value="${esc(o.codigo)}">${esc(o.codigo)} — ${esc(o.descripcion)} (${o.tstd} ${esc(o.unidad)})</option>`).join('');
-  }
-  function filaOperacionHTML(clsSel, clsCant) {
-    return `<select class="${clsSel}" aria-label="Operación">${opcionesOperaciones()}</select>
-            <input type="number" class="${clsCant}" placeholder="Cantidad" min="0" step="1" inputmode="numeric" aria-label="Cantidad">
-            <button class="quitar" type="button" onclick="this.closest('.fila').remove();">Quitar</button>
-            <div class="msg"></div>`;
-  }
-  // Sin límite de operaciones: arranca con 1 fila, "+ Agregar operación" suma más.
-  function agregarFilaOperacion(contenedorId) {
-    const div = document.createElement('div');
-    div.className = 'fila op-fila';
-    div.innerHTML = filaOperacionHTML('op-select', 'op-cant');
-    $(contenedorId).appendChild(div);
-  }
-  function crearFilasOperacion(contenedorId) {
-    $(contenedorId).innerHTML = '';
-    agregarFilaOperacion(contenedorId);
-  }
-  function leerFilasOperacion(contenedorId) {
-    const filas = [];
-    $(contenedorId).querySelectorAll('.op-fila').forEach(div => {
-      const codigo = div.querySelector('.op-select').value;
-      const cantidad = div.querySelector('.op-cant').value;
-      if (codigo && cantidad) filas.push({ codigo, cantidad: Number(cantidad) });
-    });
-    return filas;
-  }
-
-  $('m-agregar-op').addEventListener('click', () => agregarFilaOperacion('m-ops'));
-  $('cp-agregar-op').addEventListener('click', () => agregarFilaOperacion('cp-ops'));
-
-  // ------- Corte Paño: mostrar/ocultar segundo colaborador -------
-  $('cp-agregar-op2').addEventListener('click', () => {
-    $('cp-op2-campos').style.display = 'grid';
-    $('cp-agregar-op2').style.display = 'none';
-    $('cp-quitar-op2').style.display = 'inline-block';
-  });
-  $('cp-quitar-op2').addEventListener('click', () => {
-    $('cp-op2-campos').style.display = 'none';
-    $('cp-agregar-op2').style.display = 'inline-block';
-    $('cp-quitar-op2').style.display = 'none';
-    $('cp-codigo2').value = ''; $('cp-mintrab2').value = '';
-    marcar($('c-cp-codigo2'), ''); marcar($('c-cp-mintrab2'), '');
-  });
-
-  // ------- Módulos: filas dinámicas de operarios -------
-  function crearFilaOperarioModulo() {
-    const div = document.createElement('div');
-    div.className = 'caja modulo-operario';
-    div.innerHTML = `<div class="cab"><span class="num op-num">Operario</span>
-        <button class="quitar" type="button" onclick="this.closest('.modulo-operario').remove(); renumerarOperariosModulo();">Quitar</button></div>
-      <div class="fila" style="grid-template-columns:1fr;margin-bottom:0">
-        <select class="md-op-codigo" aria-label="Operario"><option value="">— Elegir operario —</option>${opcionesPersonal('MODULO')}</select>
-        <div class="dos">
-          <div><label>Min. trabajados</label><input type="number" class="md-op-mintrab" min="0" step="1" inputmode="numeric"></div>
-          <div><label>Min. improductivos</label><input type="number" class="md-op-improd" min="0" step="1" inputmode="numeric" value="0"></div>
-        </div>
-        <div class="msg"></div>
-      </div>`;
-    $('md-operarios').appendChild(div);
-    renumerarOperariosModulo();
-  }
-  function renumerarOperariosModulo() {
-    $('md-operarios').querySelectorAll('.op-num').forEach((el, idx) => { el.textContent = 'Operario ' + (idx + 1); });
-  }
-  function crearFilasModuloInicial() {
-    $('md-operarios').innerHTML = '';
-    crearFilaOperarioModulo(); // arranca con 1, se agregan más con el botón
-    $('md-ocs').innerHTML = '';
-    crearFilaOCModulo();
-    $('md-operaciones').innerHTML = '';
-  }
-
-  // ------- Módulos: filas dinámicas de O/C -------
-  function crearFilaOCModulo() {
-    const div = document.createElement('div');
-    div.className = 'caja modulo-oc';
-    div.innerHTML = `<div class="cab"><span class="num">O/C</span>
-        <button class="quitar" type="button" onclick="this.closest('.modulo-oc').remove();">Quitar</button></div>
-      <div class="fila" style="grid-template-columns:1fr;margin-bottom:0">
-        <div class="dos">
-          <div><label>N° de O/C</label><input type="text" class="md-oc-numero" placeholder="ej. 51375"></div>
-          <div><label>Estilo</label><input type="text" class="md-oc-estilo" placeholder="ej. 22710"></div>
-        </div>
-        <div class="dos">
-          <div><label>Cantidad de prendas</label><input type="number" class="md-oc-cant" min="0" step="1" inputmode="numeric"></div>
-          <div><label>T.Std corte pieza (min/pza)</label><input type="number" class="md-oc-tstd" min="0" step="0.01" inputmode="decimal"></div>
-        </div>
-        <div class="msg"></div>
-      </div>`;
-    $('md-ocs').appendChild(div);
-  }
-
-  // ------- Módulos: filas dinámicas de operaciones sueltas -------
-  function crearFilaOperacionModulo() {
-    const div = document.createElement('div');
-    div.className = 'fila op-fila-md';
-    div.innerHTML = filaOperacionHTML('md-op-op-select', 'md-op-op-cant');
-    $('md-operaciones').appendChild(div);
-  }
-
-  $('md-agregar-operario').addEventListener('click', crearFilaOperarioModulo);
-  $('md-agregar-oc').addEventListener('click', crearFilaOCModulo);
-  $('md-agregar-operacion').addEventListener('click', crearFilaOperacionModulo);
-
-  // ------- Validación por campo -------
-  function marcar(cont, msg) {
-    if (!cont) return;
-    cont.classList.toggle('malo', !!msg);
-    const m = cont.querySelector(':scope > .msg'); if (m) m.textContent = msg || '';
-  }
-  function limpiarMarcas() { document.querySelectorAll('.malo').forEach(el => marcar(el, '')); }
-  function aviso(txt, tipo) { const a = $('aviso'); a.className = 'aviso' + (txt ? ' ' + tipo : ''); a.textContent = txt || ''; }
-  const vacio = v => String(v == null ? '' : v).trim() === '';
-  function numeroValido(v, entero) {
-    if (vacio(v)) return 'Escribe un número (se acepta 0).';
-    const n = Number(v);
-    if (!isFinite(n)) return 'Escribe solo números.';
-    if (n < 0) return 'No puede ser negativo.';
-    if (entero && !Number.isInteger(n)) return 'Escribe un número entero, sin decimales.';
-    return '';
-  }
-  function validarFecha() {
-    const v = $('fecha').value;
-    if (!v) { marcar($('c-fecha'), 'Elige la fecha del registro.'); return false; }
-    return true;
-  }
-  // Operaciones: una fila a medias (operación sin cantidad o al revés) se marca; antes se descartaba sin avisar.
-  function validarFilasOperacion(contId, bloqueId, clsSel, clsCant, obligatorio) {
-    let ok = true, completas = 0;
-    $(contId).querySelectorAll('.fila').forEach(f => {
-      const s = f.querySelector('.' + clsSel).value, c = f.querySelector('.' + clsCant).value;
-      marcar(f, '');
-      if (!s && vacio(c)) return;
-      if (!s) { marcar(f, 'Elige la operación de esta fila, o quítala.'); ok = false; return; }
-      const e = numeroValido(c, false);
-      if (e) { marcar(f, 'Cantidad: ' + e.charAt(0).toLowerCase() + e.slice(1)); ok = false; return; }
-      completas++;
-    });
-    marcar($(bloqueId), '');
-    if (ok && obligatorio && completas === 0) { marcar($(bloqueId), 'Agrega al menos una operación con su cantidad.'); ok = false; }
-    return ok;
-  }
-  function primerError() {
-    const e = document.querySelector('.seccion.on .malo, #c-fecha.malo');
-    if (e) e.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  }
-
-  // ------- Éxito / error -------
-  let ULTIMO_TIPO = 'MANUAL';
-  function exito(tipo, data, detalle) {
-    ULTIMO_TIPO = tipo;
-    $('formulario').style.display = 'none';
-    $('exito').style.display = 'block';
-    $('exitoTit').textContent = data.repetido ? 'Ya estaba guardado' : 'Registro guardado';
-    $('exitoDet').textContent = data.repetido
-      ? 'Este mismo registro ya había llegado antes (por ejemplo, por un reintento). No se duplicó.'
-      : (detalle || 'Ya quedó en la base de datos. No hace falta enviar nada más.');
-    $('exitoCod').textContent = 'Registro N° ' + data.id + ' · ' + $('fecha').value.split('-').reverse().join('/');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
-  $('btnOtro').addEventListener('click', () => {
-    $('exito').style.display = 'none';
-    $('formulario').style.display = '';
-    aviso('');
-  });
-  function falla(msg) {
-    aviso('No se pudo guardar. ' + msg + (/no se perdió|supervisión/i.test(msg) ? '' : ' Lo que escribiste sigue aquí; vuelve a intentar.'), 'error');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
-
-  // ------- Limpiar -------
-  function limpiarManual() { $('m-codigo').value = ''; $('m-mintrab').value = ''; crearFilasOperacion('m-ops'); }
-  function limpiarPano() {
-    $('cp-codigo1').value = ''; $('cp-mintrab1').value = '';
-    $('cp-codigo2').value = ''; $('cp-mintrab2').value = '';
-    $('cp-quitar-op2').click();
-    crearFilasOperacion('cp-ops');
-  }
-  document.querySelectorAll('[data-limpiar]').forEach(b => b.addEventListener('click', () => {
-    const t = b.dataset.limpiar;
-    if (t === 'MANUAL') limpiarManual(); else if (t === 'CORTE_PAÑO') limpiarPano(); else crearFilasModuloInicial();
-    limpiarMarcas(); aviso('');
-  }));
-
-  // ------- Guardar: MANUAL -------
-  async function guardarManual() {
-    limpiarMarcas(); aviso('');
-    const fecha = $('fecha').value, codigo = $('m-codigo').value;
-    const minTrabajado = $('m-mintrab').value;
-    let ok = validarFecha();
-    if (!codigo) { marcar($('c-m-codigo'), 'Elige al colaborador.'); ok = false; }
-    const eMin = numeroValido(minTrabajado, false); if (eMin) { marcar($('c-m-mintrab'), eMin); ok = false; }
-    if (!validarFilasOperacion('m-ops', 'b-m-ops', 'op-select', 'op-cant', true)) ok = false;
-    if (!ok) { aviso('Revisa los campos marcados en rojo.', 'error'); primerError(); return; }
-    const ops = leerFilasOperacion('m-ops');
-    const btn = document.querySelector('[data-guardar="MANUAL"]'); btn.disabled = true; btn.textContent = 'Guardando…';
-    try {
-      const res = await llamarApi({ action: 'guardarManual', fecha, codigo, minTrabajado, ops: JSON.stringify(ops) });
-      if (res.ok) {
-        const nom = $('m-codigo').selectedOptions[0] ? $('m-codigo').selectedOptions[0].textContent : codigo;
-        exito('MANUAL', res.data, nom + ' · ' + ops.length + ' operación' + (ops.length === 1 ? '' : 'es') + ' · ' + minTrabajado + ' min trabajados.');
-        limpiarManual();
-        cargarResumenSemana();
-      } else falla(res.error);
-    } catch (e) { falla(e.message); }
-    btn.disabled = false; btn.textContent = 'Guardar registro';
-  }
-
-  // ------- Guardar: CORTE_PAÑO -------
-  async function guardarCortePano() {
-    limpiarMarcas(); aviso('');
-    const fecha = $('fecha').value, codigo1 = $('cp-codigo1').value, minTrab1 = $('cp-mintrab1').value;
-    const codigo2 = $('cp-codigo2').value, minTrab2 = $('cp-mintrab2').value;
-    let ok = validarFecha();
-    if (!codigo1) { marcar($('c-cp-codigo1'), 'Elige al colaborador 1.'); ok = false; }
-    const e1 = numeroValido(minTrab1, false); if (e1) { marcar($('c-cp-mintrab1'), e1); ok = false; }
-    if ($('cp-op2-campos').style.display !== 'none' && (codigo2 || !vacio(minTrab2))) {
-      if (!codigo2) { marcar($('c-cp-codigo2'), 'Elige al colaborador 2, o quítalo.'); ok = false; }
-      const e2 = numeroValido(minTrab2, false); if (e2) { marcar($('c-cp-mintrab2'), e2); ok = false; }
-      if (codigo2 && codigo2 === codigo1) { marcar($('c-cp-codigo2'), 'Es la misma persona que el colaborador 1.'); ok = false; }
-    }
-    if (!validarFilasOperacion('cp-ops', 'b-cp-ops', 'op-select', 'op-cant', true)) ok = false;
-    if (!ok) { aviso('Revisa los campos marcados en rojo.', 'error'); primerError(); return; }
-    const ops = leerFilasOperacion('cp-ops');
-    const btn = document.querySelector('[data-guardar="CORTE_PAÑO"]'); btn.disabled = true; btn.textContent = 'Guardando…';
-    try {
-      const res = await llamarApi({
-        action: 'guardarCortePano', fecha, codigo1, minTrab1,
-        codigo2: codigo2 || '', minTrab2: minTrab2 || '', ops: JSON.stringify(ops)
-      });
-      if (res.ok) {
-        exito('CORTE_PAÑO', res.data, (codigo2 ? '2 colaboradores' : '1 colaborador') + ' · ' + ops.length + ' operación' + (ops.length === 1 ? '' : 'es') + '.');
-        limpiarPano();
-        cargarResumenSemana();
-      } else falla(res.error);
-    } catch (e) { falla(e.message); }
-    btn.disabled = false; btn.textContent = 'Guardar registro';
-  }
-
-  // ------- Guardar: MODULO -------
-  async function guardarModulo() {
-    limpiarMarcas(); aviso('');
-    const fecha = $('fecha').value, modulo = $('md-numero').value;
-    let ok = validarFecha();
-    if (!modulo) { marcar($('c-md-numero'), 'Elige el módulo.'); ok = false; }
-
-    const operarios = [], vistos = {};
-    document.querySelectorAll('#md-operarios .modulo-operario').forEach(div => {
-      const f = div.querySelector('.fila');
-      const codigo = div.querySelector('.md-op-codigo').value;
-      const minTrabajado = div.querySelector('.md-op-mintrab').value;
-      const minImproductivo = div.querySelector('.md-op-improd').value || 0;
-      if (!codigo && vacio(minTrabajado)) return;
-      if (!codigo) { marcar(f, 'Elige al operario, o quita esta fila.'); ok = false; return; }
-      if (vistos[codigo]) { marcar(f, 'Este operario ya está en otra fila.'); ok = false; return; }
-      const e = numeroValido(minTrabajado, false); if (e) { marcar(f, 'Min. trabajados: ' + e.charAt(0).toLowerCase() + e.slice(1)); ok = false; return; }
-      const ei = numeroValido(minImproductivo, false); if (ei) { marcar(f, 'Min. improductivos: ' + ei.charAt(0).toLowerCase() + ei.slice(1)); ok = false; return; }
-      vistos[codigo] = 1;
-      operarios.push({ codigo, minTrabajado: Number(minTrabajado), minImproductivo: Number(minImproductivo) });
-    });
-    if (ok && operarios.length === 0) { marcar($('b-md-operarios'), 'Agrega al menos 1 operario con sus minutos.'); ok = false; }
-
-    const ocs = [];
-    document.querySelectorAll('#md-ocs .modulo-oc').forEach(div => {
-      const f = div.querySelector('.fila');
-      const oc = div.querySelector('.md-oc-numero').value.trim();
-      const estilo = div.querySelector('.md-oc-estilo').value.trim();
-      const cantPrendas = div.querySelector('.md-oc-cant').value;
-      const tstd = div.querySelector('.md-oc-tstd').value;
-      if (!oc && !estilo && vacio(cantPrendas) && vacio(tstd)) return;
-      if (!oc || !estilo) { marcar(f, 'Completa el N° de O/C y el estilo, o quita esta O/C.'); ok = false; return; }
-      const ec = numeroValido(cantPrendas, false); if (ec) { marcar(f, 'Cantidad de prendas: ' + ec.charAt(0).toLowerCase() + ec.slice(1)); ok = false; return; }
-      const et = numeroValido(tstd, false); if (et) { marcar(f, 'T.Std: ' + et.charAt(0).toLowerCase() + et.slice(1)); ok = false; return; }
-      ocs.push({ oc, estilo, cantPrendas: Number(cantPrendas), tstd: Number(tstd) });
-    });
-    if (ok && ocs.length === 0) { marcar($('b-md-ocs'), 'Agrega al menos 1 O/C completa.'); ok = false; }
-
-    if (!validarFilasOperacion('md-operaciones', 'b-md-operaciones', 'md-op-op-select', 'md-op-op-cant', false)) ok = false;
-    if (!ok) { aviso('Revisa los campos marcados en rojo.', 'error'); primerError(); return; }
-
-    const operaciones = [];
-    document.querySelectorAll('#md-operaciones .fila').forEach(div => {
-      const codigo = div.querySelector('.md-op-op-select').value;
-      const cantidad = div.querySelector('.md-op-op-cant').value;
-      if (codigo && cantidad) operaciones.push({ codigo, cantidad: Number(cantidad) });
-    });
-
-    const btn = document.querySelector('[data-guardar="MODULO"]'); btn.disabled = true; btn.textContent = 'Guardando…';
-    try {
-      const res = await llamarApi({
-        action: 'guardarModulo', fecha, modulo,
-        operarios: JSON.stringify(operarios), ocs: JSON.stringify(ocs), operaciones: JSON.stringify(operaciones)
-      });
-      if (res.ok) {
-        const pl = (n, u, v) => n + ' ' + (n === 1 ? u : v);
-        exito('MODULO', res.data, `${modulo} · ${pl(res.data.operarios, 'operario', 'operarios')}, ${res.data.ocs} O/C, ${pl(res.data.operaciones, 'operación', 'operaciones')}.`);
-        crearFilasModuloInicial();
-        cargarResumenSemana();
-      } else falla(res.error);
-    } catch (e) { falla(e.message); }
-    btn.disabled = false; btn.textContent = 'Guardar registro';
-  }
-
-  document.querySelector('[data-guardar="MANUAL"]').addEventListener('click', guardarManual);
-  document.querySelector('[data-guardar="CORTE_PAÑO"]').addEventListener('click', guardarCortePano);
-  document.querySelector('[data-guardar="MODULO"]').addEventListener('click', guardarModulo);
-
-  // ------- Resumen semanal en vivo -------
-  const f1 = v => (v || 0).toLocaleString('es-PE', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
-  const f2 = v => (v || 0).toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  const f0 = v => Math.round(v || 0).toLocaleString('es-PE');
-  async function cargarResumenSemana() {
-    const fecha = $('fecha').value;
-    if (!fecha) return;
-    const cont = $('resumen-contenedor');
-    cont.innerHTML = '<div class="vacio">Cargando…</div>';
-    try {
-      const res = await llamarApi({ action: 'resumenSemana', fecha });
-      if (!res.ok) { cont.innerHTML = '<div class="vacio">No se pudo cargar el resumen: ' + esc(res.error) + '</div>'; return; }
-      const filas = res.data.filas;
-      if (!filas.length) { cont.innerHTML = '<div class="vacio">Todavía no hay registros guardados esta semana.</div>'; return; }
-      let html = `<div class="tscroll"><table><thead><tr>
-        <th>Colaborador</th><th class="n">Días</th><th class="n">Min. prod.</th><th class="n">Min. trab.</th>
-        <th class="n">EF Real</th><th class="n">EF Sistema</th><th class="n">Inc. Real S/</th><th class="n">Inc. Sistema S/</th><th class="n">Dif. S/</th>
-      </tr></thead><tbody>`;
-      filas.sort((a, b) => a.nombre.localeCompare(b.nombre)).forEach(f => {
-        const sinSist = !(f.minTrabSist > 0);
-        html += `<tr>
-          <td>${esc(f.nombre)}</td><td class="n">${f.diasTrabajados}</td>
-          <td class="n">${f0(f.minProducido)}</td><td class="n">${f0(f.minTrabajado)}</td>
-          <td class="n"><span class="st ${f.efReal >= 55 ? 'bue' : 'ale'}">${f1(f.efReal)}%</span></td>
-          <td class="n">${sinSist ? '—' : f1(f.efSist) + '%'}</td>
-          <td class="n money">${f2(f.incReal)}</td>
-          <td class="n money">${sinSist ? '—' : f2(f.incSist)}</td>
-          <td class="n money">${sinSist ? '—' : (f.diferencia >= 0 ? '+' : '−') + f2(Math.abs(f.diferencia))}</td>
-        </tr>`;
-      });
-      html += '</tbody></table></div>';
-      cont.innerHTML = html;
+      const ctl = new AbortController(); const t = setTimeout(() => ctl.abort(), 20000);
+      const r = await fetch(SB_URL + '/rest/v1/rpc/corte_api', { method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ p_accion: accion, p: p || {} }), signal: ctl.signal });
+      clearTimeout(t);
+      const txt = await r.text(); let j = null; try { j = txt ? JSON.parse(txt) : null; } catch (e) {}
+      if (r.ok) return j;
+      const err = new Error((j && (j.message || j.hint)) || ('Error ' + r.status)); err.servidor = true; throw err;
     } catch (e) {
-      cont.innerHTML = '<div class="vacio">Error de conexión al cargar el resumen.</div>';
+      if (e.servidor || i === 1) throw (e.servidor ? e : new Error('No hay conexión con la base de datos. Vuelve a intentar en un momento.'));
+      await new Promise(ok => setTimeout(ok, 1500));
     }
   }
+}
+function aviso(txt, ok, dentro) {
+  const el = $(dentro ? 'vAviso' : 'aviso');
+  el.className = 'aviso ' + (ok ? 'ok' : 'err'); el.textContent = txt;
+  if (ok) setTimeout(() => { el.className = 'aviso'; }, 5000);
+  if (!dentro && !ok) window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+function limpiarAviso() { $('aviso').className = 'aviso'; }
 
-  $('fecha').addEventListener('change', () => { marcar($('c-fecha'), ''); actualizarChipSemana(); cargarResumenSemana(); });
+// ---------- fechas ----------
+function iso(d) { return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); }
+function deIso(s) { const [y,m,d] = s.split('-').map(Number); return new Date(y, m-1, d); }
+function lunesDe(d) { const x = new Date(d.getFullYear(), d.getMonth(), d.getDate()); x.setDate(x.getDate() - ((x.getDay() + 6) % 7)); return x; }
+function mas(s, n) { const d = deIso(s); d.setDate(d.getDate() + n); return iso(d); }
+function semIso(s) {
+  const d0 = deIso(s); const d = new Date(Date.UTC(d0.getFullYear(), d0.getMonth(), d0.getDate()));
+  const dn = d.getUTCDay() || 7; d.setUTCDate(d.getUTCDate() + 4 - dn);
+  const y0 = new Date(Date.UTC(d.getUTCFullYear(), 0, 1)); const w = Math.ceil((((d - y0) / 86400000) + 1) / 7);
+  return 'S' + w + ' · ' + d.getUTCFullYear();
+}
+function fcorta(s) { const d = deIso(s); return DIAS[(d.getDay()+6)%7] + ' ' + String(d.getDate()).padStart(2,'0') + '/' + String(d.getMonth()+1).padStart(2,'0'); }
+function nombre(c) { const p = CAT.personal.find(x => x.codigo === c); return p ? p.nombre : c; }
 
-  // ------- Inicialización -------
-  async function iniciar() {
-    const hoy = new Date();
-    hoy.setMinutes(hoy.getMinutes() - hoy.getTimezoneOffset());   // fecha local, no UTC
-    $('fecha').value = hoy.toISOString().slice(0, 10);
-    actualizarChipSemana();
+// ---------- semana ----------
+function irSemana(lunes) {
+  LUNES = lunes;
+  $('semLbl').textContent = semIso(lunes) + ' (' + fcorta(lunes) + ' – ' + fcorta(mas(lunes, 6)) + ')';
+  cargarRegistros(); cargarPlanilla();
+}
+$('bAnt').onclick = () => irSemana(mas(LUNES, -7));
+$('bSig').onclick = () => irSemana(mas(LUNES, 7));
+$('irA').onchange = e => { if (e.target.value) irSemana(iso(lunesDe(deIso(e.target.value)))); };
+$('verAnul').onchange = cargarRegistros;
+document.querySelectorAll('#tabs button').forEach(b => b.onclick = () => {
+  document.querySelectorAll('#tabs button').forEach(x => x.classList.toggle('active', x === b));
+  document.querySelectorAll('.tabpane').forEach(p => p.classList.toggle('active', p.id === 'p-' + b.dataset.t));
+});
 
-    crearFilasOperacion('m-ops');
-    crearFilasOperacion('cp-ops');
-    crearFilasModuloInicial();
+// ---------- REGISTROS ----------
+async function cargarRegistros() {
+  $('regTabla').innerHTML = '<div class="vacio">Cargando…</div>';
+  try {
+    REGISTROS = await api('registros', { desde: LUNES, hasta: mas(LUNES, 6), conAnulados: $('verAnul').checked }) || [];
+    pintarRegistros();
+  } catch (e) { $('regTabla').innerHTML = '<div class="vacio">No se pudieron cargar los registros: ' + esc(e.message) + ' <button class="btn chico" onclick="cargarRegistros()">Reintentar</button></div>'; }
+}
+function minProdReg(r) { return (r.operaciones||[]).reduce((a,o)=>a+(o.minProducido||0),0) + (r.ocs||[]).reduce((a,o)=>a+(o.minProducido||0),0); }
+function pintarRegistros() {
+  const vivos = REGISTROS.filter(r => !r.anulado).length;
+  $('regPh').textContent = vivos + ' registro(s) en la semana' + (REGISTROS.length > vivos ? ' · ' + (REGISTROS.length - vivos) + ' anulado(s)' : '') + '. Minutos producidos = cantidad × T.Std guardado en cada operación.';
+  if (!REGISTROS.length) { $('regTabla').innerHTML = '<div class="vacio">No hay registros en esta semana. Usa ◀ ▶ para cambiar de semana.</div>'; return; }
+  let h = '<table><thead><tr><th>N°</th><th>Fecha</th><th>Tipo</th><th>Personas y minutos trabajados</th><th>Producción</th><th class="n">Min. prod.</th><th>Guardado</th><th class="acc"></th></tr></thead><tbody>';
+  REGISTROS.forEach(r => {
+    const pers = r.personas.map(p => esc(p.nombre || p.codigo) + ' <span class="sub">' + esc(p.codigo) + ' · ' + f0(p.minTrabajado) + ' min' + (p.minImproductivo ? ' · ' + f0(p.minImproductivo) + ' improd.' : '') + '</span>').join('<br>');
+    const prod = r.operaciones.map(o => esc(o.codigo) + ' × ' + f0(o.cantidad)).concat(r.ocs.map(o => 'O/C ' + esc(o.oc) + ' (' + esc(o.estilo||'') + ') × ' + f0(o.cantPrendas))).join('<br>') || '<span class="sub">sin producción</span>';
+    const quien = '<span class="sub">' + esc(r.registradoPor || '') + '</span>' + (r.corregidoPor ? '<br><span class="st rev">corregido · ' + esc(r.corregidoPor) + '</span>' : '') + (r.anulado ? '<br><span class="st ale">anulado</span>' : '');
+    const acc = (CAT.puedeEscribir && !r.anulado) ? '<button class="btn chico" onclick="editarRegistro(' + r.id + ')">Corregir</button> <button class="btn chico peligro" onclick="anular(' + r.id + ')">Anular</button>' : '';
+    h += '<tr class="' + (r.anulado ? 'anulado' : '') + '"><td>' + r.id + '</td><td style="white-space:nowrap">' + fcorta(r.fecha) + '</td><td>' + TIPO[r.tipo] + (r.modulo ? '<br><span class="sub">' + esc(r.modulo) + '</span>' : '') + '</td><td>' + pers + '</td><td>' + prod + '</td><td class="n">' + f0(minProdReg(r)) + '</td><td>' + quien + '</td><td class="acc" style="white-space:nowrap">' + acc + '</td></tr>';
+  });
+  $('regTabla').innerHTML = h + '</tbody></table>';
+}
+async function anular(id) {
+  const r = REGISTROS.find(x => x.id === id);
+  const motivo = prompt('Anular el registro N° ' + id + ' (' + TIPO[r.tipo] + ', ' + fcorta(r.fecha) + ').\nSale de todos los cálculos; no se borra.\n\n¿Motivo? (opcional)');
+  if (motivo === null) return;
+  try { await api('anular', { id, motivo }); aviso('Registro N° ' + id + ' anulado.', true); cargarRegistros(); cargarPlanilla(); }
+  catch (e) { aviso('No se pudo anular: ' + e.message); }
+}
 
-    const res = await llamarApi({ action: 'listas' });
-    if (res.ok) {
-      CATALOGO = res.data;
-      llenarSelectsPersonal();
-      crearFilasOperacion('m-ops');
-      crearFilasOperacion('cp-ops');
-      crearFilasModuloInicial();
-    } else {
-      aviso('No se pudo cargar la lista de colaboradores y operaciones: ' + res.error + ' Recarga la página.', 'error');
-    }
-    cargarResumenSemana();
+// ---------- editor de registro ----------
+function optsPersonal(tipo, sel) {
+  return '<option value="">-- elegir --</option>' + CAT.personal.filter(p => (p.activo !== false && p.tipo === tipo) || p.codigo === sel)
+    .map(p => '<option value="' + esc(p.codigo) + '"' + (p.codigo === sel ? ' selected' : '') + '>' + esc(p.nombre) + ' (' + esc(p.codigo) + ')</option>').join('');
+}
+function optsOps(sel) {
+  return '<option value="">-- operación --</option>' + CAT.operaciones.filter(o => o.activo !== false || o.codigo === sel)
+    .map(o => '<option value="' + esc(o.codigo) + '"' + (o.codigo === sel ? ' selected' : '') + '>' + esc(o.codigo) + ' — ' + esc(o.descripcion||'') + '</option>').join('');
+}
+function filaOp(o) { return '<div class="fila f3 e-op"><select class="e-op-c">' + optsOps(o && o.codigo) + '</select><input type="number" class="e-op-n" min="0" step="1" placeholder="Cantidad" value="' + (o ? o.cantidad : '') + '"><button class="btn chico peligro" type="button" onclick="this.parentNode.remove()">Quitar</button></div>'; }
+function filaOperario(p) { return '<div class="fila f4 e-per"><select class="e-per-c">' + optsPersonal('MODULO', p && p.codigo) + '</select><input type="number" class="e-per-m" min="0" step="1" placeholder="Min. trabajado" value="' + (p ? p.minTrabajado : '') + '"><input type="number" class="e-per-i" min="0" step="1" placeholder="Min. improd." value="' + (p ? p.minImproductivo : 0) + '"><button class="btn chico peligro" type="button" onclick="this.parentNode.remove()">Quitar</button></div>'; }
+function filaOc(o) { return '<div class="fila f5 e-oc"><input class="e-oc-o" placeholder="O/C" value="' + esc(o ? o.oc : '') + '"><input class="e-oc-e" placeholder="Estilo" value="' + esc(o ? o.estilo || '' : '') + '"><input type="number" class="e-oc-n" min="0" step="1" placeholder="Prendas" value="' + (o ? o.cantPrendas : '') + '"><input type="number" class="e-oc-t" min="0" step="0.01" placeholder="T.Std" value="' + (o ? o.tstd : '') + '"><button class="btn chico peligro" type="button" onclick="this.parentNode.remove()">Quitar</button></div>'; }
+function editarRegistro(id) {
+  const r = REGISTROS.find(x => x.id === id); EDIT = r;
+  $('vTit').textContent = 'Corregir registro N° ' + id; $('vSub').textContent = TIPO[r.tipo] + ' · guardado por ' + (r.registradoPor || '—');
+  let h = '<div class="fila f2"><div class="campo"><label>Fecha</label><input type="date" id="eFecha" value="' + r.fecha + '"></div>';
+  if (r.tipo === 'MODULO') h += '<div class="campo"><label>Módulo</label><input id="eMod" value="' + esc(r.modulo || '') + '"></div>';
+  h += '</div>';
+  if (r.tipo === 'MANUAL') {
+    const p = r.personas[0] || {};
+    h += '<div class="fila f2"><div class="campo"><label>Colaborador</label><select id="eC1">' + optsPersonal('MANUAL', p.codigo) + '</select></div><div class="campo"><label>Min. trabajado</label><input type="number" id="eM1" min="0" step="1" value="' + (p.minTrabajado ?? '') + '"></div></div>';
+  } else if (r.tipo === 'CORTE_PAÑO') {
+    const p1 = r.personas.find(x => x.orden === 1) || {}, p2 = r.personas.find(x => x.orden === 2) || {};
+    h += '<div class="fila f2"><div class="campo"><label>Colaborador 1</label><select id="eC1">' + optsPersonal('CORTE_PAÑO', p1.codigo) + '</select></div><div class="campo"><label>Min. trabajado 1</label><input type="number" id="eM1" min="0" step="1" value="' + (p1.minTrabajado ?? '') + '"></div></div>';
+    h += '<div class="fila f2"><div class="campo"><label>Colaborador 2 (opcional)</label><select id="eC2">' + optsPersonal('CORTE_PAÑO', p2.codigo) + '</select></div><div class="campo"><label>Min. trabajado 2</label><input type="number" id="eM2" min="0" step="1" value="' + (p2.minTrabajado ?? '') + '"></div></div>';
+  } else {
+    h += '<div class="lbl">Operarios del módulo</div><div class="grupo"><div id="ePers">' + r.personas.map(filaOperario).join('') + '</div><button class="btn chico" type="button" onclick="$(\'ePers\').insertAdjacentHTML(\'beforeend\', filaOperario())">+ Operario</button></div>';
+    h += '<div class="lbl">O/C trabajados</div><div class="grupo"><div id="eOcs">' + r.ocs.map(filaOc).join('') + '</div><button class="btn chico" type="button" onclick="$(\'eOcs\').insertAdjacentHTML(\'beforeend\', filaOc())">+ O/C</button></div>';
   }
-  iniciar();
+  h += '<div class="lbl">Operaciones' + (r.tipo === 'MODULO' ? ' sueltas (opcional)' : '') + '</div><div class="grupo"><div id="eOps">' + r.operaciones.map(filaOp).join('') + '</div><button class="btn chico" type="button" onclick="$(\'eOps\').insertAdjacentHTML(\'beforeend\', filaOp())">+ Operación</button>';
+  h += '<div class="sub" style="margin-top:8px">Las operaciones que ya estaban conservan el T.Std con que se guardaron; las nuevas toman el T.Std actual del catálogo.</div></div>';
+  $('vCuerpo').innerHTML = h; $('vAviso').className = 'aviso';
+  $('vGuardar').onclick = guardarRegistro; abrir();
+}
+function num(el) { const v = el.value.trim(); return v === '' ? null : Number(v); }
+async function guardarRegistro() {
+  const r = EDIT; const p = { id: r.id, fecha: $('eFecha').value };
+  document.querySelectorAll('#vCuerpo .error-campo').forEach(x => x.classList.remove('error-campo'));
+  const marca = (el, msg) => { el.classList.add('error-campo'); aviso(msg, false, true); return false; };
+  if (!p.fecha) return marca($('eFecha'), 'Falta la fecha.');
+  if (r.tipo === 'MANUAL' || r.tipo === 'CORTE_PAÑO') {
+    const k1 = r.tipo === 'MANUAL' ? 'codigo' : 'codigo1', m1 = r.tipo === 'MANUAL' ? 'minTrabajado' : 'minTrab1';
+    if (!$('eC1').value) return marca($('eC1'), 'Elige el colaborador.');
+    if (num($('eM1')) === null) return marca($('eM1'), 'Escribe los minutos trabajados (0 es válido).');
+    p[k1] = $('eC1').value; p[m1] = num($('eM1'));
+    if (r.tipo === 'CORTE_PAÑO' && $('eC2').value) {
+      if ($('eC2').value === $('eC1').value) return marca($('eC2'), 'El colaborador 2 no puede ser el mismo que el 1.');
+      if (num($('eM2')) === null) return marca($('eM2'), 'Escribe los minutos del colaborador 2.');
+      p.codigo2 = $('eC2').value; p.minTrab2 = num($('eM2'));
+    }
+  } else {
+    p.modulo = $('eMod').value.trim(); if (!p.modulo) return marca($('eMod'), 'Falta el módulo.');
+    p.operarios = [];
+    for (const d of document.querySelectorAll('#ePers .e-per')) {
+      const c = d.querySelector('.e-per-c').value; if (!c) continue;
+      const m = num(d.querySelector('.e-per-m')); if (m === null) return marca(d.querySelector('.e-per-m'), 'Escribe los minutos trabajados de cada operario.');
+      p.operarios.push({ codigo: c, minTrabajado: m, minImproductivo: num(d.querySelector('.e-per-i')) || 0 });
+    }
+    if (!p.operarios.length) return aviso('El módulo necesita al menos un operario.', false, true);
+    p.ocs = [];
+    for (const d of document.querySelectorAll('#eOcs .e-oc')) {
+      const oc = d.querySelector('.e-oc-o').value.trim(); if (!oc) continue;
+      const n = num(d.querySelector('.e-oc-n')), t = num(d.querySelector('.e-oc-t'));
+      if (n === null) return marca(d.querySelector('.e-oc-n'), 'Escribe la cantidad de prendas.');
+      if (t === null) return marca(d.querySelector('.e-oc-t'), 'Escribe el T.Std de la O/C.');
+      p.ocs.push({ oc, estilo: d.querySelector('.e-oc-e').value.trim(), cantPrendas: n, tstd: t });
+    }
+  }
+  const ops = [];
+  for (const d of document.querySelectorAll('#eOps .e-op')) {
+    const c = d.querySelector('.e-op-c').value; if (!c) continue;
+    const n = num(d.querySelector('.e-op-n')); if (n === null) return marca(d.querySelector('.e-op-n'), 'Escribe la cantidad de cada operación (0 es válido).');
+    ops.push({ codigo: c, cantidad: n });
+  }
+  p[r.tipo === 'MODULO' ? 'operaciones' : 'ops'] = ops;
+  $('vGuardar').disabled = true;
+  try { await api('corregir', p); cerrar(); aviso('Registro N° ' + r.id + ' corregido.', true); cargarRegistros(); cargarPlanilla(); }
+  catch (e) { aviso('No se guardó: ' + e.message + ' Lo escrito sigue en la ventana.', false, true); }
+  $('vGuardar').disabled = false;
+}
+function abrir() { $('fondo').classList.add('ver'); document.body.style.overflow = 'hidden'; }
+function cerrar() { $('fondo').classList.remove('ver'); document.body.style.overflow = ''; }
+document.addEventListener('keydown', e => { if (e.key === 'Escape') cerrar(); });
+
+// ---------- PLANILLA ----------
+async function cargarPlanilla() {
+  $('plaTabla').innerHTML = '<div class="vacio">Cargando…</div>';
+  try {
+    const [efs, sis] = await Promise.all([api('eficiencias', { desde: LUNES, hasta: mas(LUNES, 6) }), api('mintrabSemana', { lunes: LUNES })]);
+    pintarPlanilla(efs || [], sis || []);
+  } catch (e) { $('plaTabla').innerHTML = '<div class="vacio">No se pudo cargar la planilla: ' + esc(e.message) + ' <button class="btn chico" onclick="cargarPlanilla()">Reintentar</button></div>'; }
+}
+function pintarPlanilla(efs, sis) {
+  const dias = [0,1,2,3,4,5,6].map(i => mas(LUNES, i));
+  const hayDom = efs.some(e => e.fecha === dias[6]) || sis.some(s => s.fecha === dias[6] && s.minTrab > 0);
+  const usa = hayDom ? dias : dias.slice(0, 6);
+  const S = {}; sis.forEach(s => { S[s.codigo + '|' + s.fecha] = s; });
+  const R = {}; efs.forEach(e => { const k = e.codigo + '|' + e.fecha; const x = R[k] || (R[k] = { mp:0, mt:0, inc:0, incS:0 }); x.mp += e.minProducido; x.mt += e.minTrabajado; x.inc += e.incReal; x.incS += e.incSist; });
+  const cods = new Set(CAT.personal.filter(p => p.activo !== false).map(p => p.codigo)); efs.forEach(e => cods.add(e.codigo));
+  const filas = [...cods].map(c => ({ c, p: CAT.personal.find(x => x.codigo === c) || { nombre: c } })).sort((a,b) => (a.p.tipo||'').localeCompare(b.p.tipo||'') || a.p.nombre.localeCompare(b.p.nombre));
+  if (!efs.length && !sis.length) { $('plaTabla').innerHTML = '<div class="vacio">Sin registros ni extracto del sistema para esta semana.</div>'; return; }
+  let h = '<table><thead><tr><th rowspan="2">Colaborador</th><th rowspan="2">Tipo</th>' + usa.map(d => '<th colspan="4" style="text-align:center;border-left:1px solid var(--warm)">' + fcorta(d) + '</th>').join('') + '<th colspan="2" style="text-align:center;border-left:1px solid var(--warm)">Incentivo semana S/</th></tr><tr>';
+  usa.forEach(() => h += '<th class="n" style="border-left:1px solid var(--warm)">Min prod</th><th class="n">Min disp</th><th class="n">EF R</th><th class="n">EF S</th>');
+  h += '<th class="n" style="border-left:1px solid var(--warm)">Real</th><th class="n">Sistema</th></tr></thead><tbody>';
+  filas.forEach(({ c, p }) => {
+    let tr = 0, ts = 0, algo = false;
+    let t = '<tr><td style="white-space:nowrap">' + esc(p.nombre) + '<br><span class="sub">' + esc(c) + '</span></td><td><span class="sub">' + esc(TIPO[p.tipo] || p.tipo || '') + '</span></td>';
+    usa.forEach(d => {
+      const r = R[c + '|' + d], s = S[c + '|' + d];
+      if (r) { tr += r.inc; ts += r.incS; algo = true; } else if (s) { ts += s.incentivo; }
+      if (s && s.minTrab) algo = true;
+      const efr = r ? (r.mt > 0 ? r.mp / r.mt * 100 : 0) : null;
+      t += '<td class="n" style="border-left:1px solid var(--warm)">' + (r ? f0(r.mp) : '') + '</td><td class="n">' + (s ? f0(s.minTrab) : '—') + '</td><td class="n"' + (efr != null ? ' style="font-weight:700;color:' + (efr >= 55 ? 'var(--sage)' : 'var(--rose)') + '"' : '') + '>' + (efr != null ? f1(efr) + '%' : '') + '</td><td class="n">' + (s ? f1(s.efici) + '%' : '—') + '</td>';
+    });
+    t += '<td class="n money" style="border-left:1px solid var(--warm)">' + (tr ? f2(tr) : '') + '</td><td class="n money">' + (ts ? f2(ts) : '') + '</td></tr>';
+    if (algo) h += t;
+  });
+  h += '</tbody></table><div class="sub" style="margin-top:8px">Min disp y EF S salen del extracto del sistema de esa semana; "—" = la persona no está en el extracto. EF R en verde desde 55% (umbral para cobrar incentivo). Solo se listan personas con registro o con minutos en el sistema esa semana.</div>';
+  $('plaTabla').innerHTML = h;
+}
+
+// ---------- CATÁLOGOS ----------
+async function cargarCatalogos() {
+  CAT = await api('catalogos');
+  document.querySelectorAll('.edita').forEach(b => b.style.display = CAT.puedeEscribir ? '' : 'none');
+  $('tabSis').style.display = CAT.esAdmin ? '' : 'none';
+  $('hstate').textContent = (CAT.usuario || '') + (CAT.puedeEscribir ? ' · puede corregir' : ' · solo consulta');
+  pintarCatalogos();
+}
+function pintarCatalogos() {
+  const act = CAT.personal.filter(p => p.activo !== false).length;
+  $('perPh').textContent = CAT.personal.length + ' personas · ' + act + ' activas. La categoría define el básico: A y Y 1,300 · B 1,200 · C 1,150.';
+  $('perTabla').innerHTML = '<table><thead><tr><th>Código</th><th>Nombre</th><th>Cargo</th><th>Cat.</th><th>Tipo de registro</th><th>Grupo</th><th>Estado</th><th>Observación</th><th class="acc"></th></tr></thead><tbody>' +
+    CAT.personal.map(p => '<tr><td>' + esc(p.codigo) + '</td><td>' + esc(p.nombre) + '</td><td>' + esc(p.cargo||'') + '</td><td>' + esc(p.categoria||'') + '</td><td>' + esc(TIPO[p.tipo]||p.tipo||'') + '</td><td>' + esc(p.grupo||'') + '</td><td>' + (p.activo !== false ? '<span class="st bue">activo</span>' : '<span class="st low">inactivo</span>') + '</td><td class="sub" style="max-width:320px">' + esc(p.observacion||'') + '</td><td class="acc">' + (CAT.puedeEscribir ? '<button class="btn chico" onclick="editarPersona(\'' + esc(p.codigo) + '\')">Editar</button>' : '') + '</td></tr>').join('') + '</tbody></table>';
+  $('opPh').textContent = CAT.operaciones.length + ' operaciones. T.Std = minutos estándar por unidad.';
+  $('opTabla').innerHTML = '<table><thead><tr><th>Código</th><th>Descripción</th><th class="n">T.Std</th><th>Unidad</th><th>Estado</th><th class="acc"></th></tr></thead><tbody>' +
+    CAT.operaciones.map(o => '<tr><td>' + esc(o.codigo) + '</td><td>' + esc(o.descripcion||'') + '</td><td class="n">' + Number(o.tstd).toLocaleString('es-PE',{maximumFractionDigits:6}) + '</td><td>' + esc(o.unidad||'') + '</td><td>' + (o.activo !== false ? '<span class="st bue">activa</span>' : '<span class="st low">inactiva</span>') + '</td><td class="acc">' + (CAT.puedeEscribir ? '<button class="btn chico" onclick="editarOperacion(\'' + esc(o.codigo) + '\')">Editar</button>' : '') + '</td></tr>').join('') + '</tbody></table>';
+}
+function selOpts(vals, sel) { return vals.map(([v,t]) => '<option value="' + v + '"' + (v === sel ? ' selected' : '') + '>' + t + '</option>').join(''); }
+function editarPersona(cod) {
+  const p = CAT.personal.find(x => x.codigo === cod) || { activo: true };
+  $('vTit').textContent = cod ? 'Editar persona' : 'Agregar persona'; $('vSub').textContent = cod || 'Personal de Corte';
+  $('vCuerpo').innerHTML = '<div class="fila f2"><div class="campo"><label>Código</label><input id="pC" value="' + esc(p.codigo||'') + '"' + (cod ? ' disabled' : '') + ' placeholder="O-0000"></div><div class="campo"><label>Nombre (APELLIDOS, NOMBRES)</label><input id="pN" value="' + esc(p.nombre||'') + '"></div></div>' +
+    '<div class="fila f2"><div class="campo"><label>Cargo</label><input id="pG" value="' + esc(p.cargo||'') + '"></div><div class="campo"><label>Categoría</label><select id="pK">' + selOpts([['',''],['A','A'],['B','B'],['C','C'],['Y','Y']], p.categoria||'') + '</select></div></div>' +
+    '<div class="fila f2"><div class="campo"><label>Tipo de registro (en qué pestaña del formulario aparece)</label><select id="pT">' + selOpts([['MANUAL','Manual'],['CORTE_PAÑO','Corte Paño'],['MODULO','Módulo']], p.tipo||'MANUAL') + '</select></div><div class="campo"><label>Grupo</label><input id="pR" value="' + esc(p.grupo||'') + '"></div></div>' +
+    '<div class="fila f2"><div class="campo"><label>Estado</label><select id="pA">' + selOpts([['1','Activo'],['0','Inactivo (no aparece en el formulario)']], p.activo !== false ? '1' : '0') + '</select></div><div class="campo"><label>Observación</label><input id="pO" value="' + esc(p.observacion||'') + '"></div></div>';
+  $('vAviso').className = 'aviso';
+  $('vGuardar').onclick = async () => {
+    const d = { codigo: $('pC').value.trim().toUpperCase(), nombre: $('pN').value.trim(), cargo: $('pG').value.trim(), categoria: $('pK').value, tipo: $('pT').value, grupo: $('pR').value.trim(), activo: $('pA').value === '1', observacion: $('pO').value.trim() };
+    if (!d.codigo) { $('pC').classList.add('error-campo'); return aviso('Falta el código.', false, true); }
+    if (!d.nombre) { $('pN').classList.add('error-campo'); return aviso('Falta el nombre.', false, true); }
+    if (!d.categoria) { $('pK').classList.add('error-campo'); return aviso('Elige la categoría: define el básico y el incentivo.', false, true); }
+    if (!cod && CAT.personal.some(x => x.codigo === d.codigo)) { $('pC').classList.add('error-campo'); return aviso('Ese código ya existe: búscalo en la lista y usa Editar.', false, true); }
+    $('vGuardar').disabled = true;
+    try { await api('guardarPersona', d); cerrar(); aviso('Guardado: ' + d.nombre + '.', true); await cargarCatalogos(); cargarPlanilla(); }
+    catch (e) { aviso('No se guardó: ' + e.message, false, true); }
+    $('vGuardar').disabled = false;
+  };
+  abrir();
+}
+function editarOperacion(cod) {
+  const o = CAT.operaciones.find(x => x.codigo === cod) || { activo: true, unidad: 'MIN/PDA' };
+  $('vTit').textContent = cod ? 'Editar operación' : 'Agregar operación'; $('vSub').textContent = cod || 'Operaciones y T.Std';
+  $('vCuerpo').innerHTML = '<div class="fila f2"><div class="campo"><label>Código</label><input id="oC" value="' + esc(o.codigo||'') + '"' + (cod ? ' disabled' : '') + '></div><div class="campo"><label>Descripción</label><input id="oD" value="' + esc(o.descripcion||'') + '"></div></div>' +
+    '<div class="fila f2"><div class="campo"><label>T.Std (minutos por unidad)</label><input type="number" id="oT" min="0" step="any" value="' + (o.tstd ?? '') + '"></div><div class="campo"><label>Unidad</label><input id="oU" value="' + esc(o.unidad||'') + '"></div></div>' +
+    '<div class="fila f2"><div class="campo"><label>Estado</label><select id="oA">' + selOpts([['1','Activa'],['0','Inactiva (no aparece en el formulario)']], o.activo !== false ? '1' : '0') + '</select></div></div>' +
+    (cod ? '<div class="note" style="margin:0">Un T.Std nuevo solo se aplica a lo que se registre desde ahora. Los registros anteriores conservan el T.Std con que se guardaron.</div>' : '');
+  $('vAviso').className = 'aviso';
+  $('vGuardar').onclick = async () => {
+    const d = { codigo: $('oC').value.trim().toUpperCase(), descripcion: $('oD').value.trim(), tstd: num($('oT')), unidad: $('oU').value.trim(), activo: $('oA').value === '1' };
+    if (!d.codigo) { $('oC').classList.add('error-campo'); return aviso('Falta el código.', false, true); }
+    if (d.tstd === null || d.tstd < 0) { $('oT').classList.add('error-campo'); return aviso('Escribe el T.Std en minutos (número, 0 o más).', false, true); }
+    if (!cod && CAT.operaciones.some(x => x.codigo === d.codigo)) { $('oC').classList.add('error-campo'); return aviso('Ese código ya existe: búscalo en la lista y usa Editar.', false, true); }
+    $('vGuardar').disabled = true;
+    try { await api('guardarOperacion', d); cerrar(); aviso('Guardada la operación ' + d.codigo + '.', true); await cargarCatalogos(); }
+    catch (e) { aviso('No se guardó: ' + e.message, false, true); }
+    $('vGuardar').disabled = false;
+  };
+  abrir();
+}
+
+// ---------- SISTEMA (BD_MINTRAB) ----------
+let PEGADO = null;
+function numPegado(v) {
+  v = String(v == null ? '' : v).trim(); if (v === '' || v === '-') return 0;
+  if (v.indexOf(',') >= 0 && v.indexOf('.') >= 0) v = v.replace(/,/g, '');   // 1,234.56
+  else if (v.indexOf(',') >= 0) v = v.replace(',', '.');                      // 88,95
+  const n = Number(v); return isNaN(n) ? NaN : n;
+}
+$('sisLunes').onchange = () => { const v = $('sisLunes').value; if (v && deIso(v).getDay() !== 1) { $('sisLunes').value = iso(lunesDe(deIso(v))); } $('sisSem').textContent = $('sisLunes').value ? semIso($('sisLunes').value) : ''; PEGADO = null; $('sisSubir').disabled = true; };
+$('sisTexto').oninput = () => { PEGADO = null; $('sisSubir').disabled = true; $('sisPrev').innerHTML = ''; };
+function leerPegado() {
+  const txt = $('sisTexto').value; const filas = [], malas = [];
+  txt.split(/\r?\n/).forEach((ln, i) => {
+    const c = ln.split('\t'); if (c.length < 10) return;
+    const cod = String(c[2] || '').trim().toUpperCase();
+    if (!/^[A-Z]-?[A-Z0-9]+$/.test(cod) || cod === 'CODIGO') return;   // encabezados y filas vacías
+    const dias = []; let ok = true;
+    for (let d = 0; d < 7; d++) { const m = numPegado(c[7+3*d]), e = numPegado(c[8+3*d]), n = numPegado(c[9+3*d]); if ([m,e,n].some(isNaN)) ok = false; dias.push({ minTrab: m, efici: e, incentivo: n }); }
+    if (!ok) { malas.push(i + 1); return; }
+    filas.push({ codLinea: String(c[0]||'').trim().toUpperCase(), linea: String(c[1]||'').trim(), codigo: cod, nombre: [c[3],c[4],c[5]].map(x => String(x||'').trim()).filter(Boolean).join(' '), cat: String(c[6]||'').trim().toUpperCase(), dias });
+  });
+  const vistos = {}, rep = []; const unicas = filas.filter(f => { if (vistos[f.codigo]) { rep.push(f.codigo); return false; } return vistos[f.codigo] = true; });
+  const fuera = unicas.filter(f => !CAT.personal.some(p => p.codigo === f.codigo)).map(f => f.codigo);
+  const sMin = unicas.reduce((a,f) => a + f.dias.reduce((b,d) => b + d.minTrab, 0), 0), sInc = unicas.reduce((a,f) => a + f.dias.reduce((b,d) => b + d.incentivo, 0), 0);
+  let h = '';
+  if (!$('sisLunes').value) h += '<div class="aviso err">Elige el lunes de la semana a la que corresponde este extracto.</div>';
+  if (!unicas.length) h += '<div class="aviso err">No encontré filas de personas. Copia desde la columna Cod.Linea (la primera) hasta Incentivo Semanal, tal cual del Excel.</div>';
+  else {
+    h += '<div class="aviso ok" style="display:block">Listo para subir: <b>' + unicas.length + ' personas</b> · ' + f0(sMin) + ' minutos del sistema · S/ ' + f2(sInc) + ' de incentivo del sistema en la semana. Compáralo con los totales del Excel antes de subir.</div>';
+    if (rep.length) h += '<div class="note">Códigos repetidos en lo pegado: ' + esc(rep.join(', ')) + '. Se toma la primera fila de cada uno.</div>';
+    if (fuera.length) h += '<div class="note">No están en el personal de Corte (se suben igual, pero no cruzan con ningún registro): ' + esc(fuera.join(', ')) + '.</div>';
+    if (malas.length) h += '<div class="aviso err" style="display:block">Las filas ' + malas.join(', ') + ' tienen algún valor que no es número y no se subirán. Revísalas en el Excel.</div>';
+  }
+  $('sisPrev').innerHTML = h;
+  PEGADO = (unicas.length && $('sisLunes').value) ? unicas : null;
+  $('sisSubir').disabled = !PEGADO;
+}
+async function subirSistema() {
+  if (!PEGADO) return;
+  const lunes = $('sisLunes').value;
+  const ya = (SEMANAS_SIS || []).some(s => s.lunes === lunes);
+  if (ya && !confirm('La semana del ' + fcorta(lunes) + ' ya está cargada. ¿Reemplazarla completa con lo pegado?')) return;
+  $('sisSubir').disabled = true;
+  try { const r = await api('subirMintrab', { lunes, filas: PEGADO }); aviso('Sistema de la semana ' + semIso(lunes) + ' subido: ' + r.personas + ' personas.', true); $('sisTexto').value = ''; $('sisPrev').innerHTML = ''; PEGADO = null; cargarSemanasSis(); if (lunes === LUNES) cargarPlanilla(); }
+  catch (e) { aviso('No se subió: ' + e.message + ' Lo pegado sigue en el recuadro.'); $('sisSubir').disabled = false; }
+}
+let SEMANAS_SIS = [];
+async function cargarSemanasSis() {
+  try {
+    SEMANAS_SIS = await api('mintrabSemanas') || [];
+    $('sisLista').innerHTML = SEMANAS_SIS.length ? '<table><thead><tr><th>Semana</th><th>Del</th><th class="n">Personas</th><th>Subido por</th><th>Cuándo</th></tr></thead><tbody>' +
+      SEMANAS_SIS.map(s => '<tr><td>' + semIso(s.lunes) + '</td><td>' + fcorta(s.lunes) + ' – ' + fcorta(mas(s.lunes, 6)) + '</td><td class="n">' + s.personas + '</td><td>' + esc(s.subidoPor || '') + '</td><td class="sub">' + new Date(s.subidoEn).toLocaleString('es-PE') + '</td></tr>').join('') + '</tbody></table>'
+      : '<div class="vacio">Todavía no hay semanas del sistema cargadas.</div>';
+  } catch (e) { $('sisLista').innerHTML = '<div class="vacio">No se pudo cargar la lista: ' + esc(e.message) + '</div>'; }
+}
+
+// ---------- inicio ----------
+(async function iniciar() {
+  try { await cargarCatalogos(); }
+  catch (e) { $('hstate').textContent = 'Sin conexión'; aviso('No se pudo cargar el catálogo: ' + e.message + ' Recarga la página en un momento.'); }
+  irSemana(iso(lunesDe(new Date())));
+  if (CAT.esAdmin) cargarSemanasSis();
+})();
 </script>
 </body>
 </html>
