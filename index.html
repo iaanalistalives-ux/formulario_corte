@@ -727,7 +727,7 @@ td.money{color:var(--taupe);font-weight:700;}
   .card{padding:22px 14px 16px;}
   .dos{grid-template-columns:1fr;}
   .fila{grid-template-columns:1fr 1fr;}
-  .fila select{grid-column:1/-1;}
+  .fila select,.fila .opcel{grid-column:1/-1;}
   .seg button{font-size:13px;padding:10px 4px;}
   .acciones .btn{flex:1;}
   table{min-width:640px;}
@@ -764,11 +764,38 @@ nav.tabs button.falta::after{content:"";display:inline-block;width:9px;height:9p
 .macc{display:flex;gap:10px;justify-content:flex-end;margin-top:14px;flex-wrap:wrap;}
 @media(max-width:600px){.idfila .campo{min-width:calc(50% - 6px);} .idfila .campo.semn{max-width:none;} .idfila .campo.estsemc{min-width:100%;}
   .piepest .btn{flex:1;} .macc .btn{flex:1;}}
+
+/* ---- 03/11/2026 · integrantes fijos por fecha, código→nombre y pestaña Sistema ---- */
+.card.integ{padding:14px 16px 12px;}
+.integ .ihead{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:6px;}
+.integ .ilbl{font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--stone);}
+.integ .ilbl b{color:var(--petrol);text-transform:none;letter-spacing:0;font-size:12.5px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chips .ch{background:var(--warm-light);border:1px solid var(--warm);border-radius:20px;padding:6px 12px;font-size:13px;color:var(--petrol);font-weight:700;font-family:inherit;}
+.chips button.ch{cursor:pointer;min-height:36px;}
+.chips button.ch:hover{border-color:var(--sage);}
+.chips .ch small{font-weight:400;color:var(--stone);margin-left:4px;}
+.integ .vacioi{color:var(--rose);font-size:13px;font-weight:700;}
+.integ .erow{display:grid;grid-template-columns:150px 1fr auto;gap:8px;align-items:center;margin-bottom:8px;}
+.nom{font-size:12.5px;font-weight:700;margin-top:3px;min-height:16px;color:var(--stone);}
+.nom.ok{color:var(--sage);} .nom.mal{color:var(--rose);}
+.integ .erow .nom{margin:0;}
+.opcel .nom{font-weight:400;}
+.sis h4{margin:14px 0 6px;font-size:13px;color:var(--petrol);}
+.sis h4:first-child{margin-top:0;}
+.sis .tscroll{margin-bottom:6px;}
+.sis table{min-width:0;}
+.sis th.pn,.sis td.pn{font-weight:700;color:var(--petrol);text-align:left;white-space:nowrap;}
+.sis td.sem{font-weight:700;background:var(--warm-light);}
+.sis tr.psep td{border-top:2px solid var(--warm);}
+.sis .nota{font-size:11.5px;color:var(--stone);margin:4px 0 8px;}
+@media(max-width:600px){.integ .erow{grid-template-columns:1fr auto;} .integ .erow .nom{grid-column:1/-1;} .sis table{min-width:560px;}}
 </style>
 <style id="lsLimpCss">/* lives-limpieza v1 · sin enlaces repetidos (cada pantalla tiene su entrada en el portal), sin "Cambiar archivo" y sin títulos que ya pone el portal */a[href="dashboard_corte.html"],a[href="panel_corte.html"]{display:none!important}</style>
 </head>
 <body>
 
+<datalist id="dl-MANUAL"></datalist><datalist id="dl-CORTE_PAÑO"></datalist><datalist id="dl-MODULO"></datalist><datalist id="dl-OPS"></datalist>
 <div class="wrap">
 
   <div id="formulario">
@@ -804,6 +831,25 @@ nav.tabs button.falta::after{content:"";display:inline-block;width:9px;height:9p
       </div>
     </div>
 
+    <div class="card integ" id="integ">
+      <span class="tira"></span>
+      <div class="ihead">
+        <div class="ilbl" id="integ-tit">Integrantes</div>
+        <button type="button" class="btn" id="integ-editar" style="padding:6px 12px;min-height:36px">✎ Cambiar integrantes</button>
+      </div>
+      <div id="integ-ver" class="chips"></div>
+      <div id="integ-edit" style="display:none">
+        <div class="ayuda" id="integ-aviso" style="margin:0 0 8px"></div>
+        <div id="integ-filas"></div>
+        <div class="acciones" style="margin-top:6px;position:static;border:none;padding:0;background:none">
+          <button class="enlace" type="button" id="integ-mas">+ Agregar otro colaborador</button>
+          <button class="btn primary" type="button" id="integ-guardar">Guardar desde esta fecha</button>
+          <button class="btn" type="button" id="integ-cancelar">Cancelar</button>
+        </div>
+        <div class="msg" id="integ-msg" style="display:block"></div>
+      </div>
+    </div>
+
     <div class="card formcard">
       <span class="tira volumen"></span>
       <div class="pegado">
@@ -816,7 +862,9 @@ nav.tabs button.falta::after{content:"";display:inline-block;width:9px;height:9p
         <div class="tpanel">
         <div class="campo" id="c-m-codigo">
           <label for="m-codigo">Colaborador <span class="req">*</span></label>
-          <select id="m-codigo"></select>
+          <input type="text" id="m-codigo" list="dl-MANUAL" data-cod="MANUAL" autocomplete="off" placeholder="Escribe el código, ej. O-9525">
+          <div class="nom" data-nom></div>
+          <div class="chips" id="chips-m" style="margin-top:6px"></div>
           <div class="msg"></div>
         </div>
         <div class="campo" id="c-m-mintrab" style="max-width:260px">
@@ -834,6 +882,7 @@ nav.tabs button.falta::after{content:"";display:inline-block;width:9px;height:9p
           <button class="enlace" id="m-agregar-op" type="button">+ Agregar operación</button>
         </div>
         </div>
+        <div class="tpanel"><div class="sis" data-sis></div></div>
         <div class="acciones">
           <button class="btn primary" type="button" data-guardar="MANUAL">Guardar registro</button>
           <button class="btn" type="button" data-limpiar="MANUAL">Limpiar</button>
@@ -846,7 +895,8 @@ nav.tabs button.falta::after{content:"";display:inline-block;width:9px;height:9p
         <div class="dos">
           <div class="campo" id="c-cp-codigo1">
             <label for="cp-codigo1">Colaborador 1 <span class="req">*</span></label>
-            <select id="cp-codigo1"></select>
+            <input type="text" id="cp-codigo1" list="dl-CORTE_PAÑO" data-cod="CORTE_PAÑO" autocomplete="off" placeholder="Código">
+            <div class="nom" data-nom></div>
             <div class="msg"></div>
           </div>
           <div class="campo" id="c-cp-mintrab1">
@@ -860,7 +910,8 @@ nav.tabs button.falta::after{content:"";display:inline-block;width:9px;height:9p
           <div class="dos" id="cp-op2-campos" style="display:none">
             <div class="campo" id="c-cp-codigo2">
               <label for="cp-codigo2">Colaborador 2</label>
-              <select id="cp-codigo2"></select>
+              <input type="text" id="cp-codigo2" list="dl-CORTE_PAÑO" data-cod="CORTE_PAÑO" autocomplete="off" placeholder="Código">
+              <div class="nom" data-nom></div>
               <div class="msg"></div>
             </div>
             <div class="campo" id="c-cp-mintrab2">
@@ -880,6 +931,7 @@ nav.tabs button.falta::after{content:"";display:inline-block;width:9px;height:9p
           <button class="enlace" id="cp-agregar-op" type="button">+ Agregar operación</button>
         </div>
         </div>
+        <div class="tpanel"><div class="sis" data-sis></div></div>
         <div class="acciones">
           <button class="btn primary" type="button" data-guardar="CORTE_PAÑO">Guardar registro</button>
           <button class="btn" type="button" data-limpiar="CORTE_PAÑO">Limpiar</button>
@@ -923,6 +975,7 @@ nav.tabs button.falta::after{content:"";display:inline-block;width:9px;height:9p
           <button class="enlace" id="md-agregar-operacion" type="button">+ Agregar operación</button>
         </div>
         </div>
+        <div class="tpanel"><div class="sis" data-sis></div></div>
         <div class="acciones">
           <button class="btn primary" type="button" data-guardar="MODULO">Guardar registro</button>
           <button class="btn" type="button" data-limpiar="MODULO">Limpiar</button>
@@ -1025,21 +1078,53 @@ nav.tabs button.falta::after{content:"";display:inline-block;width:9px;height:9p
     TIPO = $('tipo').value;
     $('sec-' + TIPO).classList.add('on');
     armarPestanas();
+    cancelarEdicion(); renderRoster(); aplicarRoster();
     aviso('');
   });
 
   // ------- Poblar selects de código con nombre -------
+  let PERS = {}, OPS = {};
   function opcionesPersonal(tipo) {
     return CATALOGO.personal
       .filter(p => p.activo !== false && (tipo ? p.tipo === tipo : true))
       .sort((a, b) => a.nombre.localeCompare(b.nombre))
-      .map(p => `<option value="${esc(p.codigo)}">${esc(p.nombre)} (${esc(p.codigo)})</option>`).join('');
+      .map(p => `<option value="${esc(p.codigo)}">${esc(p.nombre)}</option>`).join('');
   }
   function llenarSelectsPersonal() {
-    $('m-codigo').innerHTML = '<option value="">— Elegir —</option>' + opcionesPersonal('MANUAL');
-    $('cp-codigo1').innerHTML = '<option value="">— Elegir —</option>' + opcionesPersonal('CORTE_PAÑO');
-    $('cp-codigo2').innerHTML = '<option value="">— Elegir —</option>' + opcionesPersonal('CORTE_PAÑO');
+    PERS = {}; CATALOGO.personal.forEach(p => { PERS[String(p.codigo).toUpperCase()] = p; });
+    OPS = {}; CATALOGO.operaciones.forEach(o => { OPS[String(o.codigo).toUpperCase()] = o; });
+    ['MANUAL', 'CORTE_PAÑO', 'MODULO'].forEach(t => { $('dl-' + t).innerHTML = opcionesPersonal(t); });
+    $('dl-OPS').innerHTML = CATALOGO.operaciones
+      .map(o => `<option value="${esc(o.codigo)}">${esc(o.descripcion)} (${o.tstd} ${esc(o.unidad)})</option>`).join('');
   }
+  // ------- Código → nombre (se escribe el código y sale el nombre; también se puede elegir de la lista) -------
+  function infoCod(kind, v) {
+    if (!v) return { txt: '', cls: '', ok: null };
+    if (kind === 'OP') {
+      const o = OPS[v];
+      return o ? { txt: o.descripcion + ' · ' + o.tstd + ' ' + o.unidad, cls: 'ok', ok: o.codigo } : { txt: 'No existe esa operación', cls: 'mal', ok: null };
+    }
+    let p = PERS[v];
+    if (!p) { const m = CATALOGO.personal.filter(x => x.activo !== false && x.tipo === kind && String(x.nombre).toUpperCase() === v); if (m.length === 1) p = m[0]; }
+    if (!p) return { txt: 'No existe ese código', cls: 'mal', ok: null };
+    if (p.activo === false) return { txt: p.nombre + ' — inactivo', cls: 'mal', ok: null };
+    if (p.tipo !== kind) return { txt: p.nombre + ' — es de ' + (TIPO_NOMBRE[p.tipo] || p.tipo), cls: 'mal', ok: null };
+    return { txt: p.nombre, cls: 'ok', ok: p.codigo };
+  }
+  function resolverCod(el) {
+    const v = el.value.trim().toUpperCase();
+    const i = infoCod(el.dataset.cod, v);
+    if (i.ok && el.value !== i.ok) el.value = i.ok;
+    const nom = el.parentElement.querySelector(':scope > .nom');
+    if (nom) { nom.textContent = i.txt; nom.className = 'nom ' + i.cls; }
+    return i.ok || '';
+  }
+  function codOk(el) { return resolverCod(el); }
+  function setCod(el, v, auto) { el.value = v || ''; if (auto && v) el.dataset.auto = '1'; else delete el.dataset.auto; resolverCod(el); }
+  ['input', 'change'].forEach(ev => document.addEventListener(ev, e => {
+    const el = e.target;
+    if (el && el.dataset && el.dataset.cod) { if (e.isTrusted) delete el.dataset.auto; resolverCod(el); }
+  }));
 
   // ------- Filas de operación (operación + cantidad) -------
   function opcionesOperaciones() {
@@ -1047,7 +1132,7 @@ nav.tabs button.falta::after{content:"";display:inline-block;width:9px;height:9p
       .map(o => `<option value="${esc(o.codigo)}">${esc(o.codigo)} — ${esc(o.descripcion)} (${o.tstd} ${esc(o.unidad)})</option>`).join('');
   }
   function filaOperacionHTML(clsSel, clsCant) {
-    return `<select class="${clsSel}" aria-label="Operación">${opcionesOperaciones()}</select>
+    return `<div class="opcel"><input type="text" class="${clsSel}" list="dl-OPS" data-cod="OP" autocomplete="off" placeholder="Código de operación" aria-label="Operación"><div class="nom"></div></div>
             <input type="number" class="${clsCant}" placeholder="Cantidad" min="0" step="1" inputmode="numeric" aria-label="Cantidad">
             <button class="quitar" type="button" onclick="this.closest('.fila').remove();">Quitar</button>
             <div class="msg"></div>`;
@@ -1066,7 +1151,7 @@ nav.tabs button.falta::after{content:"";display:inline-block;width:9px;height:9p
   function leerFilasOperacion(contenedorId) {
     const filas = [];
     $(contenedorId).querySelectorAll('.op-fila').forEach(div => {
-      const codigo = div.querySelector('.op-select').value;
+      const codigo = codOk(div.querySelector('.op-select'));
       const cantidad = div.querySelector('.op-cant').value;
       if (codigo && cantidad) filas.push({ codigo, cantidad: Number(cantidad) });
     });
@@ -1097,7 +1182,7 @@ nav.tabs button.falta::after{content:"";display:inline-block;width:9px;height:9p
     div.innerHTML = `<div class="cab"><span class="num op-num">Operario</span>
         <button class="quitar" type="button" onclick="this.closest('.modulo-operario').remove(); renumerarOperariosModulo();">Quitar</button></div>
       <div class="fila" style="grid-template-columns:1fr;margin-bottom:0">
-        <select class="md-op-codigo" aria-label="Operario"><option value="">— Elegir operario —</option>${opcionesPersonal('MODULO')}</select>
+        <div><input type="text" class="md-op-codigo" list="dl-MODULO" data-cod="MODULO" autocomplete="off" placeholder="Código del operario" aria-label="Operario"><div class="nom"></div></div>
         <div class="dos">
           <div><label>Min. trabajados</label><input type="number" class="md-op-mintrab" min="0" step="1" inputmode="numeric"></div>
           <div><label>Min. improductivos</label><input type="number" class="md-op-improd" min="0" step="1" inputmode="numeric" value="0"></div>
@@ -1176,10 +1261,10 @@ nav.tabs button.falta::after{content:"";display:inline-block;width:9px;height:9p
   function validarFilasOperacion(contId, bloqueId, clsSel, clsCant, obligatorio) {
     let ok = true, completas = 0;
     $(contId).querySelectorAll('.fila').forEach(f => {
-      const s = f.querySelector('.' + clsSel).value, c = f.querySelector('.' + clsCant).value;
+      const raw = f.querySelector('.' + clsSel).value.trim(), s = codOk(f.querySelector('.' + clsSel)), c = f.querySelector('.' + clsCant).value;
       marcar(f, '');
-      if (!s && vacio(c)) return;
-      if (!s) { marcar(f, 'Elige la operación de esta fila, o quítala.'); ok = false; return; }
+      if (!raw && vacio(c)) return;
+      if (!s) { marcar(f, raw ? 'Ese código de operación no existe. Revísalo o elige de la lista.' : 'Escribe el código de la operación de esta fila, o quítala.'); ok = false; return; }
       const e = numeroValido(c, false);
       if (e) { marcar(f, 'Cantidad: ' + e.charAt(0).toLowerCase() + e.slice(1)); ok = false; return; }
       completas++;
@@ -1219,26 +1304,26 @@ nav.tabs button.falta::after{content:"";display:inline-block;width:9px;height:9p
   }
 
   // ------- Limpiar -------
-  function limpiarManual() { $('m-codigo').value = ''; $('m-mintrab').value = ''; crearFilasOperacion('m-ops'); }
+  function limpiarManual() { setCod($('m-codigo'), ''); $('m-mintrab').value = ''; crearFilasOperacion('m-ops'); }
   function limpiarPano() {
-    $('cp-codigo1').value = ''; $('cp-mintrab1').value = '';
-    $('cp-codigo2').value = ''; $('cp-mintrab2').value = '';
+    setCod($('cp-codigo1'), ''); $('cp-mintrab1').value = '';
+    setCod($('cp-codigo2'), ''); $('cp-mintrab2').value = '';
     $('cp-quitar-op2').click();
     crearFilasOperacion('cp-ops');
   }
   document.querySelectorAll('[data-limpiar]').forEach(b => b.addEventListener('click', () => {
     const t = b.dataset.limpiar;
     if (t === 'MANUAL') limpiarManual(); else if (t === 'CORTE_PAÑO') limpiarPano(); else crearFilasModuloInicial();
-    limpiarMarcas(); aviso('');
+    aplicarRoster(); limpiarMarcas(); aviso('');
   }));
 
   // ------- Guardar: MANUAL -------
   async function guardarManual() {
     limpiarMarcas(); aviso('');
-    const fecha = $('fecha').value, codigo = $('m-codigo').value;
+    const fecha = $('fecha').value, codigo = codOk($('m-codigo'));
     const minTrabajado = $('m-mintrab').value;
     let ok = validarFecha();
-    if (!codigo) { marcar($('c-m-codigo'), 'Elige al colaborador.'); ok = false; }
+    if (!codigo) { marcar($('c-m-codigo'), $('m-codigo').value.trim() ? 'Ese código no es de un colaborador de Manual de Corte.' : 'Escribe el código del colaborador.'); ok = false; }
     const eMin = numeroValido(minTrabajado, false); if (eMin) { marcar($('c-m-mintrab'), eMin); ok = false; }
     if (!validarFilasOperacion('m-ops', 'b-m-ops', 'op-select', 'op-cant', true)) ok = false;
     if (!ok) { aviso('Revisa los campos marcados en rojo.', 'error'); primerError(); return; }
@@ -1247,9 +1332,9 @@ nav.tabs button.falta::after{content:"";display:inline-block;width:9px;height:9p
     try {
       const res = await llamarApi({ action: 'guardarManual', fecha, codigo, minTrabajado, ops: JSON.stringify(ops) });
       if (res.ok) {
-        const nom = $('m-codigo').selectedOptions[0] ? $('m-codigo').selectedOptions[0].textContent : codigo;
+        const nom = PERS[String(codigo).toUpperCase()] ? PERS[String(codigo).toUpperCase()].nombre : codigo;
         exito('MANUAL', res.data, nom + ' · ' + ops.length + ' operación' + (ops.length === 1 ? '' : 'es') + ' · ' + minTrabajado + ' min trabajados.');
-        limpiarManual();
+        limpiarManual(); aplicarRoster(); SIS.cargado = false;
         cargarResumenSemana();
       } else falla(res.error);
     } catch (e) { falla(e.message); }
@@ -1259,13 +1344,13 @@ nav.tabs button.falta::after{content:"";display:inline-block;width:9px;height:9p
   // ------- Guardar: CORTE_PAÑO -------
   async function guardarCortePano() {
     limpiarMarcas(); aviso('');
-    const fecha = $('fecha').value, codigo1 = $('cp-codigo1').value, minTrab1 = $('cp-mintrab1').value;
-    const codigo2 = $('cp-codigo2').value, minTrab2 = $('cp-mintrab2').value;
+    const fecha = $('fecha').value, codigo1 = codOk($('cp-codigo1')), minTrab1 = $('cp-mintrab1').value;
+    const raw2 = $('cp-codigo2').value.trim(), codigo2 = codOk($('cp-codigo2')), minTrab2 = $('cp-mintrab2').value;
     let ok = validarFecha();
-    if (!codigo1) { marcar($('c-cp-codigo1'), 'Elige al colaborador 1.'); ok = false; }
+    if (!codigo1) { marcar($('c-cp-codigo1'), $('cp-codigo1').value.trim() ? 'Ese código no es de un colaborador de Corte Paño.' : 'Escribe el código del colaborador 1.'); ok = false; }
     const e1 = numeroValido(minTrab1, false); if (e1) { marcar($('c-cp-mintrab1'), e1); ok = false; }
-    if ($('cp-op2-campos').style.display !== 'none' && (codigo2 || !vacio(minTrab2))) {
-      if (!codigo2) { marcar($('c-cp-codigo2'), 'Elige al colaborador 2, o quítalo.'); ok = false; }
+    if ($('cp-op2-campos').style.display !== 'none' && (raw2 || !vacio(minTrab2))) {
+      if (!codigo2) { marcar($('c-cp-codigo2'), 'Escribe un código válido para el colaborador 2, o quítalo.'); ok = false; }
       const e2 = numeroValido(minTrab2, false); if (e2) { marcar($('c-cp-mintrab2'), e2); ok = false; }
       if (codigo2 && codigo2 === codigo1) { marcar($('c-cp-codigo2'), 'Es la misma persona que el colaborador 1.'); ok = false; }
     }
@@ -1280,7 +1365,7 @@ nav.tabs button.falta::after{content:"";display:inline-block;width:9px;height:9p
       });
       if (res.ok) {
         exito('CORTE_PAÑO', res.data, (codigo2 ? '2 colaboradores' : '1 colaborador') + ' · ' + ops.length + ' operación' + (ops.length === 1 ? '' : 'es') + '.');
-        limpiarPano();
+        limpiarPano(); aplicarRoster(); SIS.cargado = false;
         cargarResumenSemana();
       } else falla(res.error);
     } catch (e) { falla(e.message); }
@@ -1297,11 +1382,11 @@ nav.tabs button.falta::after{content:"";display:inline-block;width:9px;height:9p
     const operarios = [], vistos = {};
     document.querySelectorAll('#md-operarios .modulo-operario').forEach(div => {
       const f = div.querySelector('.fila');
-      const codigo = div.querySelector('.md-op-codigo').value;
+      const rawC = div.querySelector('.md-op-codigo').value.trim(), codigo = codOk(div.querySelector('.md-op-codigo'));
       const minTrabajado = div.querySelector('.md-op-mintrab').value;
       const minImproductivo = div.querySelector('.md-op-improd').value || 0;
-      if (!codigo && vacio(minTrabajado)) return;
-      if (!codigo) { marcar(f, 'Elige al operario, o quita esta fila.'); ok = false; return; }
+      if (!rawC && vacio(minTrabajado)) return;
+      if (!codigo) { marcar(f, rawC ? 'Ese código no es de un operario de módulos.' : 'Escribe el código del operario, o quita esta fila.'); ok = false; return; }
       if (vistos[codigo]) { marcar(f, 'Este operario ya está en otra fila.'); ok = false; return; }
       const e = numeroValido(minTrabajado, false); if (e) { marcar(f, 'Min. trabajados: ' + e.charAt(0).toLowerCase() + e.slice(1)); ok = false; return; }
       const ei = numeroValido(minImproductivo, false); if (ei) { marcar(f, 'Min. improductivos: ' + ei.charAt(0).toLowerCase() + ei.slice(1)); ok = false; return; }
@@ -1330,7 +1415,7 @@ nav.tabs button.falta::after{content:"";display:inline-block;width:9px;height:9p
 
     const operaciones = [];
     document.querySelectorAll('#md-operaciones .fila').forEach(div => {
-      const codigo = div.querySelector('.md-op-op-select').value;
+      const codigo = codOk(div.querySelector('.md-op-op-select'));
       const cantidad = div.querySelector('.md-op-op-cant').value;
       if (codigo && cantidad) operaciones.push({ codigo, cantidad: Number(cantidad) });
     });
@@ -1344,7 +1429,7 @@ nav.tabs button.falta::after{content:"";display:inline-block;width:9px;height:9p
       if (res.ok) {
         const pl = (n, u, v) => n + ' ' + (n === 1 ? u : v);
         exito('MODULO', res.data, `${modulo} · ${pl(res.data.operarios, 'operario', 'operarios')}, ${res.data.ocs} O/C, ${pl(res.data.operaciones, 'operación', 'operaciones')}.`);
-        crearFilasModuloInicial();
+        crearFilasModuloInicial(); aplicarRoster(); SIS.cargado = false;
         cargarResumenSemana();
       } else falla(res.error);
     } catch (e) { falla(e.message); }
@@ -1394,7 +1479,7 @@ nav.tabs button.falta::after{content:"";display:inline-block;width:9px;height:9p
 
 
   // ------- Pestañas por tipo (lo fijo queda arriba; el resto va por pestañas) -------
-  const PESTANAS = { 'MANUAL': ['Colaborador y minutos', 'Operaciones'], 'CORTE_PAÑO': ['Colaboradores', 'Operaciones'], 'MODULO': ['Operarios', 'O/C', 'Operaciones sueltas'] };
+  const PESTANAS = { 'MANUAL': ['Colaborador y minutos', 'Operaciones', 'Sistema'], 'CORTE_PAÑO': ['Colaboradores', 'Operaciones', 'Sistema'], 'MODULO': ['Operarios', 'O/C', 'Operaciones sueltas', 'Sistema'] };
   const TIPO_NOMBRE = { 'MANUAL': 'Manual de Corte', 'CORTE_PAÑO': 'Corte Paño', 'MODULO': 'Módulos' };
   let TABIDX = 0;
   const SEM = { cerrada: false, lunes: '', info: null };
@@ -1404,6 +1489,7 @@ nav.tabs button.falta::after{content:"";display:inline-block;width:9px;height:9p
     ps.forEach((p, k) => p.classList.toggle('on', k === TABIDX));
     document.querySelectorAll('#tabs button').forEach((b, k) => b.classList.toggle('active', k === TABIDX));
     actualizarLinea();
+    if (typeof renderSistema === 'function' && TABIDX === PESTANAS[TIPO].length - 1) renderSistema();
   }
   function armarPestanas() {
     $('tabs').innerHTML = PESTANAS[TIPO].map((t, k) => '<button type="button" data-i="' + k + '">↓ ' + esc(t) + '</button>').join('');
@@ -1521,7 +1607,206 @@ nav.tabs button.falta::after{content:"";display:inline-block;width:9px;height:9p
   $('btn-cerrar-semana').addEventListener('click', abrirCierre);
   $('btn-reabrir-semana').addEventListener('click', abrirReapertura);
 
-  $('fecha').addEventListener('change', () => { marcar($('c-fecha'), ''); actualizarChipSemana(); cargarResumenSemana(); cargarEstadoSemana(); });
+  $('fecha').addEventListener('change', () => { marcar($('c-fecha'), ''); actualizarChipSemana(); cargarResumenSemana(); cargarEstadoSemana(); cancelarEdicion(); cargarRoster(); });
+  $('md-numero').addEventListener('change', () => { cancelarEdicion(); renderRoster(); aplicarRoster(); });
+
+  // ------- Integrantes fijos por fecha (como Acabados): quedan desde el primer día hasta que se cambien -------
+  let ROSTER = {};            // grupo -> { desde, codigos[] }
+  let EDITANDO = false;
+  const GRUPO_NOM = { 'MANUAL': 'Manual de Corte', 'CORTE_PAÑO': 'Corte Paño' };
+  const grupoActual = () => TIPO === 'MODULO' ? $('md-numero').value : TIPO;
+  const tipoPersDe = g => (g === 'MANUAL' || g === 'CORTE_PAÑO') ? g : 'MODULO';
+  const nombreDe = c => { const p = PERS[String(c).toUpperCase()]; return p ? p.nombre : c; };
+  const fmtF = f => f ? String(f).slice(0, 10).split('-').reverse().join('/') : '';
+  function renderRoster() {
+    const g = grupoActual(), r = ROSTER[g];
+    $('integ-tit').innerHTML = 'Integrantes · <b>' + esc(GRUPO_NOM[g] || g) + '</b>' + (r ? ' · desde ' + fmtF(r.desde) : '');
+    $('integ-editar').style.display = (CATALOGO.puedeEscribir === false || EDITANDO) ? 'none' : '';
+    $('integ-editar').textContent = EDITANDO ? 'Cancelar' : '✎ Cambiar integrantes';
+    $('integ-ver').style.display = EDITANDO ? 'none' : '';
+    $('integ-edit').style.display = EDITANDO ? '' : 'none';
+    $('integ-ver').innerHTML = (r && r.codigos.length)
+      ? r.codigos.map(c => '<span class="ch">' + esc(nombreDe(c)) + '<small>' + esc(c) + '</small></span>').join('')
+      : '<span class="vacioi">Nadie asignado a ' + esc(GRUPO_NOM[g] || g) + ' en esta fecha. Usa «Cambiar integrantes».</span>';
+  }
+  async function cargarRoster() {
+    const f = $('fecha').value; if (!f) return;
+    try {
+      const r = await api('integrantes', { fecha: f });
+      if (f !== $('fecha').value) return;
+      ROSTER = (r && r.grupos) || {};
+    } catch (e) { ROSTER = {}; }
+    renderRoster(); aplicarRoster();
+  }
+  // Pone los integrantes fijos en el formulario (solo donde todavía no se escribió nada a mano).
+  function aplicarRoster() {
+    const m = ROSTER['MANUAL'], box = $('chips-m');
+    box.innerHTML = (m && m.codigos.length) ? m.codigos.map(c => '<button type="button" class="ch" data-c="' + esc(c) + '">' + esc(nombreDe(c)) + '<small>' + esc(c) + '</small></button>').join('') : '';
+    box.querySelectorAll('button').forEach(b => b.addEventListener('click', () => { setCod($('m-codigo'), b.dataset.c); marcar($('c-m-codigo'), ''); $('m-mintrab').focus(); }));
+
+    const cp = (ROSTER['CORTE_PAÑO'] || {}).codigos || [];
+    [['cp-codigo1', 0], ['cp-codigo2', 1]].forEach(([id, k]) => {
+      const el = $(id); if (!el.value || el.dataset.auto) setCod(el, cp[k] || '', true);
+    });
+    if (cp[1] && $('cp-op2-campos').style.display === 'none') $('cp-agregar-op2').click();
+
+    const g = $('md-numero').value, md = (ROSTER[g] || {}).codigos || [];
+    const filas = Array.from($('md-operarios').querySelectorAll('.modulo-operario'));
+    const sinTrabajo = filas.every(d => vacio(d.querySelector('.md-op-mintrab').value));
+    const igual = filas.length === Math.max(md.length, 1) && md.every((c, i) => filas[i] && filas[i].querySelector('.md-op-codigo').value === c);
+    if (sinTrabajo && !igual) {
+      $('md-operarios').innerHTML = '';
+      (md.length ? md : ['']).forEach(c => {
+        crearFilaOperarioModulo();
+        setCod($('md-operarios').lastElementChild.querySelector('.md-op-codigo'), c, true);
+      });
+    }
+  }
+  function filaEdicion(c) {
+    const d = document.createElement('div'); d.className = 'erow';
+    const t = tipoPersDe(grupoActual());
+    d.innerHTML = '<input type="text" list="dl-' + t + '" data-cod="' + t + '" autocomplete="off" placeholder="Código" aria-label="Código del colaborador"><div class="nom"></div><button type="button" class="quitar">Quitar</button>';
+    $('integ-filas').appendChild(d);
+    setCod(d.querySelector('input'), c);
+    d.querySelector('.quitar').addEventListener('click', () => d.remove());
+  }
+  function abrirEdicion() {
+    EDITANDO = true;
+    const g = grupoActual(), r = ROSTER[g], cods = r ? r.codigos.slice() : [];
+    while (cods.length < 2) cods.push('');
+    $('integ-filas').innerHTML = ''; cods.forEach(filaEdicion);
+    $('integ-msg').textContent = '';
+    $('integ-aviso').textContent = 'El cambio vale desde la fecha de arriba (' + fmtF($('fecha').value) + ') y sigue hasta que lo vuelvas a cambiar. Los días anteriores no se tocan.';
+    renderRoster();
+  }
+  function cancelarEdicion() { if (EDITANDO) { EDITANDO = false; renderRoster(); } }
+  $('integ-editar').addEventListener('click', () => { if (EDITANDO) cancelarEdicion(); else abrirEdicion(); });
+  $('integ-cancelar').addEventListener('click', cancelarEdicion);
+  $('integ-mas').addEventListener('click', () => filaEdicion(''));
+  $('integ-guardar').addEventListener('click', async () => {
+    const msg = $('integ-msg'); msg.textContent = '';
+    const filas = Array.from($('integ-filas').querySelectorAll('input')), codigos = [];
+    for (const el of filas) {
+      const raw = el.value.trim(); if (!raw) continue;
+      const c = codOk(el);
+      if (!c) { msg.textContent = 'El código «' + raw + '» no existe o no es de este grupo. Revísalo o elige de la lista.'; return; }
+      if (codigos.indexOf(c) >= 0) { msg.textContent = 'El código ' + c + ' está repetido.'; return; }
+      codigos.push(c);
+    }
+    if (!codigos.length) { msg.textContent = 'Escribe el código de al menos un colaborador.'; return; }
+    const desde = $('fecha').value; if (!desde) { msg.textContent = 'Elige primero la fecha.'; return; }
+    const b = $('integ-guardar'); b.disabled = true; b.textContent = 'Guardando…';
+    try {
+      await api('asignarIntegrantes', { grupo: grupoActual(), desde, codigos });
+      EDITANDO = false;
+      const r = await api('integrantes', { fecha: desde }); ROSTER = (r && r.grupos) || {};
+      renderRoster();
+      // el cambio manda sobre lo que se había puesto solo
+      $('md-operarios').querySelectorAll('.md-op-codigo').forEach(e => { if (e.dataset.auto) e.value = ''; });
+      aplicarRoster(); SIS.cargado = false;
+    } catch (e) { msg.textContent = e.message; }
+    b.disabled = false; b.textContent = 'Guardar desde esta fecha';
+  });
+
+  // ------- Pestaña Sistema: lo que se va a pasar al sistema y lo que ya está guardado -------
+  const SIS = { lunes: '', ef: [], regs: [], res: [], cargado: false, error: '' };
+  const n1 = v => (v == null || !isFinite(v)) ? '—' : (+v).toLocaleString('es-PE', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+  const n0 = v => (v == null || !isFinite(v)) ? '—' : Math.round(v).toLocaleString('es-PE');
+  const n2 = v => (v == null || !isFinite(v)) ? '—' : (+v).toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  async function cargarSis() {
+    const lunes = lunesDe($('fecha').value); if (!lunes) return;
+    if (SIS.cargado && SIS.lunes === lunes) return;
+    try {
+      const hasta = sumaDias(lunes, 6);
+      const [ef, regs, res] = await Promise.all([
+        api('eficiencias', { desde: lunes, hasta }), api('registros', { desde: lunes, hasta }), api('resumenSemana', { fecha: lunes })]);
+      SIS.lunes = lunes; SIS.ef = ef || []; SIS.regs = regs || []; SIS.res = (res && res.filas) || []; SIS.error = ''; SIS.cargado = true;
+    } catch (e) { SIS.error = e.message; SIS.cargado = false; }
+  }
+  function sumaOps(lista) { return lista.reduce((a, o) => a + (o.cantidad || 0) * ((OPS[String(o.codigo).toUpperCase()] || {}).tstd || 0), 0); }
+  function previaHTML() {
+    let prod = 0, trab = 0, impr = 0, hay = false, divide = 0;
+    if (TIPO === 'MANUAL') {
+      trab = +$('m-mintrab').value || 0; prod = sumaOps(leerFilasOperacion('m-ops')); divide = trab;
+    } else if (TIPO === 'CORTE_PAÑO') {
+      trab = (+$('cp-mintrab1').value || 0) + (+$('cp-mintrab2').value || 0); prod = sumaOps(leerFilasOperacion('cp-ops')); divide = trab;
+    } else {
+      $('md-operarios').querySelectorAll('.modulo-operario').forEach(d => { trab += +d.querySelector('.md-op-mintrab').value || 0; impr += +d.querySelector('.md-op-improd').value || 0; });
+      $('md-ocs').querySelectorAll('.modulo-oc').forEach(d => { prod += (+d.querySelector('.md-oc-cant').value || 0) * (+d.querySelector('.md-oc-tstd').value || 0); });
+      const sueltas = []; $('md-operaciones').querySelectorAll('.fila').forEach(d => {
+        const cod = codOk(d.querySelector('.md-op-op-select')), c = +d.querySelector('.md-op-op-cant').value || 0; if (cod && c) sueltas.push({ codigo: cod, cantidad: c });
+      });
+      prod += sumaOps(sueltas); divide = trab - impr;
+    }
+    hay = prod > 0 || trab > 0;
+    let h = '<h4>Lo que estás digitando ahora (todavía sin guardar)</h4>';
+    if (!hay) return h + '<div class="vacio" style="text-align:left">Aún no hay nada digitado en este registro.</div>';
+    h += '<div class="tscroll"><table><tbody>' +
+      '<tr><td class="pn">Min. producidos</td><td class="n">' + n1(prod) + '</td></tr>' +
+      '<tr><td class="pn">Min. trabajados</td><td class="n">' + n1(trab) + '</td></tr>' +
+      (TIPO === 'MODULO' ? '<tr><td class="pn">Min. improductivos</td><td class="n">' + n1(impr) + '</td></tr>' : '') +
+      '<tr><td class="pn">EF de este registro</td><td class="n">' + (divide > 0 ? n1(prod / divide * 100) + '%' : '—') + '</td></tr></tbody></table></div>' +
+      '<div class="nota">' + (TIPO === 'MODULO' ? 'EF = min. producidos ÷ (trabajados − improductivos).' : 'EF = min. producidos ÷ min. trabajados.') + ' La EF e incentivo finales del día los calcula la base al guardar.</div>';
+    return h;
+  }
+  function semanaHTML() {
+    const lunes = lunesDe($('fecha').value); if (!lunes) return '';
+    const num = claveSemana(lunes).split('-W')[1].replace(/^0/, '');
+    let h = '<h4>Semana ' + num + ' (' + ddmm(lunes) + ' al ' + ddmm(sumaDias(lunes, 6)) + '): lo ya guardado</h4>';
+    if (SIS.error) return h + '<div class="vacio" style="text-align:left">No se pudo cargar: ' + esc(SIS.error) + '</div>';
+    if (!SIS.cargado) return h + '<div class="vacio" style="text-align:left">Cargando…</div>';
+    const g = grupoActual(), ros = ((ROSTER[g] || {}).codigos || []);
+    const fechas = [0, 1, 2, 3, 4, 5, 6].map(i => sumaDias(lunes, i));
+    const efT = SIS.ef.filter(r => r.tipo === TIPO);
+    let cods = ros.slice();
+    if (TIPO !== 'MODULO' || !ros.length) efT.forEach(r => { if (cods.indexOf(r.codigo) < 0) cods.push(r.codigo); });
+    cods.sort((a, b) => nombreDe(a).localeCompare(nombreDe(b)));
+    if (!cods.length) return h + '<div class="vacio" style="text-align:left">Todavía no hay integrantes ni registros para mostrar.</div>';
+    const impDia = {};
+    SIS.regs.filter(r => r.tipo === TIPO && !r.anulado).forEach(r => (r.personas || []).forEach(p => {
+      const k = p.codigo + '|' + String(r.fecha).slice(0, 10); impDia[k] = (impDia[k] || 0) + (p.minImproductivo || 0);
+    }));
+    const hayExtracto = efT.some(r => r.minTrabSist > 0);
+    let t = '<div class="tscroll"><table><thead><tr><th>Colaborador / dato</th>' +
+      fechas.map((f, i) => '<th class="n">' + DIAS[i] + ' ' + ddmm(f) + '</th>').join('') + '<th class="n">Semana</th></tr></thead><tbody>';
+    cods.forEach(c => {
+      const dia = fechas.map(f => efT.find(r => r.codigo === c && String(r.fecha).slice(0, 10) === f));
+      const sem = SIS.res.find(r => r.codigo === c && r.tipo === TIPO);
+      const suma = k => dia.reduce((a, r) => a + (r ? (r[k] || 0) : 0), 0);
+      const impSum = fechas.reduce((a, f) => a + (impDia[c + '|' + f] || 0), 0);
+      const celdas = (fn, semVal) => dia.map((r, i) => '<td class="n">' + (r ? fn(r, i) : '—') + '</td>').join('') + '<td class="n sem">' + semVal + '</td>';
+      const sist = r => r.minTrabSist > 0;
+      t += '<tr class="psep"><td class="pn" colspan="9">' + esc(nombreDe(c)) + ' <small style="font-weight:400;color:var(--stone)">' + esc(c) + '</small></td></tr>';
+      t += '<tr><td>Min. producidos</td>' + celdas(r => n1(r.minProducido), n1(suma('minProducido'))) + '</tr>';
+      t += '<tr><td>Min. trabajados</td>' + celdas(r => n1(r.minTrabajado), n1(suma('minTrabajado'))) + '</tr>';
+      if (TIPO === 'MODULO') t += '<tr><td>Min. improductivos</td>' + celdas((r, i) => n1(impDia[c + '|' + fechas[i]] || 0), n1(impSum)) + '</tr>';
+      t += '<tr><td>EF real</td>' + celdas(r => n1(r.efReal) + '%', sem ? n1(sem.efReal) + '%' : '—') + '</tr>';
+      t += '<tr><td>Incentivo real S/</td>' + celdas(r => n2(r.incReal), sem ? n2(sem.incReal) : '—') + '</tr>';
+      t += '<tr><td>EF del sistema</td>' + celdas(r => sist(r) ? n1(r.efSist) + '%' : '—', sem && sem.minTrabSist > 0 ? n1(sem.efSist) + '%' : '—') + '</tr>';
+      t += '<tr><td>Dif. EF (real − sistema)</td>' + celdas(r => sist(r) ? ((r.efReal - r.efSist) >= 0 ? '+' : '−') + n1(Math.abs(r.efReal - r.efSist)) : '—',
+        sem && sem.minTrabSist > 0 ? ((sem.efReal - sem.efSist) >= 0 ? '+' : '−') + n1(Math.abs(sem.efReal - sem.efSist)) : '—') + '</tr>';
+    });
+    t += '</tbody></table></div>';
+    h += t;
+    h += '<div class="nota">' + (hayExtracto ? 'EF del sistema: viene del extracto BD_MINTRAB que se sube en el panel. Dif. EF en puntos de eficiencia.' :
+      'Todavía no hay extracto del sistema (BD_MINTRAB) cargado para esta semana: la EF del sistema aparece cuando se sube en el panel.') + '</div>';
+    return h;
+  }
+  let sisTimer = null, sisSeq = 0;
+  async function renderSistema() {
+    const caja = $('sec-' + TIPO).querySelector('[data-sis]'); if (!caja) return;
+    const seq = ++sisSeq;
+    caja.innerHTML = previaHTML() + semanaHTML();
+    if (!SIS.cargado || SIS.lunes !== lunesDe($('fecha').value)) {
+      SIS.cargado = false;
+      await cargarSis();
+      if (seq !== sisSeq) return;
+      caja.innerHTML = previaHTML() + semanaHTML();
+    }
+  }
+  ['input', 'change'].forEach(ev => document.addEventListener(ev, () => {
+    if ($('sec-' + TIPO) && TABIDX === PESTANAS[TIPO].length - 1) { clearTimeout(sisTimer); sisTimer = setTimeout(renderSistema, 250); }
+  }));
 
   // ------- Inicialización -------
   async function iniciar() {
@@ -1543,6 +1828,7 @@ nav.tabs button.falta::after{content:"";display:inline-block;width:9px;height:9p
       crearFilasOperacion('m-ops');
       crearFilasOperacion('cp-ops');
       crearFilasModuloInicial();
+      cargarRoster();
     } else {
       aviso('No se pudo cargar la lista de colaboradores y operaciones: ' + res.error + ' Recarga la página.', 'error');
     }
