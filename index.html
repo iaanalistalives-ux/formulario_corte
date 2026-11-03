@@ -732,6 +732,38 @@ td.money{color:var(--taupe);font-weight:700;}
   .acciones .btn{flex:1;}
   table{min-width:640px;}
 }
+
+/* ---- 03/11/2026 · parecido a Acabados: barra de selección arriba, pestañas, Cerrar semana ---- */
+.card.ident,.card.formcard{overflow:visible;}
+.card .tira{border-radius:12px 12px 0 0;}
+.idfila{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;}
+.idfila .campo{flex:1;min-width:150px;margin-bottom:0;}
+.idfila .campo.semn{max-width:120px;min-width:90px;}
+.idfila .campo.semn input{background:var(--warm-light);cursor:not-allowed;font-weight:700;color:var(--petrol);}
+.semfila{display:flex;gap:8px;align-items:center;flex-wrap:wrap;min-height:44px;}
+.btn.cerrar{background:var(--rose);color:#fff;border-color:var(--rose);padding:10px 16px;}
+.btn.cerrar:hover{background:#B91C1C;border-color:#B91C1C;}
+.pegado{position:sticky;top:0;z-index:20;background:var(--card);margin:-6px -4px 10px;padding:6px 4px 8px;}
+.lineafija{font-size:12px;font-weight:700;color:var(--stone);margin:2px 2px 6px;min-height:16px;}
+nav.tabs{display:flex;gap:6px;overflow-x:auto;}
+nav.tabs button{flex:1;min-width:0;padding:10px 6px;border:1px solid var(--warm);border-radius:8px;background:#fff;
+  color:var(--petrol);font-family:inherit;font-weight:700;font-size:13px;cursor:pointer;min-height:44px;white-space:normal;line-height:1.2;}
+nav.tabs button:hover{border-color:var(--sage);}
+nav.tabs button.active{background:var(--petrol);color:#fff;border-color:var(--petrol);}
+nav.tabs button.falta::after{content:"";display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--rose);margin-left:6px;vertical-align:middle;}
+.tpanel{display:none;} .tpanel.on{display:block;}
+.piepest{display:flex;justify-content:space-between;gap:10px;margin-top:14px;}
+.piepest .btn{min-width:130px;}
+.seccion .acciones{position:sticky;bottom:0;z-index:15;background:var(--card);border-top:1px solid var(--warm);padding:10px 0;margin:16px 0 0;}
+.mfondo{position:fixed;inset:0;background:rgba(10,28,25,.55);z-index:2147482000;display:flex;align-items:center;justify-content:center;padding:16px;}
+.mcaja{background:var(--card);border-radius:12px;padding:20px;max-width:460px;width:100%;box-shadow:var(--sh-h);max-height:90vh;overflow:auto;}
+.mcaja h3{margin:0 0 12px;font-size:16px;color:var(--petrol);} .mcaja .sub{font-weight:400;font-size:12.5px;color:var(--stone);}
+.chk{list-style:none;margin:0 0 12px;padding:0;} .chk li{padding:6px 0 6px 24px;position:relative;font-size:13.5px;}
+.chk li::before{position:absolute;left:0;font-weight:700;} .chk li.ok::before{content:"✓";color:var(--sage);}
+.chk li.no{color:var(--rose);} .chk li.no::before{content:"✕";color:var(--rose);} .chk li.av{color:var(--taupe);} .chk li.av::before{content:"!";color:var(--taupe);}
+.macc{display:flex;gap:10px;justify-content:flex-end;margin-top:14px;flex-wrap:wrap;}
+@media(max-width:600px){.idfila .campo{min-width:calc(50% - 6px);} .idfila .campo.semn{max-width:none;} .idfila .campo.estsemc{min-width:100%;}
+  .piepest .btn{flex:1;} .macc .btn{flex:1;}}
 </style>
 <style id="lsLimpCss">/* lives-limpieza v1 · sin enlaces repetidos (cada pantalla tiene su entrada en el portal), sin "Cambiar archivo" y sin títulos que ya pone el portal */a[href="dashboard_corte.html"],a[href="panel_corte.html"]{display:none!important}</style>
 </head>
@@ -740,47 +772,67 @@ td.money{color:var(--taupe);font-weight:700;}
 <div class="wrap">
 
   <div id="formulario">
-    <div class="card">
+    <div class="aviso" id="aviso"></div>
+    <div class="card ident">
       <span class="tira"></span>
-      <div class="ptfila"><div class="pt">Registro del día</div>
-        <div class="enlaces"><a href="dashboard_corte.html">Dashboard</a><a href="panel_corte.html">Panel</a></div></div>
-      <div class="ph">Los campos con <span style="color:#DC2626">*</span> son obligatorios. Se acepta 0 en minutos y cantidades.</div>
-
-      <div class="aviso" id="aviso"></div>
-
-      <div class="fechafila">
+      <div class="idfila">
         <div class="campo" id="c-fecha">
           <label for="fecha">Fecha <span class="req">*</span></label>
           <input type="date" id="fecha">
           <div class="msg"></div>
         </div>
-        <div class="chip" id="chip-semana">Semana —</div>
+        <div class="campo semn">
+          <label for="semana">Semana N°</label>
+          <input type="text" id="semana" readonly>
+        </div>
+        <div class="campo" id="c-tipo">
+          <label for="tipo">Tipo de registro</label>
+          <select id="tipo">
+            <option value="MANUAL">Manual de Corte</option>
+            <option value="CORTE_PAÑO">Corte Paño</option>
+            <option value="MODULO">Módulos</option>
+          </select>
+        </div>
+        <div class="campo estsemc">
+          <label>Estado de la semana</label>
+          <div class="semfila">
+            <span class="st bue" id="estsem">Abierta</span>
+            <button type="button" class="btn cerrar" id="btn-cerrar-semana">🔒 Cerrar semana</button>
+            <button type="button" class="btn" id="btn-reabrir-semana" style="display:none">Reabrir</button>
+          </div>
+        </div>
       </div>
+    </div>
 
-      <div class="seg" id="selTipo">
-        <button type="button" class="active" data-tipo="MANUAL">Manual de Corte</button>
-        <button type="button" data-tipo="CORTE_PAÑO">Corte Paño</button>
-        <button type="button" data-tipo="MODULO">Módulos</button>
+    <div class="card formcard">
+      <span class="tira volumen"></span>
+      <div class="pegado">
+        <div class="lineafija" id="lineafija"></div>
+        <nav class="tabs" id="tabs"></nav>
       </div>
 
       <!-- ============ MANUAL DE CORTE ============ -->
       <div class="seccion on" id="sec-MANUAL">
+        <div class="tpanel">
         <div class="campo" id="c-m-codigo">
           <label for="m-codigo">Colaborador <span class="req">*</span></label>
           <select id="m-codigo"></select>
           <div class="msg"></div>
-        </div>
-        <div class="bloque" id="b-m-ops">
-          <div class="lbl">Operaciones realizadas <span class="req">*</span></div>
-          <div id="m-ops"></div>
-          <div class="msg"></div>
-          <button class="enlace" id="m-agregar-op" type="button">+ Agregar operación</button>
         </div>
         <div class="campo" id="c-m-mintrab" style="max-width:260px">
           <label for="m-mintrab">Minutos trabajados (real) <span class="req">*</span></label>
           <input type="number" id="m-mintrab" min="0" step="1" inputmode="numeric">
           <div class="msg"></div>
           <div class="ayuda">Tu estimación real, distinta de lo que marca el sistema.</div>
+        </div>
+        </div>
+        <div class="tpanel">
+        <div class="bloque" id="b-m-ops">
+          <div class="lbl">Operaciones realizadas <span class="req">*</span></div>
+          <div id="m-ops"></div>
+          <div class="msg"></div>
+          <button class="enlace" id="m-agregar-op" type="button">+ Agregar operación</button>
+        </div>
         </div>
         <div class="acciones">
           <button class="btn primary" type="button" data-guardar="MANUAL">Guardar registro</button>
@@ -790,6 +842,7 @@ td.money{color:var(--taupe);font-weight:700;}
 
       <!-- ============ CORTE PAÑO ============ -->
       <div class="seccion" id="sec-CORTE_PAÑO">
+        <div class="tpanel">
         <div class="dos">
           <div class="campo" id="c-cp-codigo1">
             <label for="cp-codigo1">Colaborador 1 <span class="req">*</span></label>
@@ -818,12 +871,14 @@ td.money{color:var(--taupe);font-weight:700;}
           </div>
           <button class="enlace" id="cp-quitar-op2" type="button" style="display:none">Quitar segundo colaborador</button>
         </div>
-        <hr class="sep">
+        </div>
+        <div class="tpanel">
         <div class="bloque" id="b-cp-ops">
           <div class="lbl">Operaciones realizadas <span class="req">*</span></div>
           <div id="cp-ops"></div>
           <div class="msg"></div>
           <button class="enlace" id="cp-agregar-op" type="button">+ Agregar operación</button>
+        </div>
         </div>
         <div class="acciones">
           <button class="btn primary" type="button" data-guardar="CORTE_PAÑO">Guardar registro</button>
@@ -833,6 +888,7 @@ td.money{color:var(--taupe);font-weight:700;}
 
       <!-- ============ MODULOS ============ -->
       <div class="seccion" id="sec-MODULO">
+        <div class="tpanel">
         <div class="campo" id="c-md-numero" style="max-width:260px">
           <label for="md-numero">N° de módulo <span class="req">*</span></label>
           <select id="md-numero">
@@ -842,7 +898,6 @@ td.money{color:var(--taupe);font-weight:700;}
           </select>
           <div class="msg"></div>
         </div>
-
         <div class="bloque" id="b-md-operarios">
           <div class="lbl">Operarios del módulo <span class="req">*</span></div>
           <div class="ayuda" style="margin:-2px 0 8px">Se ingresan 1 sola vez por día, aunque el módulo trabaje varias O/C.</div>
@@ -850,20 +905,23 @@ td.money{color:var(--taupe);font-weight:700;}
           <div class="msg"></div>
           <button class="enlace" id="md-agregar-operario" type="button">+ Agregar operario</button>
         </div>
-        <hr class="sep">
+        </div>
+        <div class="tpanel">
         <div class="bloque" id="b-md-ocs">
           <div class="lbl">O/C trabajadas <span class="req">*</span></div>
           <div id="md-ocs"></div>
           <div class="msg"></div>
           <button class="enlace" id="md-agregar-oc" type="button">+ Agregar O/C</button>
         </div>
-        <hr class="sep">
+        </div>
+        <div class="tpanel">
         <div class="bloque" id="b-md-operaciones">
           <div class="lbl">Operaciones sueltas (opcional)</div>
           <div class="ayuda" style="margin:-2px 0 8px">Lo que el módulo haga fuera del corte de pieza.</div>
           <div id="md-operaciones"></div>
           <div class="msg"></div>
           <button class="enlace" id="md-agregar-operacion" type="button">+ Agregar operación</button>
+        </div>
         </div>
         <div class="acciones">
           <button class="btn primary" type="button" data-guardar="MODULO">Guardar registro</button>
@@ -885,7 +943,6 @@ td.money{color:var(--taupe);font-weight:700;}
   <div class="card">
     <span class="tira volumen"></span>
     <div class="pt">Lo que va de la semana <span id="chip-semana-resumen" style="font-weight:400;color:var(--stone);font-size:12px"></span></div>
-    <div class="ph">Un renglón por colaborador. EF = minutos producidos ÷ minutos trabajados de la semana. Bajo 55 % no se cobra incentivo.</div>
     <div id="resumen-contenedor"><div class="vacio">Elige una fecha para ver el resumen.</div></div>
   </div>
 
@@ -955,22 +1012,20 @@ td.money{color:var(--taupe);font-weight:700;}
   function actualizarChipSemana() {
     const semana = claveSemana($('fecha').value);
     const corta = semana ? 'S' + (+semana.split('-W')[1]) + ' · ' + semana.split('-W')[0] : '';
-    $('chip-semana').textContent = semana ? 'Semana ' + corta : 'Semana —';
+    $('semana').value = semana ? (+semana.split('-W')[1]) + ' · ' + semana.split('-W')[0] : '';
     $('chip-semana-resumen').textContent = semana ? '· ' + corta : '';
+    if (typeof actualizarLinea === 'function') actualizarLinea();
     return semana;
   }
 
-  // ------- Tipo de registro -------
+  // ------- Tipo de registro (selector arriba; las pestañas cambian con el tipo) -------
   let TIPO = 'MANUAL';
-  document.querySelectorAll('#selTipo button').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('#selTipo button').forEach(b => b.classList.remove('active'));
-      document.querySelectorAll('.seccion').forEach(s => s.classList.remove('on'));
-      btn.classList.add('active');
-      TIPO = btn.dataset.tipo;
-      $('sec-' + TIPO).classList.add('on');
-      aviso('');
-    });
+  $('tipo').addEventListener('change', () => {
+    document.querySelectorAll('.seccion').forEach(x => x.classList.remove('on'));
+    TIPO = $('tipo').value;
+    $('sec-' + TIPO).classList.add('on');
+    armarPestanas();
+    aviso('');
   });
 
   // ------- Poblar selects de código con nombre -------
@@ -1134,8 +1189,10 @@ td.money{color:var(--taupe);font-weight:700;}
     return ok;
   }
   function primerError() {
-    const e = document.querySelector('.seccion.on .malo, #c-fecha.malo');
-    if (e) e.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    marcarPestanasFaltantes();
+    if ($('c-fecha').classList.contains('malo')) { $('c-fecha').scrollIntoView({ behavior: 'smooth', block: 'center' }); return; }
+    const ps = Array.from(panelesActivos()), i = ps.findIndex(p => p.querySelector('.malo'));
+    if (i >= 0) { irPestana(i); const e = ps[i].querySelector('.malo'); setTimeout(() => e.scrollIntoView({ behavior: 'smooth', block: 'center' }), 40); }
   }
 
   // ------- Éxito / error -------
@@ -1196,7 +1253,7 @@ td.money{color:var(--taupe);font-weight:700;}
         cargarResumenSemana();
       } else falla(res.error);
     } catch (e) { falla(e.message); }
-    btn.disabled = false; btn.textContent = 'Guardar registro';
+    btn.disabled = SEM.cerrada; btn.textContent = 'Guardar registro';
   }
 
   // ------- Guardar: CORTE_PAÑO -------
@@ -1227,7 +1284,7 @@ td.money{color:var(--taupe);font-weight:700;}
         cargarResumenSemana();
       } else falla(res.error);
     } catch (e) { falla(e.message); }
-    btn.disabled = false; btn.textContent = 'Guardar registro';
+    btn.disabled = SEM.cerrada; btn.textContent = 'Guardar registro';
   }
 
   // ------- Guardar: MODULO -------
@@ -1291,7 +1348,7 @@ td.money{color:var(--taupe);font-weight:700;}
         cargarResumenSemana();
       } else falla(res.error);
     } catch (e) { falla(e.message); }
-    btn.disabled = false; btn.textContent = 'Guardar registro';
+    btn.disabled = SEM.cerrada; btn.textContent = 'Guardar registro';
   }
 
   document.querySelector('[data-guardar="MANUAL"]').addEventListener('click', guardarManual);
@@ -1335,7 +1392,136 @@ td.money{color:var(--taupe);font-weight:700;}
     }
   }
 
-  $('fecha').addEventListener('change', () => { marcar($('c-fecha'), ''); actualizarChipSemana(); cargarResumenSemana(); });
+
+  // ------- Pestañas por tipo (lo fijo queda arriba; el resto va por pestañas) -------
+  const PESTANAS = { 'MANUAL': ['Colaborador y minutos', 'Operaciones'], 'CORTE_PAÑO': ['Colaboradores', 'Operaciones'], 'MODULO': ['Operarios', 'O/C', 'Operaciones sueltas'] };
+  const TIPO_NOMBRE = { 'MANUAL': 'Manual de Corte', 'CORTE_PAÑO': 'Corte Paño', 'MODULO': 'Módulos' };
+  let TABIDX = 0;
+  const SEM = { cerrada: false, lunes: '', info: null };
+  function panelesActivos() { return $('sec-' + TIPO).querySelectorAll(':scope > .tpanel'); }
+  function irPestana(i) {
+    const ps = panelesActivos(); TABIDX = Math.max(0, Math.min(i, ps.length - 1));
+    ps.forEach((p, k) => p.classList.toggle('on', k === TABIDX));
+    document.querySelectorAll('#tabs button').forEach((b, k) => b.classList.toggle('active', k === TABIDX));
+    actualizarLinea();
+  }
+  function armarPestanas() {
+    $('tabs').innerHTML = PESTANAS[TIPO].map((t, k) => '<button type="button" data-i="' + k + '">↓ ' + esc(t) + '</button>').join('');
+    $('tabs').querySelectorAll('button').forEach(b => b.addEventListener('click', () => irPestana(+b.dataset.i)));
+    irPestana(0); marcarPestanasFaltantes();
+  }
+  function marcarPestanasFaltantes() {
+    const ps = panelesActivos();
+    document.querySelectorAll('#tabs button').forEach((b, k) => b.classList.toggle('falta', !!(ps[k] && ps[k].querySelector('.malo'))));
+  }
+  // El punto rojo y el rojo del campo se quitan solos al corregir.
+  ['input', 'change'].forEach(ev => document.addEventListener(ev, e => {
+    let m; while (e.target.closest && (m = e.target.closest('.malo'))) m.classList.remove('malo');
+    setTimeout(marcarPestanasFaltantes, 0);
+  }));
+  document.querySelectorAll('.seccion').forEach(sec => {
+    const ps = sec.querySelectorAll(':scope > .tpanel');
+    ps.forEach((p, k) => {
+      const d = document.createElement('div'); d.className = 'piepest';
+      d.innerHTML = (k > 0 ? '<button type="button" class="btn" data-ant>‹ Anterior</button>' : '<span></span>') +
+                    (k < ps.length - 1 ? '<button type="button" class="btn" data-sig>Siguiente ›</button>' : '<span></span>');
+      p.appendChild(d);
+      const ant = d.querySelector('[data-ant]'), sig = d.querySelector('[data-sig]');
+      const arriba = () => window.scrollTo({ top: $('tabs').getBoundingClientRect().top + window.scrollY - 70, behavior: 'smooth' });
+      if (ant) ant.addEventListener('click', () => { irPestana(TABIDX - 1); arriba(); });
+      if (sig) sig.addEventListener('click', () => { irPestana(TABIDX + 1); arriba(); });
+    });
+  });
+  const ddmm = f => f ? f.split('-').reverse().slice(0, 2).join('/') : '';
+  function actualizarLinea() {
+    const f = $('fecha').value;
+    $('lineafija').textContent = TIPO_NOMBRE[TIPO] + (f ? ' · ' + f.split('-').reverse().join('/') : '') +
+      ($('semana').value ? ' · Semana ' + $('semana').value : '') + (SEM.cerrada ? ' · CERRADA' : '');
+  }
+
+  // ------- Cerrar semana (Lady cierra; solo administración reabre) -------
+  function lunesDe(fechaStr) {
+    if (!fechaStr) return '';
+    const d = new Date(fechaStr + 'T00:00:00Z'); d.setUTCDate(d.getUTCDate() - ((d.getUTCDay() || 7) - 1));
+    return d.toISOString().slice(0, 10);
+  }
+  function sumaDias(f, n) { const d = new Date(f + 'T00:00:00Z'); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); }
+  function aplicarEstadoSemana() {
+    const est = $('estsem');
+    est.textContent = SEM.cerrada ? '🔒 Cerrada' : 'Abierta';
+    est.className = 'st ' + (SEM.cerrada ? 'ale' : 'bue');
+    $('btn-cerrar-semana').style.display = (!SEM.cerrada && CATALOGO.puedeEscribir !== false) ? '' : 'none';
+    $('btn-reabrir-semana').style.display = (SEM.cerrada && CATALOGO.puedeReabrir) ? '' : 'none';
+    document.querySelectorAll('[data-guardar]').forEach(b => { b.disabled = SEM.cerrada; });
+    if (SEM.cerrada) aviso('Esta semana está cerrada: no se puede registrar ni corregir. Solo administración puede reabrirla.', 'info');
+    else if ($('aviso').classList.contains('info')) aviso('');
+    actualizarLinea();
+  }
+  async function cargarEstadoSemana() {
+    const lunes = lunesDe($('fecha').value); SEM.lunes = lunes;
+    if (!lunes) return;
+    try {
+      const r = await api('estadoSemana', { lunes });
+      if (lunes !== lunesDe($('fecha').value)) return;
+      SEM.cerrada = r.estado === 'cerrada'; SEM.info = r;
+    } catch (e) { SEM.cerrada = false; SEM.info = null; }
+    aplicarEstadoSemana();
+  }
+  function modal(html) {
+    const f = document.createElement('div'); f.className = 'mfondo';
+    f.innerHTML = '<div class="mcaja">' + html + '</div>';
+    f.addEventListener('click', e => { if (e.target === f) f.remove(); });
+    document.body.appendChild(f); return f;
+  }
+  const DIAS = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
+  async function abrirCierre() {
+    const lunes = lunesDe($('fecha').value); if (!lunes) return;
+    let r; try { r = await api('estadoSemana', { lunes }); } catch (e) { aviso('No se pudo revisar la semana: ' + e.message, 'error'); return; }
+    if (r.estado === 'cerrada') { SEM.cerrada = true; aplicarEstadoSemana(); return; }
+    const con = (r.diasConRegistro || []).map(x => String(x).slice(0, 10));
+    const sin = [0, 1, 2, 3, 4].filter(i => con.indexOf(sumaDias(lunes, i)) < 0).map(i => DIAS[i]);
+    const hayExtracto = r.extractoPersonas > 0, hayRegs = r.registros > 0;
+    const num = claveSemana(lunes).split('-W')[1].replace(/^0/, '');
+    const h = '<h3>Cerrar semana ' + num + ' <span class="sub">(' + ddmm(lunes) + ' al ' + ddmm(sumaDias(lunes, 6)) + ')</span></h3><ul class="chk">' +
+      '<li class="' + (hayRegs ? 'ok' : 'no') + '">' + (hayRegs ? r.registros + ' registro(s) digitado(s)' : 'No hay registros digitados en esta semana') + '</li>' +
+      '<li class="' + (hayExtracto ? 'ok' : 'no') + '">' + (hayExtracto ? 'Extracto del sistema cargado (' + r.extractoPersonas + ' personas)' : 'Falta el extracto del sistema (BD_MINTRAB). Se sube en el panel.') + '</li>' +
+      (sin.length && hayRegs ? '<li class="av">Sin registros de lunes a viernes en: ' + sin.join(', ') + '. Confirma que es correcto.</li>' : '') + '</ul>' +
+      '<p class="ayuda" id="m-paso" style="display:none"><b>¿Seguro?</b> Después de cerrar no se puede registrar, corregir ni anular nada de esta semana. Solo administración puede reabrirla.</p>' +
+      '<div class="macc"><button class="btn" type="button" id="m-cancelar">Cancelar</button>' +
+      '<button class="btn primary" type="button" id="m-ok"' + (hayExtracto && hayRegs ? '' : ' disabled') + '>Cerrar semana</button></div>';
+    const m = modal(h); let paso = 1;
+    m.querySelector('#m-cancelar').onclick = () => m.remove();
+    m.querySelector('#m-ok').onclick = async function () {
+      if (paso === 1) { paso = 2; m.querySelector('#m-paso').style.display = 'block'; this.textContent = 'Sí, cerrar la semana'; return; }
+      this.disabled = true; this.textContent = 'Cerrando…';
+      try {
+        const res = await api('cerrarSemana', { lunes });
+        m.querySelector('.mcaja').innerHTML = '<h3>Semana cerrada</h3><p>' + esc(res.mensaje) + '</p><div class="macc"><button class="btn primary" type="button" id="m-fin">Listo</button></div>';
+        m.querySelector('#m-fin').onclick = () => m.remove();
+        SEM.cerrada = true; aplicarEstadoSemana(); cargarResumenSemana();
+      } catch (e) {
+        this.disabled = false; this.textContent = 'Cerrar semana'; paso = 1; m.querySelector('#m-paso').style.display = 'none';
+        m.querySelector('.chk').insertAdjacentHTML('beforeend', '<li class="no">' + esc(e.message) + '</li>');
+      }
+    };
+  }
+  function abrirReapertura() {
+    const lunes = lunesDe($('fecha').value);
+    const m = modal('<h3>Reabrir la semana del ' + ddmm(lunes) + '</h3><div class="campo"><label for="m-motivo">Motivo (obligatorio)</label><input type="text" id="m-motivo"><div class="msg"></div></div>' +
+      '<div class="macc"><button class="btn" type="button" id="m-cancelar">Cancelar</button><button class="btn primary" type="button" id="m-ok">Reabrir</button></div>');
+    m.querySelector('#m-cancelar').onclick = () => m.remove();
+    m.querySelector('#m-ok').onclick = async function () {
+      const mot = m.querySelector('#m-motivo').value.trim();
+      if (mot.length < 3) { marcar(m.querySelector('.campo'), 'Escribe el motivo.'); return; }
+      this.disabled = true;
+      try { await api('reabrirSemana', { lunes, motivo: mot }); m.remove(); SEM.cerrada = false; aplicarEstadoSemana(); cargarResumenSemana(); }
+      catch (e) { this.disabled = false; marcar(m.querySelector('.campo'), e.message); }
+    };
+  }
+  $('btn-cerrar-semana').addEventListener('click', abrirCierre);
+  $('btn-reabrir-semana').addEventListener('click', abrirReapertura);
+
+  $('fecha').addEventListener('change', () => { marcar($('c-fecha'), ''); actualizarChipSemana(); cargarResumenSemana(); cargarEstadoSemana(); });
 
   // ------- Inicialización -------
   async function iniciar() {
@@ -1343,6 +1529,7 @@ td.money{color:var(--taupe);font-weight:700;}
     hoy.setMinutes(hoy.getMinutes() - hoy.getTimezoneOffset());   // fecha local, no UTC
     $('fecha').value = hoy.toISOString().slice(0, 10);
     actualizarChipSemana();
+    armarPestanas();
 
     crearFilasOperacion('m-ops');
     crearFilasOperacion('cp-ops');
@@ -1352,6 +1539,7 @@ td.money{color:var(--taupe);font-weight:700;}
     if (res.ok) {
       CATALOGO = res.data;
       llenarSelectsPersonal();
+      aplicarEstadoSemana();
       crearFilasOperacion('m-ops');
       crearFilasOperacion('cp-ops');
       crearFilasModuloInicial();
@@ -1359,6 +1547,7 @@ td.money{color:var(--taupe);font-weight:700;}
       aviso('No se pudo cargar la lista de colaboradores y operaciones: ' + res.error + ' Recarga la página.', 'error');
     }
     cargarResumenSemana();
+    cargarEstadoSemana();
   }
   iniciar();
 </script>

@@ -3,13 +3,19 @@
 Las reglas generales de trabajo están en el repo privado `lives-instrucciones` (CLAUDE.md). Este archivo solo describe esta herramienta. **Corte es el proyecto piloto de la migración a SQL Server.**
 
 ## Qué hace
-- `index.html` — **registro del día**. Tres tipos:
+- `index.html` — **registro del día** (desde el 03/11/2026 con la estructura de Acabados: arriba lo fijo —Fecha, Semana N°, Tipo, Estado de la semana y botón **Cerrar semana**— y debajo pestañas por tipo con "‹ Anterior / Siguiente ›", Guardar siempre visible y punto rojo en la pestaña con faltantes). Tres tipos:
   - `MANUAL` (Manual de Corte): colaborador, operaciones con cantidad y minutos trabajados reales.
   - `CORTE_PAÑO`: uno o dos colaboradores con sus minutos y las operaciones del bloque (la eficiencia es del bloque).
   - `MODULO` (MÓD-1, MÓD-2, MÓD-3): operarios con minutos trabajados e improductivos (una vez por día), O/C con estilo, prendas y T. STD por pieza, y operaciones sueltas.
   - Cada guardado lleva un `token` para no duplicar ("Ya estaba guardado… No se duplicó"). Debajo, "Lo que va de la semana" por colaborador.
 - `dashboard_corte.html` — **"CORTE — Eficiencia e Incentivos"**: semana y tipo; pestañas Real vs. Sistema, Semana a semana y Detalle por colaborador; KPIs de EF real, EF sistema, incentivo real, incentivo sistema y diferencia. Avisa si la semana no tiene cargado el extracto del sistema. Excel LIVES e Imprimir.
 - `panel_corte.html` — **panel**: Registros de la semana (corregir y anular con motivo; nada se borra), Planilla semanal EF real vs. EF sistema (reemplaza a la pestaña PLANILLA_CORTE del Sheet), Personal y operaciones (catálogos) y, solo administración, **Sistema (BD_MINTRAB)**: se pega el texto copiado del Excel del SIGE (desde Cod.Linea hasta Incentivo Semanal, 7 días × minutos, eficiencia e incentivo), se revisa y se sube la semana (si existe, se reemplaza completa).
+
+## Cierre de semana (desde el 03/11/2026)
+- Cada semana nace abierta; quien registra (Lady) la cierra cuando termina, el lunes o el día que haga falta (pueden estar abiertas dos semanas). Para cerrar hacen falta registros y el extracto BD_MINTRAB de esa semana; no se cierra dos veces.
+- Al cerrar se archiva EF e incentivo por colaborador (`corte_hist_persona_semana`) y la semana queda bloqueada: registrar, corregir, anular y subir el extracto la rechazan. Solo administración reabre (`reabrirSemana`, con motivo; queda en `corte_bitacora`).
+- Acciones: `cerrarSemana`, `reabrirSemana`, `semanasCerradas`, `estadoSemana`, `histSemana`. Tabla de estado: `corte_semanas`.
+- Falta (03/11/2026): dashboard y panel con el nuevo orden y el selector de semanas cerradas.
 
 ## Cálculo (lo hace la base)
 - EF = minutos producidos ÷ minutos trabajados. Minutos producidos = cantidad × T. STD vigente al guardar (cada registro guarda su T. STD; cambiar la categoría de una persona sí recalcula todas las semanas).
@@ -21,7 +27,7 @@ Las reglas generales de trabajo están en el repo privado `lives-instrucciones` 
 - Una sola puerta: `corte_api(p_accion, p)`.
   - Leer: `listas`, `catalogos`, `resumenSemana` (por `fecha` o `semana`), `semanasDisponibles`, `eficiencias`, `registros`, `mintrabSemanas`, `mintrabSemana`.
   - Registrar: `guardarManual`, `guardarCortePano`, `guardarModulo`, `corregir`, `anular`, `guardarPersona`, `guardarOperacion`, `subirMintrab`.
-- Tablas: `corte_registros`, `corte_registro_personas`, `corte_registro_operaciones`, `corte_registro_oc`, `corte_personal`, `corte_operaciones_std`, `corte_incentivos`, `corte_bd_mintrab`, `corte_bitacora` (antes y después de cada cambio). Vistas de cálculo `corte_v_eficiencias` y `corte_v_ef_semana`.
+- Tablas: `corte_semanas`, `corte_hist_persona_semana`, `corte_registros`, `corte_registro_personas`, `corte_registro_operaciones`, `corte_registro_oc`, `corte_personal`, `corte_operaciones_std`, `corte_incentivos`, `corte_bd_mintrab`, `corte_bitacora` (antes y después de cada cambio). Vistas de cálculo `corte_v_eficiencias` y `corte_v_ef_semana`.
 - Los scripts SQL (C01, C02 v2, C04) no están en este repo. No usa Storage.
 - Al 21/10/2026 todavía no hay registros guardados (solo catálogos).
 
