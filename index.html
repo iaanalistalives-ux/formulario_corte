@@ -995,7 +995,7 @@ nav.tabs button.falta::after{content:"";display:inline-block;width:9px;height:9p
 
   <div class="card">
     <span class="tira volumen"></span>
-    <div class="pt">Lo que va de la semana <span id="chip-semana-resumen" style="font-weight:400;color:var(--stone);font-size:12px"></span></div>
+    <div class="pt">Registros de la fecha <span id="chip-semana-resumen" style="font-weight:400;color:var(--stone);font-size:12px"></span></div>
     <div id="resumen-contenedor"><div class="vacio">Elige una fecha para ver el resumen.</div></div>
   </div>
 
@@ -1079,6 +1079,7 @@ nav.tabs button.falta::after{content:"";display:inline-block;width:9px;height:9p
     $('sec-' + TIPO).classList.add('on');
     armarPestanas();
     cancelarEdicion(); renderRoster(); aplicarRoster();
+    cargarResumenSemana();
     aviso('');
   });
 
@@ -1444,36 +1445,46 @@ nav.tabs button.falta::after{content:"";display:inline-block;width:9px;height:9p
   const f1 = v => (v || 0).toLocaleString('es-PE', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
   const f2 = v => (v || 0).toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   const f0 = v => Math.round(v || 0).toLocaleString('es-PE');
+  let resSeq = 0;
   async function cargarResumenSemana() {
     const fecha = $('fecha').value;
     if (!fecha) return;
+    const seq = ++resSeq, tipo = TIPO, mod = tipo === 'MODULO' ? $('md-numero').value : '';
     const cont = $('resumen-contenedor');
+    const nomGrupo = tipo === 'MODULO' ? (mod ? 'Módulo ' + mod : 'Módulos') : TIPO_NOMBRE[tipo];
+    $('chip-semana-resumen').textContent = '· ' + nomGrupo + ' · ' + fecha.split('-').reverse().join('/');
     cont.innerHTML = '<div class="vacio">Cargando…</div>';
     try {
-      const res = await llamarApi({ action: 'resumenSemana', fecha });
-      if (!res.ok) { cont.innerHTML = '<div class="vacio">No se pudo cargar el resumen: ' + esc(res.error) + '</div>'; return; }
-      const filas = res.data.filas;
-      if (!filas.length) { cont.innerHTML = '<div class="vacio">Todavía no hay registros guardados esta semana.</div>'; return; }
+      const [ef, regs] = await Promise.all([api('eficiencias', { desde: fecha, hasta: fecha }), api('registros', { desde: fecha, hasta: fecha })]);
+      if (seq !== resSeq) return;
+      let filas = (ef || []).filter(r => r.tipo === tipo && String(r.fecha).slice(0, 10) === fecha);
+      if (tipo === 'MODULO' && mod) {
+        const cods = {};
+        (regs || []).filter(r => r.tipo === 'MODULO' && !r.anulado && String(r.modulo || '') === String(mod)).forEach(r => (r.personas || []).forEach(p => { cods[p.codigo] = 1; }));
+        filas = filas.filter(r => cods[r.codigo]);
+      }
+      if (!filas.length) { cont.innerHTML = '<div class="vacio">Todavía no hay registros de ' + esc(nomGrupo) + ' en esta fecha.</div>'; return; }
       let html = `<div class="tscroll"><table><thead><tr>
-        <th>Colaborador</th><th class="n">Días</th><th class="n">Min. prod.</th><th class="n">Min. trab.</th>
+        <th>Colaborador</th><th class="n">Min. prod.</th><th class="n">Min. trab.</th>
         <th class="n">EF Real</th><th class="n">EF Sistema</th><th class="n">Inc. Real S/</th><th class="n">Inc. Sistema S/</th><th class="n">Dif. S/</th>
       </tr></thead><tbody>`;
-      filas.sort((a, b) => a.nombre.localeCompare(b.nombre)).forEach(f => {
+      filas.sort((a, b) => nombreDe(a.codigo).localeCompare(nombreDe(b.codigo))).forEach(f => {
         const sinSist = !(f.minTrabSist > 0);
+        const dif = (f.incReal || 0) - (f.incSist || 0);
         html += `<tr>
-          <td>${esc(f.nombre)}</td><td class="n">${f.diasTrabajados}</td>
+          <td>${esc(nombreDe(f.codigo))}</td>
           <td class="n">${f0(f.minProducido)}</td><td class="n">${f0(f.minTrabajado)}</td>
           <td class="n"><span class="st ${f.efReal >= 55 ? 'bue' : 'ale'}">${f1(f.efReal)}%</span></td>
           <td class="n">${sinSist ? '—' : f1(f.efSist) + '%'}</td>
           <td class="n money">${f2(f.incReal)}</td>
           <td class="n money">${sinSist ? '—' : f2(f.incSist)}</td>
-          <td class="n money">${sinSist ? '—' : (f.diferencia >= 0 ? '+' : '−') + f2(Math.abs(f.diferencia))}</td>
+          <td class="n money">${sinSist ? '—' : (dif >= 0 ? '+' : '−') + f2(Math.abs(dif))}</td>
         </tr>`;
       });
       html += '</tbody></table></div>';
       cont.innerHTML = html;
     } catch (e) {
-      cont.innerHTML = '<div class="vacio">Error de conexión al cargar el resumen.</div>';
+      if (seq === resSeq) cont.innerHTML = '<div class="vacio">Error de conexión al cargar los registros.</div>';
     }
   }
 
@@ -1608,7 +1619,7 @@ nav.tabs button.falta::after{content:"";display:inline-block;width:9px;height:9p
   $('btn-reabrir-semana').addEventListener('click', abrirReapertura);
 
   $('fecha').addEventListener('change', () => { marcar($('c-fecha'), ''); actualizarChipSemana(); cargarResumenSemana(); cargarEstadoSemana(); cancelarEdicion(); cargarRoster(); });
-  $('md-numero').addEventListener('change', () => { cancelarEdicion(); renderRoster(); aplicarRoster(); });
+  $('md-numero').addEventListener('change', () => { cancelarEdicion(); renderRoster(); aplicarRoster(); cargarResumenSemana(); });
 
   // ------- Integrantes fijos por fecha (como Acabados): quedan desde el primer día hasta que se cambien -------
   let ROSTER = {};            // grupo -> { desde, codigos[] }
