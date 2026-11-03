@@ -15,7 +15,7 @@ Las reglas generales de trabajo están en el repo privado `lives-instrucciones` 
 - Cada semana nace abierta; quien registra (Lady) la cierra cuando termina, el lunes o el día que haga falta (pueden estar abiertas dos semanas). Para cerrar hacen falta registros y el extracto BD_MINTRAB de esa semana; no se cierra dos veces.
 - Al cerrar se archiva EF e incentivo por colaborador (`corte_hist_persona_semana`) y la semana queda bloqueada: registrar, corregir, anular y subir el extracto la rechazan. Solo administración reabre (`reabrirSemana`, con motivo; queda en `corte_bitacora`).
 - Acciones: `cerrarSemana`, `reabrirSemana`, `semanasCerradas`, `estadoSemana`, `histSemana`. Tabla de estado: `corte_semanas`.
-- Falta (03/11/2026): dashboard y panel con el nuevo orden y el selector de semanas cerradas.
+- Dashboard: el selector rotula cada semana "en vivo" o "🔒 cerrada"; una semana cerrada se lee del archivo fijo (`histSemana`), no del cálculo en vivo. Panel: muestra si la semana está abierta o cerrada, bloquea Corregir/Anular y trae "Reabrir semana" solo para administración.
 
 ## Cálculo (lo hace la base)
 - EF = minutos producidos ÷ minutos trabajados. Minutos producidos = cantidad × T. STD vigente al guardar (cada registro guarda su T. STD; cambiar la categoría de una persona sí recalcula todas las semanas).

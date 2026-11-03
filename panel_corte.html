@@ -715,6 +715,8 @@ textarea{width:100%;min-height:170px;font-family:Consolas,monospace;font-size:12
     <span class="semlbl" id="semLbl">Semana —</span>
     <button class="btn" id="bSig" title="Semana siguiente">▶</button>
     <input type="date" id="irA" title="Ir a la semana de esta fecha">
+    <span class="st bue" id="semEst" style="display:none">Abierta</span>
+    <button class="btn" id="bReabrir" style="display:none">Reabrir semana</button>
     <span class="estado" id="hstate">Conectando…</span>
     <span class="spacer"></span>
     <a class="btn" href="index.html">← Formulario</a>
@@ -864,8 +866,28 @@ function nombre(c) { const p = CAT.personal.find(x => x.codigo === c); return p 
 function irSemana(lunes) {
   LUNES = lunes;
   $('semLbl').textContent = semIso(lunes) + ' (' + fcorta(lunes) + ' – ' + fcorta(mas(lunes, 6)) + ')';
-  cargarRegistros(); cargarPlanilla();
+  cargarRegistros(); cargarPlanilla(); estadoSemana();
 }
+let SEM_CERRADA = false;
+async function estadoSemana() {
+  const l = LUNES;
+  try {
+    const r = await api('estadoSemana', { lunes: l });
+    if (l !== LUNES) return;
+    SEM_CERRADA = r.estado === 'cerrada';
+  } catch (e) { SEM_CERRADA = false; }
+  $('semEst').style.display = '';
+  $('semEst').className = 'st ' + (SEM_CERRADA ? 'ale' : 'bue');
+  $('semEst').textContent = SEM_CERRADA ? '🔒 Cerrada' : 'Abierta';
+  $('bReabrir').style.display = (SEM_CERRADA && CAT.puedeReabrir) ? '' : 'none';
+  if (typeof pintarRegistros === 'function' && REGISTROS) pintarRegistros();
+}
+$('bReabrir').onclick = async () => {
+  const motivo = prompt('Reabrir la semana del ' + fcorta(LUNES) + '.' + String.fromCharCode(10) + 'Solo administración. Queda anotado en la bitácora.' + String.fromCharCode(10) + String.fromCharCode(10) + '¿Motivo? (obligatorio)');
+  if (!motivo || motivo.trim().length < 3) return;
+  try { await api('reabrirSemana', { lunes: LUNES, motivo }); aviso('Semana reabierta.', true); estadoSemana(); }
+  catch (e) { aviso('No se pudo reabrir: ' + e.message, false); }
+};
 $('bAnt').onclick = () => irSemana(mas(LUNES, -7));
 $('bSig').onclick = () => irSemana(mas(LUNES, 7));
 $('irA').onchange = e => { if (e.target.value) irSemana(iso(lunesDe(deIso(e.target.value)))); };
@@ -893,7 +915,7 @@ function pintarRegistros() {
     const pers = r.personas.map(p => esc(p.nombre || p.codigo) + ' <span class="sub">' + esc(p.codigo) + ' · ' + f0(p.minTrabajado) + ' min' + (p.minImproductivo ? ' · ' + f0(p.minImproductivo) + ' improd.' : '') + '</span>').join('<br>');
     const prod = r.operaciones.map(o => esc(o.codigo) + ' × ' + f0(o.cantidad)).concat(r.ocs.map(o => 'O/C ' + esc(o.oc) + ' (' + esc(o.estilo||'') + ') × ' + f0(o.cantPrendas))).join('<br>') || '<span class="sub">sin producción</span>';
     const quien = '<span class="sub">' + esc(r.registradoPor || '') + '</span>' + (r.corregidoPor ? '<br><span class="st rev">corregido · ' + esc(r.corregidoPor) + '</span>' : '') + (r.anulado ? '<br><span class="st ale">anulado</span>' : '');
-    const acc = (CAT.puedeEscribir && !r.anulado) ? '<button class="btn chico" onclick="editarRegistro(' + r.id + ')">Corregir</button> <button class="btn chico peligro" onclick="anular(' + r.id + ')">Anular</button>' : '';
+    const acc = (SEM_CERRADA && !r.anulado) ? '<span class="sub">🔒 semana cerrada</span>' : (CAT.puedeEscribir && !r.anulado) ? '<button class="btn chico" onclick="editarRegistro(' + r.id + ')">Corregir</button> <button class="btn chico peligro" onclick="anular(' + r.id + ')">Anular</button>' : '';
     h += '<tr class="' + (r.anulado ? 'anulado' : '') + '"><td>' + r.id + '</td><td style="white-space:nowrap">' + fcorta(r.fecha) + '</td><td>' + TIPO[r.tipo] + (r.modulo ? '<br><span class="sub">' + esc(r.modulo) + '</span>' : '') + '</td><td>' + pers + '</td><td>' + prod + '</td><td class="n">' + f0(minProdReg(r)) + '</td><td>' + quien + '</td><td class="acc" style="white-space:nowrap">' + acc + '</td></tr>';
   });
   $('regTabla').innerHTML = h + '</tbody></table>';
