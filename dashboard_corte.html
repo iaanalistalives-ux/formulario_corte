@@ -821,6 +821,8 @@ border-radius:var(--r);box-shadow:var(--sh);}
   .cwrap{height:170px!important;}
   .tscroll{max-height:none;overflow:visible;}
 }
+.st{font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;white-space:nowrap;}
+.st.bue{background:#ECFDF5;color:var(--sage);} .st.ale{background:#FCEBEB;color:var(--rose);}
 </style>
 <style id="lsLimpCss">/* lives-limpieza v1 · sin enlaces repetidos (cada pantalla tiene su entrada en el portal), sin "Cambiar archivo" y sin títulos que ya pone el portal */a[href="index.html"],a[href="panel_corte.html"]{display:none!important}</style>
 <style id="lsLimp2Css">/* lives-limpieza v2 · sin notas, veredictos ni paneles de título arriba */.verdict,#verdict{display:none!important}#insight{display:none!important}</style>
@@ -838,6 +840,7 @@ border-radius:var(--r);box-shadow:var(--sh);}
       <button class="mbtn" data-tipo="CORTE_PAÑO">Corte Paño</button>
       <button class="mbtn" data-tipo="MODULO">Módulos</button>
     </div>
+    <span class="st bue" id="estSem" style="display:none"></span>
     <span class="estado" id="hEstado">Cargando…</span>
     <div class="spacer"></div>
     <a class="btn" href="index.html">Formulario</a>
@@ -1044,6 +1047,7 @@ border-radius:var(--r);box-shadow:var(--sh);}
   // ------- Estado -------
   let SEMANAS = [];          // claves ISO, de la más reciente a la más antigua
   const CACHE = {};          // semana -> filas
+  let CERRADAS = {};        // semana (clave ISO) -> { lunes, cerradaPor, cerradaEn } solo de las semanas cerradas
   let TIPO_ACTIVO = '';
   let SEM_ACTIVA = '';
   const charts = {};
@@ -1092,6 +1096,13 @@ border-radius:var(--r);box-shadow:var(--sh);}
   // ------- Carga -------
   async function cargarSemana(clave) {
     if (CACHE[clave]) return CACHE[clave];
+    const cer = CERRADAS[clave];
+    if (cer) {   // semana cerrada: se lee el archivo fijo (lo que se pagó), no el cálculo en vivo
+      const rh = await llamarApi({ action: 'histSemana', lunes: String(cer.lunes).slice(0, 10) });
+      if (!rh.ok) throw new Error(rh.error);
+      CACHE[clave] = (rh.data && rh.data.filas) || [];
+      return CACHE[clave];
+    }
     const res = await llamarApi({ action: 'resumenSemana', semana: clave });
     if (!res.ok) throw new Error(res.error);
     CACHE[clave] = (res.data && res.data.filas) || [];
@@ -1109,7 +1120,12 @@ border-radius:var(--r);box-shadow:var(--sh);}
       $('sinDatos').textContent = 'Todavía no hay registros de producción guardados. En cuanto se guarde el primero desde el formulario, aparecerá aquí.';
       return;
     }
-    $('sel-semana').innerHTML = SEMANAS.map(s => `<option value="${s}">${etiquetaLarga(s)}</option>`).join('');
+    try {
+      const rc = await llamarApi({ action: 'semanasCerradas' });
+      CERRADAS = {};
+      ((rc.ok && rc.data) || []).filter(x => x.estado === 'cerrada').forEach(x => { CERRADAS[x.semana] = x; });
+    } catch (e) { CERRADAS = {}; }
+    $('sel-semana').innerHTML = SEMANAS.map((s, k) => `<option value="${s}">${k === 0 && !CERRADAS[s] ? '📡 ' : ''}${etiquetaLarga(s)}${CERRADAS[s] ? ' · 🔒 cerrada' : ' · en vivo'}</option>`).join('');
     $('sel-semana').addEventListener('change', () => elegirSemana($('sel-semana').value));
     await elegirSemana(SEMANAS[0]);
   }
@@ -1164,7 +1180,11 @@ border-radius:var(--r);box-shadow:var(--sh);}
 
     $('app').style.display = 'block';
     // La semana y el tipo ya se ven en el selector y en los botones: aquí solo el alcance.
-    $('hEstado').textContent = a.n ? a.n + ' colaboradores · datos en vivo' : 'sin registros para este filtro';
+    const cerr = CERRADAS[SEM_ACTIVA];
+    $('estSem').style.display = '';
+    $('estSem').className = 'st ' + (cerr ? 'ale' : 'bue');
+    $('estSem').textContent = cerr ? '🔒 Cerrada' + (cerr.cerradaEn ? ' el ' + String(cerr.cerradaEn).slice(0, 10).split('-').reverse().slice(0, 2).join('/') : '') : 'Abierta · en vivo';
+    $('hEstado').textContent = a.n ? a.n + ' colaboradores' + (cerr ? ' · pago archivado' : ' · datos en vivo') : 'sin registros para este filtro';
 
     if (!a.n) {
       setVerdict('', '—', 'Sin registros para este filtro',
@@ -1282,7 +1302,7 @@ border-radius:var(--r);box-shadow:var(--sh);}
       el.innerHTML = 'Esta semana todavía no tiene cargado el extracto del sistema (BD_MINTRAB). Por eso EF Sistema, Incentivo Sistema y la diferencia salen como “—”. Se carga desde el Panel de Corte, pestaña Sistema.';
     } else {
       el.className = 'note';
-      el.innerHTML = 'Fuente: registros del formulario de Corte (Real) y extracto semanal del SIGE (Sistema), leídos en vivo de la base de datos de LIVES.';
+      el.innerHTML = CERRADAS[SEM_ACTIVA] ? 'Semana cerrada: cifras archivadas al momento del cierre (lo que se pagó). Real = formulario de Corte; Sistema = extracto semanal del SIGE.' : 'Fuente: registros del formulario de Corte (Real) y extracto semanal del SIGE (Sistema), leídos en vivo de la base de datos de LIVES.';
     }
   }
 
