@@ -1445,7 +1445,7 @@ html[data-tema="oscuro"] #lsRegVel .lsRegCaja,html[data-tema="oscuro"] #lsRegVel
 var SRC='index.html',RPC='corte_puede_escribir_',KEY='sb_publishable_1g-n6UT70EUlNAo8Lyc04w_jKR4LpXZ',URL='https://xxfufpddgoyhbotjmaiy.supabase.co';
 var vel=document.getElementById('lsRegVel'),fr=document.getElementById('lsRegFr'),btn=document.getElementById('btnRegistrar'),x=document.getElementById('lsRegX');
 if(!vel||!btn)return;
-var cambio=false,tmr=null,cargado=false;
+var cambio=false,tmr=null,cargado=false,TXT=btn.textContent;
 function refrescar(){cambio=false;try{if(window.lsRefrescarCorte)window.lsRefrescarCorte();}catch(e){}}
 function programar(){cambio=true;clearTimeout(tmr);tmr=setTimeout(function(){if(cambio)refrescar();},1500);}
 function abrir(){
@@ -1466,11 +1466,18 @@ btn.addEventListener('click',function(){if(!btn.disabled)abrir();});
 x.addEventListener('click',cerrar);
 document.addEventListener('keydown',function(e){if(e.key==='Escape'&&vel.classList.contains('on'))cerrar();});
 btn.disabled=true;btn.title='Verificando permiso…';
-fetch(URL+'/rest/v1/rpc/'+RPC,{method:'POST',headers:{'Content-Type':'application/json',apikey:KEY},body:'{}',cache:'no-store'})
- .then(function(r){return r.ok?r.json():false;}).then(function(v){
-   if(v===true||(v&&v.puede===true)){btn.disabled=false;btn.title='';}
-   else{btn.disabled=true;btn.title='Solo para quien registra';btn.textContent='Solo para quien registra';}
- }).catch(function(){btn.disabled=false;btn.title='';});
+function llave(){try{if(window.LIVES_SESION&&window.LIVES_SESION.llave)return Promise.resolve(window.LIVES_SESION.llave()).catch(function(){return null;});}catch(e){}return Promise.resolve(null);}
+function verificar(n){
+  llave().then(function(tk){
+    var h={'Content-Type':'application/json',apikey:KEY};if(tk)h.Authorization='Bearer '+tk;
+    return fetch(URL+'/rest/v1/rpc/'+RPC,{method:'POST',headers:h,body:'{}',cache:'no-store'});
+  }).then(function(r){return r.ok?r.json():false;}).then(function(v){
+    if(v===true||(v&&v.puede===true)){btn.disabled=false;btn.title='';btn.textContent=TXT;}
+    else if(n<3){setTimeout(function(){verificar(n+1);},2500*(n+1));}
+    else{btn.disabled=true;btn.title='Solo para quien registra';btn.textContent='Solo para quien registra';}
+  }).catch(function(){if(n<3)setTimeout(function(){verificar(n+1);},2500*(n+1));else{btn.disabled=false;btn.title='';btn.textContent=TXT;}});
+}
+verificar(0);
 }catch(e){}})();</script>
 <!-- ===== lives-tema v1 (final) · 2026-10-14 (paleta Petróleo v1.1) · modo oscuro opcional para quien lo quiera. Va antes de </body>.
      Cómo decide: si la persona eligió con el botón 🌙/☀️ (en la barra de filtros; en pantallas sin barra, al pie), manda su elección, guardada en ese equipo
