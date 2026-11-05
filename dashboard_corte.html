@@ -843,7 +843,7 @@ border-radius:var(--r);box-shadow:var(--sh);}
     <span class="st bue" id="estSem" style="display:none"></span>
     <span class="estado" id="hEstado">Cargando…</span>
     <div class="spacer"></div>
-    <a class="btn" href="index.html">Formulario</a>
+    <button class="btn" id="btnRegistrar" type="button" style="background:#0F7A5A;color:#fff;border-color:#0F7A5A">＋ Registrar</button>
     <a class="btn" href="panel_corte.html">Panel</a>
     <button class="btn" type="button" onclick="window.print()">Imprimir</button>
   </div>
@@ -1143,6 +1143,7 @@ border-radius:var(--r);box-shadow:var(--sh);}
     if (SEM_ACTIVA !== clave) return;
     render();
   }
+  window.lsRefrescarCorte=async function(){ if(!SEM_ACTIVA) return; Object.keys(CACHE).forEach(k=>delete CACHE[k]); await elegirSemana(SEM_ACTIVA); };
 
   document.querySelectorAll('#filtro-tipo .mbtn').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -1427,6 +1428,50 @@ border-radius:var(--r);box-shadow:var(--sh);}
   iniciar();
 </script>
 
+<style id="lsRegCss">
+#lsRegVel{position:fixed;inset:0;z-index:2147483000;background:rgba(10,28,25,.55);display:none;align-items:stretch;justify-content:center;padding:2vh 2vw}
+#lsRegVel.on{display:flex}
+#lsRegVel .lsRegCaja{flex:1;display:flex;flex-direction:column;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 12px 40px rgba(0,0,0,.35);max-width:1500px}
+#lsRegVel .lsRegTop{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 14px;background:#0E3B36;color:#fff;font:700 14px system-ui,sans-serif}
+#lsRegVel .lsRegTop button{font:700 13px system-ui,sans-serif;background:#fff;color:#0E3B36;border:0;border-radius:8px;padding:8px 14px;cursor:pointer;min-height:36px}
+#lsRegVel iframe{flex:1;width:100%;border:0;background:#fff}
+html[data-tema="oscuro"] #lsRegVel .lsRegCaja,html[data-tema="oscuro"] #lsRegVel iframe{background:#0A1C19}
+#btnRegistrar[disabled]{opacity:.55;cursor:not-allowed}
+@media (max-width:700px){#lsRegVel{padding:0}#lsRegVel .lsRegCaja{border-radius:0}}
+@media print{#lsRegVel{display:none!important}}
+</style>
+<div id="lsRegVel" role="dialog" aria-modal="true" aria-label="Registrar"><div class="lsRegCaja"><div class="lsRegTop"><span>Registrar</span><button type="button" id="lsRegX">✕ Cerrar</button></div><iframe id="lsRegFr" title="Registrar"></iframe></div></div>
+<script id="lsRegJs">(function(){try{
+var SRC='index.html',RPC='corte_puede_escribir_',KEY='sb_publishable_1g-n6UT70EUlNAo8Lyc04w_jKR4LpXZ',URL='https://xxfufpddgoyhbotjmaiy.supabase.co';
+var vel=document.getElementById('lsRegVel'),fr=document.getElementById('lsRegFr'),btn=document.getElementById('btnRegistrar'),x=document.getElementById('lsRegX');
+if(!vel||!btn)return;
+var cambio=false,tmr=null,cargado=false;
+function refrescar(){cambio=false;try{if(window.lsRefrescarCorte)window.lsRefrescarCorte();}catch(e){}}
+function programar(){cambio=true;clearTimeout(tmr);tmr=setTimeout(function(){if(cambio)refrescar();},1500);}
+function abrir(){
+  if(!cargado){var q=location.search||'';q+=(q?'&':'?')+'embebido=1';fr.src=SRC+q;cargado=true;}
+  vel.classList.add('on');document.documentElement.style.overflow='hidden';
+}
+function cerrar(){
+  var fin=function(){vel.classList.remove('on');document.documentElement.style.overflow='';if(cambio){clearTimeout(tmr);refrescar();}};
+  var resp=false,t=setTimeout(function(){if(!resp){resp=true;window.removeEventListener('message',h);fin();}},800);
+  function h(e){if(e.source!==fr.contentWindow||!e.data||e.data.ls!=='sucio')return;window.removeEventListener('message',h);if(resp)return;resp=true;clearTimeout(t);
+    if(e.data.valor){if(!window.confirm('¿Salir sin guardar?\n\nLo escrito sin guardar se pierde.'))return;cargado=false;fr.src='about:blank';}
+    fin();}
+  window.addEventListener('message',h);
+  try{fr.contentWindow.postMessage({ls:'sucio?'},location.origin);}catch(er){resp=true;clearTimeout(t);window.removeEventListener('message',h);fin();}
+}
+window.addEventListener('message',function(e){if(e.source!==fr.contentWindow||!e.data)return;if(e.data.ls==='guardado')programar();});
+btn.addEventListener('click',function(){if(!btn.disabled)abrir();});
+x.addEventListener('click',cerrar);
+document.addEventListener('keydown',function(e){if(e.key==='Escape'&&vel.classList.contains('on'))cerrar();});
+btn.disabled=true;btn.title='Verificando permiso…';
+fetch(URL+'/rest/v1/rpc/'+RPC,{method:'POST',headers:{'Content-Type':'application/json',apikey:KEY},body:'{}',cache:'no-store'})
+ .then(function(r){return r.ok?r.json():false;}).then(function(v){
+   if(v===true||(v&&v.puede===true)){btn.disabled=false;btn.title='';}
+   else{btn.disabled=true;btn.title='Solo para quien registra';btn.textContent='Solo para quien registra';}
+ }).catch(function(){btn.disabled=false;btn.title='';});
+}catch(e){}})();</script>
 <!-- ===== lives-tema v1 (final) · 2026-10-14 (paleta Petróleo v1.1) · modo oscuro opcional para quien lo quiera. Va antes de </body>.
      Cómo decide: si la persona eligió con el botón 🌙/☀️ (en la barra de filtros; en pantallas sin barra, al pie), manda su elección, guardada en ese equipo
      y válida para todas las herramientas; si nunca eligió, sigue la configuración de su celular o computadora.

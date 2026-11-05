@@ -1021,7 +1021,7 @@ nav.tabs button.falta::after{content:"";display:inline-block;width:9px;height:9p
           body: JSON.stringify({ p_accion: accion, p: p || {} }), signal: ctl.signal });
         clearTimeout(t);
         const txt = await r.text(); let j = null; try { j = txt ? JSON.parse(txt) : null; } catch (e) {}
-        if (r.ok) return j;
+        if (r.ok) { if (/^(guardar|corregir|anular|cerrarSemana|reabrirSemana|asignarIntegrantes)/.test(accion) && window.lsRegGuardado) window.lsRegGuardado(); return j; }
         const err = new Error((j && (j.message || j.hint)) || ('Error ' + r.status)); err.servidor = true; throw err;
       } catch (e) {
         if (e.servidor || i === 1) throw (e.servidor ? e : new Error('No hay conexión con la base de datos. Revisa la señal y vuelve a intentar: no se perdió nada de lo escrito.'));
@@ -2556,5 +2556,12 @@ button.lsBtn:disabled{opacity:.5;cursor:not-allowed}
   window.__lsBa={arreglar:arreglar,MOV:MOV,F:function(){return F;},bf:barraFiltros};
 }catch(e){}})();</script>
 <!-- ===== fin lives-franja v6.1 ===== -->
+<script id="lsRegFormJs">(function(){try{
+if(!/[?&]embebido=1/.test(location.search)||window.parent===window)return;
+var sucio=false;
+document.addEventListener('input',function(e){var t=e.target;if(t&&/^(INPUT|TEXTAREA)$/.test(t.tagName)&&t.type!=='checkbox'&&t.type!=='radio'&&!t.readOnly&&!(t.closest&&t.closest('[data-ls-fijo]')))sucio=true;},true);
+window.addEventListener('message',function(e){if(e.source!==window.parent||!e.data)return;if(e.data.ls==='sucio?')window.parent.postMessage({ls:'sucio',valor:sucio},location.origin);});
+window.lsRegGuardado=function(){sucio=false;window.parent.postMessage({ls:'guardado'},location.origin);};
+}catch(x){}})();</script>
 </body>
 </html>
